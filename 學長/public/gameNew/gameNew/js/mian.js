@@ -140,6 +140,7 @@ function init_setup() {
         args[argname] = decodeURIComponent(value);
     }
     mapNum = args.level;
+
     $.ajax({
         url: "loadThisLevelGameMapMap",              // 要傳送的頁面
         method: 'POST',               // 使用 POST 方法傳送請求
@@ -245,7 +246,38 @@ function init_setup() {
 //     console.log("ddd");
 //     setup(); //resize
 // }
+
+//以下宜靜測試
+var SpendTime = {
+    "username": "",
+    "name": "",
+    "email": "",
+    "level": "",
+    "startplay": "",
+    "endplay": "",
+    "Totalspendtime": 0,
+  }
+
+var getstartplaytime,getendplaytime;
+//以上宜靜測試
+
 function loadData() {
+    //以下宜靜測試
+    getstartplaytime = new Date().getTime();
+    console.log(getstartplaytime);
+    console.log(mapNum);
+    
+    $(document).ready(function() {
+        SpendTime = {
+        "username": user.username,
+        "name":user.name,
+        "email":user.email,
+        "startplay":new Date()
+        }
+    })
+    //以上宜靜測試
+
+
     var mapNumber = data;
     if (mapNumber.foggy) {
         haveFoggy = true;
@@ -1329,6 +1361,24 @@ function updateCanvas() {
 }
 
 function codeToCompiler(stringCode) {
+    //以下宜靜測試
+    getendplaytime = new Date().getTime();
+    //SpendTime.level = mapNum;
+    //console.log(getendplaytime - getstartplaytime);
+    SpendTime.endplay = new Date();
+    SpendTime.Totalspendtime = (getendplaytime - getstartplaytime) / 1000 / 60; // 分鐘
+
+    $.ajax({
+        url: "API/createUserSpendTimeState",              // 要傳送的頁面
+        method: 'POST',               // 使用 POST 方法傳送請求
+        dataType: 'json',             // 回傳資料會是 json 格式
+        async:false,
+        data: SpendTime,  // 將表單資料用打包起來送出去
+        success: function (res) {
+        }
+      });
+    //以上宜靜測試
+
     //輸出字串處理
     challengeGameAgain();
     createLoadingView();
@@ -1929,6 +1979,18 @@ function decode_JDOODLE_api(str) {
 }
 
 function challengeGameAgain() {
+    //以下宜靜測試
+    $(document).ready(function() {
+        SpendTime = {
+        "username": user.username,
+        "name":user.name,
+        "email":user.email,
+        "startplay":new Date()
+        }
+    })
+    //以上宜靜測試
+    
+
     data = JSON.parse(JSON.stringify(Res_data));
     // loadData();
     var dx = people_init["postion"][0] * edgeToWidth, dy = people_init["postion"][1] * edgeToHeight, drotate = 360 - people_init["postion"][2] * 90;

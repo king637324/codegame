@@ -3,6 +3,7 @@ var router = express.Router();
 
 var UserLogin = require('../models/userLogin')
 var User = require('../models/user')
+var UserSpendTime = require('../models/userspendtime')
 
 var multer = require("multer");
 
@@ -13,16 +14,46 @@ router.post('/createUserLoginState', function (req, res, next) {
     }
     var newUserLoginState = new UserLogin({
         username: date.username,
-        name: date.user,
+        name: date.name,
         email: date.email,
         startDate: date.startDate,
-        endDate: date.endDate
+        endDate: date.endDate,
+        startplay:date.startplay,
+        endplay:date.endplay,
     })
     UserLogin.createUserLoginState(newUserLoginState, function (err, userLoginState) {
         if (err) throw err;
         return res.json({ responce: 'sucesss' });
     })
 });
+
+//以下宜靜測試
+router.post('/createUserSpendTimeState', function (req, res, next) {
+    let date = req.body;
+    if (date.username == "" || date.email == "") {
+        return res.json({ responce: 'no user data' });
+    }
+
+    // var spendtime = date.endplay;
+    // var minutes = Math.floor(spendtime / 1000 / 60);
+    // console.log('時間測試');
+    // console.log(minutes);
+    // console.log(data);
+    var newUserSpendTimeState = new UserSpendTime({
+        username: date.username,
+        name: date.name,
+        email: date.email,
+        //level: data.level,
+        startplay:date.startplay,
+        endplay:date.endplay,
+        Totalspendtime:date.Totalspendtime,
+    })
+    UserSpendTime.createUserSpendTimeState(newUserSpendTimeState, function (err, userSpendTimeState) {
+        if (err) throw err;
+        return res.json({ responce: 'sucesss' });
+    })
+});
+//以上宜靜測試
 
 router.post('/downloadUserPlayTimes', function (req, res, next) {
     UserLogin.getAllUserLoginState(function (err, userLoginState) {

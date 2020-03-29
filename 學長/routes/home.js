@@ -517,6 +517,7 @@ router.post('/gameView_text', function (req, res, next) {
             level: req.body.level,
             HighestStarNum: req.body.StarNum,
             challengeLog: [{
+                
                 submitTime: req.body.submitTime,
                 result: req.body.result,
                 code: req.body.code,
