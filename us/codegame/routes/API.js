@@ -8,6 +8,7 @@ var multer = require("multer");
 
 router.post('/createUserLoginState', function (req, res, next) {
     let date = req.body;
+    console.log(date);
     if (date.username == "" || date.email == "") {
         return res.json({ responce: 'no user data' });
     }

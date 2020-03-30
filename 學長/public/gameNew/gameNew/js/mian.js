@@ -1363,8 +1363,9 @@ function updateCanvas() {
 function codeToCompiler(stringCode) {
     //以下宜靜測試
     getendplaytime = new Date().getTime();
-    //SpendTime.level = mapNum;
-    //console.log(getendplaytime - getstartplaytime);
+    SpendTime.level = mapNum;
+    console.log("測試Time");
+    console.log(SpendTime.level);
     SpendTime.endplay = new Date();
     SpendTime.Totalspendtime = (getendplaytime - getstartplaytime) / 1000 / 60; // 分鐘
 

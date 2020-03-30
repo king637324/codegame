@@ -34,16 +34,11 @@ router.post('/createUserSpendTimeState', function (req, res, next) {
         return res.json({ responce: 'no user data' });
     }
 
-    // var spendtime = date.endplay;
-    // var minutes = Math.floor(spendtime / 1000 / 60);
-    // console.log('時間測試');
-    // console.log(minutes);
-    // console.log(data);
     var newUserSpendTimeState = new UserSpendTime({
         username: date.username,
         name: date.name,
         email: date.email,
-        //level: data.level,
+        level: date.level,
         startplay:date.startplay,
         endplay:date.endplay,
         Totalspendtime:date.Totalspendtime,
