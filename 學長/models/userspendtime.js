@@ -9,6 +9,7 @@ var UserSpendTimeSchema = mongoose.Schema({
     name: { type: String },
     email: { type: String },
     level:{ type: String},
+    starNumber:{ type: Number},
     startplay: { type: Date },
     endplay: { type: Date },
     Totalspendtime:{ type: Number }

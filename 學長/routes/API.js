@@ -39,6 +39,7 @@ router.post('/createUserSpendTimeState', function (req, res, next) {
         name: date.name,
         email: date.email,
         level: date.level,
+        starNumber: date.starNumber,
         startplay:date.startplay,
         endplay:date.endplay,
         Totalspendtime:date.Totalspendtime,

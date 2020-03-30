@@ -9,6 +9,20 @@ class User {
 const user1 = new User("CVMRMWLFp6Okr1UksgGo0fqP7qstkSdHrKCz6OBHzU");
 const runApi = 'https://api.runmycode.online/run'
 let lang = 'cpp', inputStr = "", codeStr = "";
+//以下宜靜測試
+var SpendTime = {
+    "username": "",
+    "name": "",
+    "email": "",
+    "level": "",
+    "starNumber": 0,
+    "startplay": "",
+    "endplay": "",
+    "Totalspendtime": 0,
+  }
+
+var getstartplaytime,getendplaytime;
+//以上宜靜測試
 var mapNum = "01";
 var map = [];    ///0 是草地  1是沙漠  2是海洋
 var people_init;    //x,y,面相   0->  1^  2<-  3 down
@@ -247,19 +261,7 @@ function init_setup() {
 //     setup(); //resize
 // }
 
-//以下宜靜測試
-var SpendTime = {
-    "username": "",
-    "name": "",
-    "email": "",
-    "level": "",
-    "startplay": "",
-    "endplay": "",
-    "Totalspendtime": 0,
-  }
 
-var getstartplaytime,getendplaytime;
-//以上宜靜測試
 
 function loadData() {
     //以下宜靜測試
@@ -634,25 +636,56 @@ function endgame() {
         if (mapwinLinit["threeStar"][0] >= tc) {
             result = "拍手!恭喜你獲得三星! \n~來繼續挑戰下關吧~";
             createEndView(3, result, tc, computeEndCode);
+           SpendTime.starNumber = 3;
+           console.log("測試星星");
+            console.log(3);
         }
         else if (mapwinLinit["twoStar"][0] >= tc) {
             result = "恭喜你二星! \n~差一點就有一星了!加油~";
             createEndView(2, result, tc, computeEndCode);
+            SpendTime.starNumber = 2;
+            console.log("測試星星");
+             console.log(2);
         }
         else {
             result = "好可惜只有一星! \n~在檢查看看有沒有可以縮減的~";
             createEndView(1, result, tc, computeEndCode);
+            SpendTime.starNumber = 1;
+            console.log("測試星星");
+            console.log(1);
         }
     }
     else {
         result = gameEndingCodeDic[gameEndingCode];
         // console.log(gameEndingCodeDic[gameEndingCode]);
         createEndView(0, result, tc, computeEndCode, errMessage);
+        SpendTime.starNumber = 0;
+        console.log("測試星星");
+        console.log(0);
         // alert(gameEndingCodeDic[gameEndingCode]);
     }
-
-
     // alert(result);
+
+    //以下宜靜測試
+    getendplaytime = new Date().getTime();
+    SpendTime.level = mapNum;
+    console.log("測試Time");
+    console.log(SpendTime.level);
+    SpendTime.endplay = new Date();
+    SpendTime.Totalspendtime = (getendplaytime - getstartplaytime) / 1000 / 60; // 分鐘
+    console.log("endplay", SpendTime.endplay);
+
+    $.ajax({
+        url: "API/createUserSpendTimeState",              // 要傳送的頁面
+        method: 'POST',               // 使用 POST 方法傳送請求
+        dataType: 'json',             // 回傳資料會是 json 格式
+        async:false,
+        data: SpendTime,  // 將表單資料用打包起來送出去
+        success: function (res) {
+        }
+      });
+    // 以上宜靜測試
+
 }
 
 
@@ -1036,7 +1069,7 @@ function draw() {
         ////old///
         if (pipleLineSpeed == 0 && (!onChanged || action_code.length - action_now == 0)) {
             endgame();
-
+           
         }
     }
 
@@ -1362,23 +1395,26 @@ function updateCanvas() {
 
 function codeToCompiler(stringCode) {
     //以下宜靜測試
-    getendplaytime = new Date().getTime();
-    SpendTime.level = mapNum;
-    console.log("測試Time");
-    console.log(SpendTime.level);
-    SpendTime.endplay = new Date();
-    SpendTime.Totalspendtime = (getendplaytime - getstartplaytime) / 1000 / 60; // 分鐘
+    // getendplaytime = new Date().getTime();
+    // SpendTime.level = mapNum;
+    // console.log("測試Time");
+    // console.log(SpendTime.level);
+    // SpendTime.endplay = new Date();
+    // SpendTime.Totalspendtime = (getendplaytime - getstartplaytime) / 1000 / 60; // 分鐘
+    // console.log("endplay", SpendTime.endplay);
 
-    $.ajax({
-        url: "API/createUserSpendTimeState",              // 要傳送的頁面
-        method: 'POST',               // 使用 POST 方法傳送請求
-        dataType: 'json',             // 回傳資料會是 json 格式
-        async:false,
-        data: SpendTime,  // 將表單資料用打包起來送出去
-        success: function (res) {
-        }
-      });
+    // $.ajax({
+    //     url: "API/createUserSpendTimeState",              // 要傳送的頁面
+    //     method: 'POST',               // 使用 POST 方法傳送請求
+    //     dataType: 'json',             // 回傳資料會是 json 格式
+    //     async:false,
+    //     data: SpendTime,  // 將表單資料用打包起來送出去
+    //     success: function (res) {
+    //     }
+    //   });
+
     //以上宜靜測試
+    
 
     //輸出字串處理
     challengeGameAgain();
@@ -1862,6 +1898,7 @@ function codeOutputTranstionAction() {
         onChanging = false;
         textarea_1.value = "";
         endgame();
+        
     }
 
 }
@@ -1926,6 +1963,7 @@ function decode_codesheet_api(resp) {
                 gameEndingCode = 5;
                 // console.log("Error =  compiler error");
                 endgame();
+                
             }
         }
     } else {
@@ -1969,6 +2007,7 @@ function call_JDOODLE_api(scriptData, inputData) {
             closeLoadingView();
             // console.log("Error =  compiler error");
             endgame();
+            
         }
 
     });
@@ -1981,6 +2020,10 @@ function decode_JDOODLE_api(str) {
 
 function challengeGameAgain() {
     //以下宜靜測試
+    getstartplaytime = new Date().getTime();
+    console.log(getstartplaytime);
+    console.log(mapNum);
+    
     $(document).ready(function() {
         SpendTime = {
         "username": user.username,
