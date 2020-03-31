@@ -8,11 +8,22 @@ var UserSchema = mongoose.Schema({
   isadmin: {
     type: Boolean,
     default: false
-  },
+  },//以下宜靜
   Logintime: {
     type: Number,
     "default": 0
   },
+  lasttimeLogin: { 
+    type: Date 
+  },
+  thistimeLogin: { 
+    type: Date 
+  },
+  LogintimeLag:{ 
+    type: Number,
+    "default": 0
+  },
+  //以上宜靜
   GameStaus:{
     type: String,
     default: "normal"
@@ -171,7 +182,7 @@ module.exports.updateUserStatus = function(id, userstatus, callback) {
 }
 
 
-//updateUserLogintime 更新使用者次數
+//updateUserLogintime 更新使用者登入次數  //宜靜
 module.exports.updateUserLogintime = function(id, Logintime, callback) {
     var query = {
       _id: id
@@ -181,6 +192,39 @@ module.exports.updateUserLogintime = function(id, Logintime, callback) {
     }
     User.updateOne(query, setquery, callback);
   }
+
+//updatelasttimeLogin 更新使用者最後一次登入時間  //宜靜
+module.exports.updateUserlasttimeLogin = function(id, lasttimeLogin, callback) {
+  var query = {
+    _id: id
+  }
+  var setquery = {
+    lasttimeLogin: lasttimeLogin
+  }
+  User.updateOne(query, setquery, callback);
+}
+
+//updatethistimeLogin 更新使用者這次登入時間  //宜靜
+module.exports.updateUserthistimeLogin = function(id, thistimeLogin, callback) {
+  var query = {
+    _id: id
+  }
+  var setquery = {
+    thistimeLogin: thistimeLogin
+  }
+  User.updateOne(query, setquery, callback);
+}
+
+//updateLogintimeLag 更新使用者RFMP的R值  //宜靜
+module.exports.updateUserLogintimeLag = function(id, LogintimeLag, callback) {
+  var query = {
+    _id: id
+  }
+  var setquery = {
+    LogintimeLag: LogintimeLag
+  }
+  User.updateOne(query, setquery, callback);
+}
 
 
 // updateUserStatus, 更新使用者狀態

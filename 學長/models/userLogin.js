@@ -10,8 +10,6 @@ var UserSchema = mongoose.Schema({
     email: { type: String },
     startDate: { type: Date },
     endDate: { type: Date },
-    startplay: { type: Date },
-    endplay: { type: Date },
 })
 
 var UserLogin = module.exports = mongoose.model('UserLogin', UserSchema)

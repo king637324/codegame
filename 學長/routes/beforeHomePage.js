@@ -240,18 +240,53 @@ passport.use(new LocalStrategy(
                 if (isMatch) {
                     //除了這個外都是登入失敗的檢查
                     
-                    // 244~253 紀錄登入次數
-                    var updateTime=0;
+                    //以下宜靜      紀錄登入次數、這次登入時間、上次登入時間
+                    var updatelasttimeLogin,updatethistimeLogin,updateTime=0,updateLogintimeLag;
+                    if(user.thistimeLogin){
+                        updatelasttimeLogin = user.thistimeLogin;
+                        updatethistimeLogin = new Date();
+                        updateLogintimeLag = (updatethistimeLogin.getTime() - updatelasttimeLogin.getTime()) / 1000 / 60 ;
+                    }else{
+                        updatethistimeLogin = new Date();
+                    }
                     if(user.Logintime){
                         updateTime = user.Logintime;
                     }
                     ++updateTime;
+                    console.log("測試登入次數");
                     console.log(user.Logintime,updateTime);
+                    //updateUserLogintime 更新使用者登入次數
                     User.updateUserLogintime(user.id, updateTime ,function (err, record) {
                          if (err) throw err;
                             return done(null, user)
-                        })
-                   
+                    })
+
+                    console.log("測試最後一次登入時間");
+                    console.log(user.lasttimeLogin,updatelasttimeLogin);
+                    //updatelasttimeLogin 更新使用者最後一次登入時間
+                    User.updateUserlasttimeLogin(user.id, updatelasttimeLogin ,function (err, record) {
+                        if (err) throw err;
+                            return done(null, user)
+                    })
+                    
+                    console.log("測試這次登入時間");
+                    console.log(user.thistimeLogin,updatethistimeLogin);
+                    //updatethistimeLogin 更新使用者這次登入時間
+                    User.updateUserthistimeLogin(user.id, updatethistimeLogin ,function (err, record) {
+                        if (err) throw err;
+                            return done(null, user)
+                    })
+
+                    console.log("測試R值");
+                    console.log(user.LogintimeLag,updateLogintimeLag);
+                    //updateLogintimeLag   更新使用者R值
+                    User.updateUserLogintimeLag(user.id, updateLogintimeLag ,function (err, record) {
+                        if (err) throw err;
+                            return done(null, user)
+                    })
+                    
+                    //以上宜靜
+                
                 } else {
                     var script = 'InvalidPassword ' + username + " " + password;
                     return done(null, false, { message: script })

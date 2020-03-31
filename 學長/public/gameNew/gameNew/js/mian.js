@@ -9,7 +9,7 @@ class User {
 const user1 = new User("CVMRMWLFp6Okr1UksgGo0fqP7qstkSdHrKCz6OBHzU");
 const runApi = 'https://api.runmycode.online/run'
 let lang = 'cpp', inputStr = "", codeStr = "";
-//以下宜靜測試
+//以下宜靜
 var SpendTime = {
     "username": "",
     "name": "",
@@ -21,8 +21,8 @@ var SpendTime = {
     "Totalspendtime": 0,
   }
 
-var getstartplaytime,getendplaytime;
-//以上宜靜測試
+var getstartplaytime,getendplaytime,startTime;;
+//以上宜靜
 var mapNum = "01";
 var map = [];    ///0 是草地  1是沙漠  2是海洋
 var people_init;    //x,y,面相   0->  1^  2<-  3 down
@@ -264,20 +264,24 @@ function init_setup() {
 
 
 function loadData() {
-    //以下宜靜測試
+    //以下宜靜
     getstartplaytime = new Date().getTime();
-    console.log(getstartplaytime);
-    console.log(mapNum);
+    startTime = new Date();
+    console.log("loadData startTime",startTime);
+    console.log("loadData getstartplay", getstartplaytime);
+    console.log("地圖",mapNum);
     
     $(document).ready(function() {
         SpendTime = {
         "username": user.username,
         "name":user.name,
         "email":user.email,
-        "startplay":new Date()
+        "startplay":new Date(),
         }
     })
-    //以上宜靜測試
+
+    //以上宜靜
+
 
 
     var mapNumber = data;
@@ -637,22 +641,19 @@ function endgame() {
             result = "拍手!恭喜你獲得三星! \n~來繼續挑戰下關吧~";
             createEndView(3, result, tc, computeEndCode);
            SpendTime.starNumber = 3;
-           console.log("測試星星");
-            console.log(3);
+           console.log("測試星星",3);
         }
         else if (mapwinLinit["twoStar"][0] >= tc) {
             result = "恭喜你二星! \n~差一點就有一星了!加油~";
             createEndView(2, result, tc, computeEndCode);
             SpendTime.starNumber = 2;
-            console.log("測試星星");
-             console.log(2);
+            console.log("測試星星",2);
         }
         else {
             result = "好可惜只有一星! \n~在檢查看看有沒有可以縮減的~";
             createEndView(1, result, tc, computeEndCode);
             SpendTime.starNumber = 1;
-            console.log("測試星星");
-            console.log(1);
+            console.log("測試星星",1);
         }
     }
     else {
@@ -660,20 +661,21 @@ function endgame() {
         // console.log(gameEndingCodeDic[gameEndingCode]);
         createEndView(0, result, tc, computeEndCode, errMessage);
         SpendTime.starNumber = 0;
-        console.log("測試星星");
-        console.log(0);
+        console.log("測試星星",0);
         // alert(gameEndingCodeDic[gameEndingCode]);
     }
     // alert(result);
 
-    //以下宜靜測試
+    //以下宜靜
     getendplaytime = new Date().getTime();
     SpendTime.level = mapNum;
-    console.log("測試Time");
-    console.log(SpendTime.level);
+    console.log("測試地圖",SpendTime.level);
     SpendTime.endplay = new Date();
+    SpendTime.startplay = startTime;
     SpendTime.Totalspendtime = (getendplaytime - getstartplaytime) / 1000 / 60; // 分鐘
-    console.log("endplay", SpendTime.endplay);
+    console.log("endgame gatstartplay", getstartplaytime);
+    console.log("endgame startplay", SpendTime.startplay);
+    console.log("endgame endplay", SpendTime.endplay);
 
     $.ajax({
         url: "API/createUserSpendTimeState",              // 要傳送的頁面
@@ -684,7 +686,7 @@ function endgame() {
         success: function (res) {
         }
       });
-    // 以上宜靜測試
+    // 以上宜靜
 
 }
 
@@ -1394,31 +1396,12 @@ function updateCanvas() {
 }
 
 function codeToCompiler(stringCode) {
-    //以下宜靜測試
-    // getendplaytime = new Date().getTime();
-    // SpendTime.level = mapNum;
-    // console.log("測試Time");
-    // console.log(SpendTime.level);
-    // SpendTime.endplay = new Date();
-    // SpendTime.Totalspendtime = (getendplaytime - getstartplaytime) / 1000 / 60; // 分鐘
-    // console.log("endplay", SpendTime.endplay);
-
-    // $.ajax({
-    //     url: "API/createUserSpendTimeState",              // 要傳送的頁面
-    //     method: 'POST',               // 使用 POST 方法傳送請求
-    //     dataType: 'json',             // 回傳資料會是 json 格式
-    //     async:false,
-    //     data: SpendTime,  // 將表單資料用打包起來送出去
-    //     success: function (res) {
-    //     }
-    //   });
-
-    //以上宜靜測試
-    
+    console.log("loadData startTime",startTime);
+    console.log("codeCompiler startplay", SpendTime.startplay);
 
     //輸出字串處理
-    challengeGameAgain();
-    createLoadingView();
+    //challengeGameAgain();
+    //createLoadingView();
     textarea_0 = document.getElementById('textarea_0');
     computeEndCode = textarea_0.value;
     // console.log("stringCode:",textarea_0.value);
@@ -2019,20 +2002,23 @@ function decode_JDOODLE_api(str) {
 }
 
 function challengeGameAgain() {
-    //以下宜靜測試
+    //以下宜靜
+
     getstartplaytime = new Date().getTime();
-    console.log(getstartplaytime);
-    console.log(mapNum);
-    
+    startTime = new Date();
+    console.log("loadData startTime",startTime);
+    console.log("GameAgain getstartplay", getstartplaytime);
+    console.log("地圖",mapNum);
     $(document).ready(function() {
         SpendTime = {
         "username": user.username,
         "name":user.name,
         "email":user.email,
-        "startplay":new Date()
+        "startplay":new Date(),
         }
     })
-    //以上宜靜測試
+
+    //以上宜靜
     
 
     data = JSON.parse(JSON.stringify(Res_data));

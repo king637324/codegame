@@ -27,7 +27,7 @@ router.post('/createUserLoginState', function (req, res, next) {
     })
 });
 
-//以下宜靜測試
+//以下宜靜
 router.post('/createUserSpendTimeState', function (req, res, next) {
     let date = req.body;
     if (date.username == "" || date.email == "") {
@@ -49,13 +49,14 @@ router.post('/createUserSpendTimeState', function (req, res, next) {
         return res.json({ responce: 'sucesss' });
     })
 });
-//以上宜靜測試
+//以上宜靜
 
 router.post('/downloadUserPlayTimes', function (req, res, next) {
     UserLogin.getAllUserLoginState(function (err, userLoginState) {
         if (err) throw err;
 
         var processList = [];
+        // 以下從資料庫裡面整理所有使用者資料變成1筆1筆的使用者
         for (let index = 0; index < userLoginState.length; index++) {
             const element = userLoginState[index];
             var isProcessed = false;
@@ -85,10 +86,12 @@ router.post('/downloadUserPlayTimes', function (req, res, next) {
                 })
             }
         }
+        // 以上從資料庫裡面整理所有使用者資料變成1筆1筆的使用者
 
+        // 以下處理時間的跳轉過濾
         for (let index = 0; index < processList.length; index++) {
             var list = processList[index].LoginTime;
-            //由小排到到
+            //單個使用者的使用時間由小排到大
             list.sort(function (a, b) {
                 if (a.startDate < b.startDate) {
                     return -1;
@@ -120,6 +123,7 @@ router.post('/downloadUserPlayTimes', function (req, res, next) {
             processList[index].LoginTime = tempProcessList;
 
         }
+        // 以上處理時間的跳轉過濾
 
         var taskStack = [];
         for (let index = 0; index < processList.length; index++) {

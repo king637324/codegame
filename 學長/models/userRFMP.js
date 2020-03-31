@@ -8,8 +8,6 @@ var UserRFMPSchema = mongoose.Schema({
     username: { type: String, index: true },
     name: { type: String },
     email: { type: String },
-    lasttimeLogin: { type: Date },
-    thistimeLogin: { type: Date },
     R_data: { type: Number },
     F_data: {type: Number, "default": 0},
     M_data: { type: Number },
