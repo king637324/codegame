@@ -10,8 +10,8 @@ var UserSchema = mongoose.Schema({
     default: false
   },//以下宜靜
   Logintime: {
-    type: Number,
-    "default": 0
+    type: Array,
+    "default": []
   },
   lasttimeLogin: { 
     type: Date 
@@ -269,8 +269,6 @@ module.exports.updateWeaponLevel = function(id, newLevel, levelUpLevel, callback
   var query = {
     _id: id
   }
-
-
   var setquery = {
     weaponLevel: newLevel,
     levelUpLevel: levelUpLevel

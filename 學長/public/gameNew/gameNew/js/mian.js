@@ -19,9 +19,9 @@ var SpendTime = {
     "startplay": "",
     "endplay": "",
     "Totalspendtime": 0,
-  }
+}
 
-var getstartplaytime,getendplaytime,startTime;;
+var getstartplaytime,getendplaytime,startTime;; // 記錄  開始闖關的時間、結束闖關的時間、startTime為記錄開始時間的變數
 //以上宜靜
 var mapNum = "01";
 var map = [];    ///0 是草地  1是沙漠  2是海洋
@@ -265,8 +265,8 @@ function init_setup() {
 
 function loadData() {
     //以下宜靜
-    getstartplaytime = new Date().getTime();
-    startTime = new Date();
+    getstartplaytime = new Date().getTime();  //取得 開始闖關時間的毫秒
+    startTime = new Date(); // 取得 開始闖關時間
     console.log("loadData startTime",startTime);
     console.log("loadData getstartplay", getstartplaytime);
     console.log("地圖",mapNum);
@@ -276,7 +276,6 @@ function loadData() {
         "username": user.username,
         "name":user.name,
         "email":user.email,
-        "startplay":new Date(),
         }
     })
 
@@ -667,11 +666,11 @@ function endgame() {
     // alert(result);
 
     //以下宜靜
-    getendplaytime = new Date().getTime();
-    SpendTime.level = mapNum;
+    getendplaytime = new Date().getTime(); //取得 結束闖關時間的毫秒
+    SpendTime.level = mapNum; // 取得闖關的關卡
     console.log("測試地圖",SpendTime.level);
-    SpendTime.endplay = new Date();
-    SpendTime.startplay = startTime;
+    SpendTime.endplay = new Date(); //取得 結束闖關時間
+    SpendTime.startplay = startTime; // //取得 開始闖關時間
     SpendTime.Totalspendtime = (getendplaytime - getstartplaytime) / 1000 / 60; // 分鐘
     console.log("endgame gatstartplay", getstartplaytime);
     console.log("endgame startplay", SpendTime.startplay);
@@ -1396,12 +1395,11 @@ function updateCanvas() {
 }
 
 function codeToCompiler(stringCode) {
-    console.log("loadData startTime",startTime);
-    console.log("codeCompiler startplay", SpendTime.startplay);
+    console.log("codeCompiler startTime",startTime);
 
     //輸出字串處理
     //challengeGameAgain();
-    //createLoadingView();
+    createLoadingView();
     textarea_0 = document.getElementById('textarea_0');
     computeEndCode = textarea_0.value;
     // console.log("stringCode:",textarea_0.value);
@@ -2003,18 +2001,15 @@ function decode_JDOODLE_api(str) {
 
 function challengeGameAgain() {
     //以下宜靜
-
-    getstartplaytime = new Date().getTime();
-    startTime = new Date();
-    console.log("loadData startTime",startTime);
+    getstartplaytime = new Date().getTime(); //取得 開始闖關時間的毫秒
+    startTime = new Date(); //取得 開始闖關時間
+    console.log("GameAgain startTime",startTime);
     console.log("GameAgain getstartplay", getstartplaytime);
-    console.log("地圖",mapNum);
     $(document).ready(function() {
         SpendTime = {
         "username": user.username,
         "name":user.name,
         "email":user.email,
-        "startplay":new Date(),
         }
     })
 

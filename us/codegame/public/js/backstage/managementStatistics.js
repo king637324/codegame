@@ -644,8 +644,7 @@ function createselectChart(thisSelect) {
       break;
       
   }
-  //將字體設定為 微軟正黑體
-  Chart.defaults.global.defaultFontFamily = "Microsoft JhengHei";
+  Chart.defaults.global.defaultFontFamily = "Microsoft JhengHei"; //將字體設定為 微軟正黑體
 }
 
 var href = window.location.href; //window.location.href 返回當前頁面的href（URL）
@@ -829,10 +828,10 @@ function prosessUserData() {
             addF = true;
             mapNumber[indexFail].mapSuccessCount = mapNumber[indexFail].mapSuccessCount + 1;
           }
-          playCountF = true
+          playCountF = true;
           mapNumber[indexFail].mapcount = mapNumber[indexFail].mapcount + 1;
           mapNumber[indexFail].playCount = mapNumber[indexFail].playCount + 1;
-          CounterStar = true
+          CounterStar = true;
           if(thisStarRecord == "1"){
             mapNumber[indexFail].mapStarcount = mapNumber[indexFail].mapStarcount + 1;
           }
@@ -896,10 +895,10 @@ function prosessUserData() {
             addF = true;
             mapNumber[indexFail + 24].mapSuccessCount = mapNumber[indexFail + 24].mapSuccessCount + 1;
           }
-          playCountF = true
+          playCountF = true;
           mapNumber[indexFail + 24].mapcount = mapNumber[indexFail + 24].mapcount + 1;
           mapNumber[indexFail + 24].playCount = mapNumber[indexFail + 24].playCount + 1;
-          CounterStar = true
+          CounterStar = true;
           if(thisStarRecord == "1"){
             mapNumber[indexFail + 24].mapStarcount = mapNumber[indexFail + 24].mapStarcount + 1;
           }
@@ -1333,7 +1332,7 @@ function UseTimeUpdateFunc(startTime, endTime) {
         playerData[index] = 0
       }
     }
-  } if (levelSelectValue == "collectedstars") {
+  } else if (levelSelectValue == "collectedstars") {
     for (let index = 49; index > -1; index--) {
       if (mapNumber[index]) {
         dataPlayNumber[index] = mapNumber[index].mapcount
