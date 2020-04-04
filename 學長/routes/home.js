@@ -517,7 +517,6 @@ router.post('/gameView_text', function (req, res, next) {
             level: req.body.level,
             HighestStarNum: req.body.StarNum,
             challengeLog: [{
-                
                 submitTime: req.body.submitTime,
                 result: req.body.result,
                 code: req.body.code,
@@ -1850,7 +1849,7 @@ router.get('/home', ensureAuthenticated, function (req, res, next) {
                     break;
                 }
                 else {
-                    // console.log(codeLevel, parseInt(element.level));
+                    console.log(codeLevel, parseInt(element.level));
                 }
             }
         }
@@ -1875,7 +1874,7 @@ router.get('/home', ensureAuthenticated, function (req, res, next) {
         if (openLokCastle) {
             lock = "castle_code";
         }
-        // console.log(JSON.stringify(req.user).toString());
+        console.log(JSON.stringify(req.user).toString());
         // DictionaryRecord.getDictionary(function (err, dict) {
         //     EquipmentRecord.getEquipment(function (err, equip) {
         //         return res.render('home/home', {
@@ -2079,7 +2078,7 @@ router.post('/home', function (req, res, next) {
 router.get('/logout', function (req, res, next) {
     req.logout()
     req.flash('success_msg', 'You are logged out')
-    res.redirect('/login') 
+    res.redirect('/login')
 })
 
 router.post('/loadGameMap', function (req, res, next) {

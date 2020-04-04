@@ -9,20 +9,6 @@ class User {
 const user1 = new User("CVMRMWLFp6Okr1UksgGo0fqP7qstkSdHrKCz6OBHzU");
 const runApi = 'https://api.runmycode.online/run'
 let lang = 'cpp', inputStr = "", codeStr = "";
-//以下宜靜
-var SpendTime = {
-    "username": "",
-    "name": "",
-    "email": "",
-    "level": "",
-    "starNumber": 0,
-    "startplay": "",
-    "endplay": "",
-    "Totalspendtime": 0,
-}
-
-var getstartplaytime,getendplaytime,startTime;; // 記錄  開始闖關的時間、結束闖關的時間、startTime為記錄開始時間的變數
-//以上宜靜
 var mapNum = "01";
 var map = [];    ///0 是草地  1是沙漠  2是海洋
 var people_init;    //x,y,面相   0->  1^  2<-  3 down
@@ -58,6 +44,20 @@ var codeValue;
 var xmlhttp = new XMLHttpRequest();
 var computeEndCode;
 var errMessage;
+//以下宜靜
+var SpendTime = {
+    "username": "",
+    "name": "",
+    "email": "",
+    "level": "",
+    "starNumber": 0,
+    "startplay": "",
+    "endplay": "",
+    "Totalspendtime": 0,
+}
+var getstartplaytime,getendplaytime,startTime;; // 記錄  開始闖關的時間、結束闖關的時間、startTime為記錄開始時間的變數
+//以上宜靜
+
 xmlhttp.onreadystatechange = function () {
     if (this.readyState == 4 && this.status == 200) {
         codeValue = this.responseText;
@@ -154,7 +154,6 @@ function init_setup() {
         args[argname] = decodeURIComponent(value);
     }
     mapNum = args.level;
-
     $.ajax({
         url: "loadThisLevelGameMapMap",              // 要傳送的頁面
         method: 'POST',               // 使用 POST 方法傳送請求
@@ -260,9 +259,6 @@ function init_setup() {
 //     console.log("ddd");
 //     setup(); //resize
 // }
-
-
-
 function loadData() {
     //以下宜靜
     getstartplaytime = new Date().getTime();  //取得 開始闖關時間的毫秒
@@ -278,10 +274,7 @@ function loadData() {
         "email":user.email,
         }
     })
-
     //以上宜靜
-
-
 
     var mapNumber = data;
     if (mapNumber.foggy) {
@@ -479,7 +472,7 @@ function endgame() {
     var systemCall = ["moveForward", "moveForward(", "moveForward()", "moveForward();", ";moveForward();",
         "turnRight", "turnRight(", "turnRight()", "turnRight();", ";turnRight();",
         "turnLeft", "turnLeft(", "turnLeft()", "turnLeft();", ";turnLeft();",
-        "launchMissile", "launchMissile(", "launchMissile()", "launchMissile();", ";launchMissile();",
+        "fire", "fire(", "fire()", "fire();", ";fire();",
         "printf", "printf(", "scanf", "scanf("];
     for (var i = 0; i < funname.length; ++i) {
         var e0 = funname[i];
@@ -639,28 +632,28 @@ function endgame() {
         if (mapwinLinit["threeStar"][0] >= tc) {
             result = "拍手!恭喜你獲得三星! \n~來繼續挑戰下關吧~";
             createEndView(3, result, tc, computeEndCode);
-           SpendTime.starNumber = 3;
-           console.log("測試星星",3);
+            SpendTime.starNumber = 3; // 宜靜
+            console.log("測試星星",3)
         }
         else if (mapwinLinit["twoStar"][0] >= tc) {
             result = "恭喜你二星! \n~差一點就有一星了!加油~";
             createEndView(2, result, tc, computeEndCode);
-            SpendTime.starNumber = 2;
-            console.log("測試星星",2);
+            SpendTime.starNumber = 2; // 宜靜
+            console.log("測試星星",2)
         }
         else {
             result = "好可惜只有一星! \n~在檢查看看有沒有可以縮減的~";
             createEndView(1, result, tc, computeEndCode);
-            SpendTime.starNumber = 1;
-            console.log("測試星星",1);
+            SpendTime.starNumber = 1; // 宜靜
+            console.log("測試星星",1)
         }
     }
     else {
         result = gameEndingCodeDic[gameEndingCode];
         // console.log(gameEndingCodeDic[gameEndingCode]);
         createEndView(0, result, tc, computeEndCode, errMessage);
-        SpendTime.starNumber = 0;
-        console.log("測試星星",0);
+        SpendTime.starNumber = 0; // 宜靜
+        console.log("測試星星",0)
         // alert(gameEndingCodeDic[gameEndingCode]);
     }
     // alert(result);
@@ -686,7 +679,6 @@ function endgame() {
         }
       });
     // 以上宜靜
-
 }
 
 
@@ -1070,7 +1062,7 @@ function draw() {
         ////old///
         if (pipleLineSpeed == 0 && (!onChanged || action_code.length - action_now == 0)) {
             endgame();
-           
+
         }
     }
 
@@ -1395,10 +1387,10 @@ function updateCanvas() {
 }
 
 function codeToCompiler(stringCode) {
-    console.log("codeCompiler startTime",startTime);
+    console.log("codeCompiler startTime",startTime); //宜靜
 
     //輸出字串處理
-    //challengeGameAgain();
+    // challengeGameAgain();
     createLoadingView();
     textarea_0 = document.getElementById('textarea_0');
     computeEndCode = textarea_0.value;
@@ -1879,7 +1871,6 @@ function codeOutputTranstionAction() {
         onChanging = false;
         textarea_1.value = "";
         endgame();
-        
     }
 
 }
@@ -1944,7 +1935,6 @@ function decode_codesheet_api(resp) {
                 gameEndingCode = 5;
                 // console.log("Error =  compiler error");
                 endgame();
-                
             }
         }
     } else {
@@ -1988,7 +1978,6 @@ function call_JDOODLE_api(scriptData, inputData) {
             closeLoadingView();
             // console.log("Error =  compiler error");
             endgame();
-            
         }
 
     });
@@ -2012,9 +2001,8 @@ function challengeGameAgain() {
         "email":user.email,
         }
     })
-
     //以上宜靜
-    
+
 
     data = JSON.parse(JSON.stringify(Res_data));
     // loadData();

@@ -16,7 +16,7 @@ if (JSON && JSON.stringify && JSON.parse) var Session = Session || (function () 
   else if (window.attachEvent) window.attachEvent("onunload", Save);
   else window.onunload = Save;
 
-  // public methodsy
+  // public methods
   return {
 
     // 設定一個 session 變數

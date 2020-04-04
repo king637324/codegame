@@ -3,7 +3,7 @@ var router = express.Router();
 
 var UserLogin = require('../models/userLogin')
 var User = require('../models/user')
-var UserSpendTime = require('../models/userspendtime')
+var UserSpendTime = require('../models/userspendtime') //宜靜
 
 var multer = require("multer");
 
@@ -14,12 +14,10 @@ router.post('/createUserLoginState', function (req, res, next) {
     }
     var newUserLoginState = new UserLogin({
         username: date.username,
-        name: date.name,
+        name: date.user,
         email: date.email,
         startDate: date.startDate,
-        endDate: date.endDate,
-        startplay:date.startplay,
-        endplay:date.endplay,
+        endDate: date.endDate
     })
     UserLogin.createUserLoginState(newUserLoginState, function (err, userLoginState) {
         if (err) throw err;
@@ -56,7 +54,6 @@ router.post('/downloadUserPlayTimes', function (req, res, next) {
         if (err) throw err;
 
         var processList = [];
-        // 以下從資料庫裡面整理所有使用者資料變成1筆1筆的使用者
         for (let index = 0; index < userLoginState.length; index++) {
             const element = userLoginState[index];
             var isProcessed = false;
@@ -86,12 +83,10 @@ router.post('/downloadUserPlayTimes', function (req, res, next) {
                 })
             }
         }
-        // 以上從資料庫裡面整理所有使用者資料變成1筆1筆的使用者
 
-        // 以下處理時間的跳轉過濾
         for (let index = 0; index < processList.length; index++) {
             var list = processList[index].LoginTime;
-            //單個使用者的使用時間由小排到大
+            //由小排到到
             list.sort(function (a, b) {
                 if (a.startDate < b.startDate) {
                     return -1;
@@ -123,7 +118,6 @@ router.post('/downloadUserPlayTimes', function (req, res, next) {
             processList[index].LoginTime = tempProcessList;
 
         }
-        // 以上處理時間的跳轉過濾
 
         var taskStack = [];
         for (let index = 0; index < processList.length; index++) {
@@ -187,8 +181,6 @@ router.post('/downloadUserPlayTimes', function (req, res, next) {
             var outputJson = [];
             for (let indexUser = 0; indexUser < processList.length; indexUser++) {
                 const tempUser = processList[indexUser];
-                console.log(tempUser);
-                
                 for (let indexLoginTime = 0; indexLoginTime < tempUser.LoginTime.length; indexLoginTime++) {
                     const tempLogin = tempUser.LoginTime[indexLoginTime];
                     if (tempLogin.playState.length < 1) {

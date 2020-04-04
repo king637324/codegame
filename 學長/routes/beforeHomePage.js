@@ -46,7 +46,6 @@ router.post('/login',
     }),
     function (req, res) {
         res.redirect('/home')
-       
     }
 );
 
@@ -218,7 +217,9 @@ router.post('/changePassword', function (req, res, next) {
     }
 });
 
+
 module.exports = router;
+
 
 passport.use(new LocalStrategy(
     function (username, password, done) {

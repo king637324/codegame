@@ -7,7 +7,7 @@
 var title = '登入';
 var socket = require('socket.io');
 var request = require('request');
-var User = require('./models/user')
+
 /*** Module dependencies.*/
 var app = require('./app');
 var debug = require('debug')('nodejs-auth:server');
@@ -34,6 +34,7 @@ io.on('connection', function (socket) {
     console.log(script);
     console.log("--------------------");
     sendScriptToApi(script.script, script.input, script.language, socket);
+
   })
 })
 

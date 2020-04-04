@@ -139,7 +139,7 @@ function createselectChart(thisSelect) {
             document.getElementById('successRateChart').style.display = "none";
             document.getElementById('averageFailureRateChart').style.display = "none";
             document.getElementById('collectedstarsChart').style.display = "none"; //宜靜
-          } else { //如果不是第一次則執行updata()來更新圖表，並將另外兩個圖表隱藏
+          } else { //如果不是第一次則執行updata()來更新圖表，並將另外三個圖表隱藏
             playNumberCanvas.update();
             document.getElementById('playNumberChart').style.display = "block";
             document.getElementById('successRateChart').style.display = "none";
@@ -649,7 +649,7 @@ function createselectChart(thisSelect) {
 var href = window.location.href;
 var readAllPlayFlag = false;
 var PlayNumber, SuccessRate, AverageFailureRate, AlluserData;
-var Collectedstars;
+var Collectedstars;  //宜靜
 
 //以下為豐銘在用的
 function getPlayNumberJson(thisSelect) {
@@ -825,7 +825,7 @@ function prosessUserData() {
             addF = true;
             mapNumber[indexFail].mapSuccessCount = mapNumber[indexFail].mapSuccessCount + 1;
           }
-          playCountF = true;
+          playCountF = true
           mapNumber[indexFail].mapcount = mapNumber[indexFail].mapcount + 1;
           mapNumber[indexFail].playCount = mapNumber[indexFail].playCount + 1;
           //以下宜靜
@@ -899,7 +899,7 @@ function prosessUserData() {
             addF = true;
             mapNumber[indexFail + 24].mapSuccessCount = mapNumber[indexFail + 24].mapSuccessCount + 1;
           }
-          playCountF = true;
+          playCountF = true
           mapNumber[indexFail + 24].mapcount = mapNumber[indexFail + 24].mapcount + 1;
           mapNumber[indexFail + 24].playCount = mapNumber[indexFail + 24].playCount + 1;
           //以下宜靜
@@ -1352,7 +1352,7 @@ function UseTimeUpdateFunc(startTime, endTime) {
         playerData[index] = 0
       }
     }//以上宜靜
-  } else {
+  }else {
     // console.log("error here");
 
   }

@@ -569,7 +569,7 @@ void becameShip()
 	int dx = peopleAdr[0], dy = peopleAdr[1];
 	actionJudgeNextAdr(dx, dy);
 }
-void launchMissile()
+void fire()
 {
 	peopleFire = true;
 	bulletHit();

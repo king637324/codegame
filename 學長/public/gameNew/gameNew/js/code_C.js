@@ -56,7 +56,7 @@ var myMap = {
   'moveForward': 'moveForward();',
   'turnRight': 'turnRight();',
   'turnLeft': 'turnLeft();',
-  'launchMissile': 'launchMissile();',
+  'fire': 'fire();',
   'printL': 'printf(\"',
   'printR': '\");',
   'scanfL': 'scanf(\"',
@@ -254,7 +254,7 @@ function changeToC(isDisplay) {
   if (isDisplay) {
     textareaDiv.style.display = 'block';
   } else {
-    challengeGameAgain();
+    // challengeGameAgain();  //宜靜
     codeToCompiler(textcode);
   }
 }
@@ -540,13 +540,13 @@ function selectionType(type, x) {
       code = code + myMap.turnLeft + '<br>';
       textcode = textcode + myMap.turnLeft + '\n';
       break;
-    case 'block_launchMissile':
+    case 'block_fire':
       for (var j = 0; j < x; j++) {
         code = code + myMap.spacing;
         textcode = textcode + myMap.textSpacing;
       }
-      code = code + myMap.launchMissile + '<br>';
-      textcode = textcode + myMap.launchMissile + '\n';
+      code = code + myMap.fire + '<br>';
+      textcode = textcode + myMap.fire + '\n';
       break;
     case 'block_break':
       for (var j = 0; j < x; j++) {
@@ -618,13 +618,13 @@ function judgment_selectionType(type, x, nextPosition) {
       code = code + myMap.turnLeft + '<br>';
       textcode = textcode + myMap.turnLeft + '\n';
       break;
-    case 'block_launchMissile':
+    case 'block_fire':
       for (var j = 0; j < x; j++) {
         code = code + myMap.spacing;
         textcode = textcode + myMap.textSpacing;
       }
-      code = code + myMap.launchMissile + '<br>';
-      textcode = textcode + myMap.launchMissile + '\n';
+      code = code + myMap.fire + '<br>';
+      textcode = textcode + myMap.fire + '\n';
       break;
     case 'block_break':
       for (var j = 0; j < x; j++) {
@@ -1045,13 +1045,13 @@ function funSelectionType(type, x, nextPosition) {
       midFuncode = midFuncode + myMap.turnLeft + '<br>';
       textMidFuncode = textMidFuncode + myMap.turnLeft + '\n';
       break;
-    case 'block_launchMissile':
+    case 'block_fire':
       for (var j = 0; j < x; j++) {
         midFuncode = midFuncode + myMap.spacing;
         textMidFuncode = textMidFuncode + myMap.textSpacing;
       }
-      midFuncode = midFuncode + myMap.launchMissile + '<br>';
-      textMidFuncode = textMidFuncode + myMap.launchMissile + '\n';
+      midFuncode = midFuncode + myMap.fire + '<br>';
+      textMidFuncode = textMidFuncode + myMap.fire + '\n';
       break;
     case 'block_break':
       for (var j = 0; j < x; j++) {
