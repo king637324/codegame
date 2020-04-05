@@ -4,6 +4,7 @@ var router = express.Router();
 var UserLogin = require('../models/userLogin')
 var User = require('../models/user')
 var UserSpendTime = require('../models/userspendtime') //宜靜
+var UserRFMP = require('../models/userRFMP') //宜靜 2020.04.05
 
 var multer = require("multer");
 
@@ -46,6 +47,7 @@ router.post('/createUserSpendTimeState', function (req, res, next) {
         if (err) throw err;
         return res.json({ responce: 'sucesss' });
     })
+
 });
 //以上宜靜
 

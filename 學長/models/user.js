@@ -31,7 +31,8 @@ var UserSchema = mongoose.Schema({
     Logintime: { type: Array, "default": [] },
     lasttimeLogin: { type: Date },
     thistimeLogin: { type: Date },
-    LogintimeLag:{ type: Number,"default": 0}
+    LogintimeLag:{ type: Number,"default": 0},
+    createRFMP:{ type: Boolean, "default": false }
     //以上宜靜
 })
 
@@ -226,4 +227,13 @@ module.exports.updateUserLogintimeLag = function(id, LogintimeLag, callback) {
     LogintimeLag: LogintimeLag
   }
   User.updateOne(query, setquery, callback);
+}
+
+// updatecreateRFMP, 更新使用者是否創建RFMP表
+module.exports.updateUsercreateRFMP = function (id,createRFMP, callback) {
+    var query = { _id: id}
+    var setquery = {
+        createRFMP:createRFMP
+    }
+    User.updateOne(query, setquery, callback);
 }

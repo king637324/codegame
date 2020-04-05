@@ -1,6 +1,6 @@
 // import { pipeline } from "stream";
 // import { finished } from "stream";
-
+var UserRFMP = require('../models/userRFMP') //宜靜  2020.04.05
 class User {
     constructor(key) {
         this.key = key;
@@ -668,7 +668,16 @@ function endgame() {
     console.log("endgame gatstartplay", getstartplaytime);
     console.log("endgame startplay", SpendTime.startplay);
     console.log("endgame endplay", SpendTime.endplay);
-
+    // 2020.04.05
+    UserRFMP.updateF_data(user.email, updateTime.length ,function (err, record) {
+        if (err) throw err;
+          return done(null, user)
+    })
+    UserRFMP.updateF_data(user.email, updateTime.length ,function (err, record) {
+        if (err) throw err;
+          return done(null, user)
+    })
+    // 2020.04.05
     $.ajax({
         url: "API/createUserSpendTimeState",              // 要傳送的頁面
         method: 'POST',               // 使用 POST 方法傳送請求
