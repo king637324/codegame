@@ -1,5 +1,6 @@
 // model/users.js
 //先載入我們要的library
+//宜靜
 var mongoose = require('mongoose')
 var bcrypt = require('bcryptjs')
 
@@ -11,8 +12,7 @@ var UserSpendTimeSchema = mongoose.Schema({
     level:{ type: String},
     starNumber:{ type: Number},
     startplay: { type: Date },
-    endplay: { type: Date },
-    Totalspendtime:{ type: Number }
+    endplay: { type: Date }
 })
 
 var UserSpendTime = module.exports = mongoose.model('UserSpendTime', UserSpendTimeSchema)

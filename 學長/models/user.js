@@ -28,11 +28,7 @@ var UserSchema = mongoose.Schema({
     userstatus:{ type: Number, "default": 0 },
     canCreateMapPermission:{ type: Boolean, "default": false },
     //以下宜靜
-    Logintime: { type: Array, "default": [] },
-    lasttimeLogin: { type: Date },
-    thistimeLogin: { type: Date },
-    LogintimeLag:{ type: Number,"default": 0},
-    createRFMP:{ type: Boolean, "default": false }
+    Logintime: { type: Array, "default": [] }
     //以上宜靜
 })
 
@@ -182,7 +178,12 @@ module.exports.updatefinishMapNumById = function (id, finishMapNum, callback) {
         finishMapNum: finishMapNum
     }
     User.updateOne(query, setquery, callback);
+}
 
+module.exports.deleteUserById = function (id, callback) {
+    var query = { _id: id };
+    
+    User.deleteOne(query, callback);
 }
 
 //updateUserLogintime 更新使用者登入次數  //宜靜
@@ -195,45 +196,3 @@ module.exports.updateUserLogintime = function(id, Logintime, callback) {
     }
     User.updateOne(query, setquery, callback);
   }
-
-//updatelasttimeLogin 更新使用者最後一次登入時間  //宜靜
-module.exports.updateUserlasttimeLogin = function(id, lasttimeLogin, callback) {
-  var query = {
-    _id: id
-  }
-  var setquery = {
-    lasttimeLogin: lasttimeLogin
-  }
-  User.updateOne(query, setquery, callback);
-}
-
-//updatethistimeLogin 更新使用者這次登入時間  //宜靜
-module.exports.updateUserthistimeLogin = function(id, thistimeLogin, callback) {
-  var query = {
-    _id: id
-  }
-  var setquery = {
-    thistimeLogin: thistimeLogin
-  }
-  User.updateOne(query, setquery, callback);
-}
-
-//updateLogintimeLag 更新使用者RFMP的R值  //宜靜
-module.exports.updateUserLogintimeLag = function(id, LogintimeLag, callback) {
-  var query = {
-    _id: id
-  }
-  var setquery = {
-    LogintimeLag: LogintimeLag
-  }
-  User.updateOne(query, setquery, callback);
-}
-
-// updatecreateRFMP, 更新使用者是否創建RFMP表
-module.exports.updateUsercreateRFMP = function (id,createRFMP, callback) {
-    var query = { _id: id}
-    var setquery = {
-        createRFMP:createRFMP
-    }
-    User.updateOne(query, setquery, callback);
-}

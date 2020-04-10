@@ -129,7 +129,7 @@ $.ajax({
     myVid.volume = 0;
     // console.log(res);
     user = res;
-    
+
   if(user.username == "NKUSTCCEA"||user.username == "teacher"){
       forManagement();
     }
@@ -939,10 +939,7 @@ function restartButton(thisTextarea) {
 /*重新開始*/
 function restartGame(thisDiv, thisDiv2) {
   closeFunc(thisDiv, thisDiv2);
-  //以下宜靜
-  console.log("重新挑戰");
-  challengeGameAgain();
-  //以上宜靜
+  challengeGameAgain(); //宜靜
   // clearButton(document.getElementById("textarea_0"));
   // restartButton(document.getElementById("textarea_0"))
 }
@@ -1427,9 +1424,9 @@ function blocklyUsable(thisClassID, thisValue) {
       blockType = "turnLeft(&nbsp)<br>";
       b.setAttribute("onclick", "insertAtCursor('turnLeft();');");
       break;
-    case "fire":
-      blockType = "fire(&nbsp)<br>";
-      b.setAttribute("onclick", "insertAtCursor('fire();');");
+    case "launchMissile":
+      blockType = "launchMissile(&nbsp)<br>";
+      b.setAttribute("onclick", "insertAtCursor('launchMissile();');");
       break;
     case "printf":
       blockType = "printf(&nbsp)<br>";
@@ -2266,7 +2263,7 @@ function loadDict() {
                 "value":"turnLeft"
               },
               {
-                "value":"fire"
+                "value":"launchMissile"
               },
               {
                 "value":"printf"
@@ -2316,7 +2313,7 @@ function loadDict() {
                 "value":"turnLeft"
               },
               {
-                "value":"fire"
+                "value":"launchMissile"
               },
               {
                 "value":"printf"
@@ -2366,7 +2363,7 @@ function loadDict() {
                 "value":"turnLeft"
               },
               {
-                "value":"fire"
+                "value":"launchMissile"
               },
               {
                 "value":"printf"
@@ -2422,7 +2419,7 @@ function loadDict() {
                 "value":"turnLeft"
               },
               {
-                "value":"fire"
+                "value":"launchMissile"
               },
               {
                 "value":"printf"
@@ -2478,7 +2475,7 @@ function loadDict() {
                 "value":"turnLeft"
               },
               {
-                "value":"fire"
+                "value":"launchMissile"
               },
               {
                 "value":"printf"
@@ -2534,7 +2531,7 @@ function loadDict() {
                 "value":"turnLeft"
               },
               {
-                "value":"fire"
+                "value":"launchMissile"
               },
               {
                 "value":"printf"
@@ -2590,7 +2587,7 @@ function loadDict() {
                 "value":"turnLeft"
               },
               {
-                "value":"fire"
+                "value":"launchMissile"
               },
               {
                 "value":"printf"
@@ -2646,7 +2643,7 @@ function loadDict() {
                 "value":"turnLeft"
               },
               {
-                "value":"fire"
+                "value":"launchMissile"
               },
               {
                 "value":"printf"
@@ -2702,7 +2699,7 @@ function loadDict() {
                 "value":"turnLeft"
               },
               {
-                "value":"fire"
+                "value":"launchMissile"
               },
               {
                 "value":"printf"
@@ -2758,7 +2755,7 @@ function loadDict() {
                 "value":"turnLeft"
               },
               {
-                "value":"fire"
+                "value":"launchMissile"
               },
               {
                 "value":"printf"
@@ -2814,7 +2811,7 @@ function loadDict() {
                 "value":"turnLeft"
               },
               {
-                "value":"fire"
+                "value":"launchMissile"
               },
               {
                 "value":"printf"
@@ -2870,7 +2867,7 @@ function loadDict() {
                 "value":"turnLeft"
               },
               {
-                "value":"fire"
+                "value":"launchMissile"
               },
               {
                 "value":"printf"
@@ -2926,7 +2923,7 @@ function loadDict() {
                 "value":"turnLeft"
               },
               {
-                "value":"fire"
+                "value":"launchMissile"
               },
               {
                 "value":"printf"
@@ -2991,7 +2988,7 @@ function loadDict() {
                 "value":"turnLeft"
               },
               {
-                "value":"fire"
+                "value":"launchMissile"
               },
               {
                 "value":"printf"
@@ -3056,7 +3053,7 @@ function loadDict() {
                 "value":"turnLeft"
               },
               {
-                "value":"fire"
+                "value":"launchMissile"
               },
               {
                 "value":"printf"
@@ -3121,7 +3118,7 @@ function loadDict() {
                 "value":"turnLeft"
               },
               {
-                "value":"fire"
+                "value":"launchMissile"
               },
               {
                 "value":"printf"
@@ -3186,7 +3183,7 @@ function loadDict() {
                 "value":"turnLeft"
               },
               {
-                "value":"fire"
+                "value":"launchMissile"
               },
               {
                 "value":"printf"
@@ -3251,7 +3248,7 @@ function loadDict() {
                 "value":"turnLeft"
               },
               {
-                "value":"fire"
+                "value":"launchMissile"
               },
               {
                 "value":"printf"
@@ -3319,7 +3316,7 @@ function loadDict() {
                 "value":"turnLeft"
               },
               {
-                "value":"fire"
+                "value":"launchMissile"
               },
               {
                 "value":"printf"
@@ -3390,7 +3387,7 @@ function loadDict() {
                 "value":"turnLeft"
               },
               {
-                "value":"fire"
+                "value":"launchMissile"
               },
               {
                 "value":"printf"
@@ -3461,7 +3458,7 @@ function loadDict() {
                 "value":"turnLeft"
               },
               {
-                "value":"fire"
+                "value":"launchMissile"
               },
               {
                 "value":"printf"
@@ -3532,7 +3529,7 @@ function loadDict() {
                 "value":"turnLeft"
               },
               {
-                "value":"fire"
+                "value":"launchMissile"
               },
               {
                 "value":"printf"
@@ -3603,7 +3600,7 @@ function loadDict() {
                 "value":"turnLeft"
               },
               {
-                "value":"fire"
+                "value":"launchMissile"
               },
               {
                 "value":"printf"
@@ -3677,7 +3674,7 @@ function loadDict() {
                 "value":"turnLeft"
               },
               {
-                "value":"fire"
+                "value":"launchMissile"
               },
               {
                 "value":"printf"
@@ -3754,7 +3751,7 @@ function loadDict() {
                 "value":"turnLeft"
               },
               {
-                "value":"fire"
+                "value":"launchMissile"
               },
               {
                 "value":"printf"
@@ -3834,7 +3831,7 @@ function loadDict() {
                 "value":"turnLeft"
               },
               {
-                "value":"fire"
+                "value":"launchMissile"
               },
               {
                 "value":"printf"
@@ -3914,7 +3911,7 @@ function loadDict() {
                 "value":"turnLeft"
               },
               {
-                "value":"fire"
+                "value":"launchMissile"
               },
               {
                 "value":"printf"
@@ -3994,7 +3991,7 @@ function loadDict() {
                 "value":"turnLeft"
               },
               {
-                "value":"fire"
+                "value":"launchMissile"
               },
               {
                 "value":"printf"
@@ -4077,7 +4074,7 @@ function loadDict() {
                 "value":"turnLeft"
               },
               {
-                "value":"fire"
+                "value":"launchMissile"
               },
               {
                 "value":"printf"
@@ -4160,7 +4157,7 @@ function loadDict() {
                 "value":"turnLeft"
               },
               {
-                "value":"fire"
+                "value":"launchMissile"
               },
               {
                 "value":"printf"
@@ -4246,7 +4243,7 @@ function loadDict() {
                 "value":"turnLeft"
               },
               {
-                "value":"fire"
+                "value":"launchMissile"
               },
               {
                 "value":"printf"
@@ -4332,7 +4329,7 @@ function loadDict() {
                 "value":"turnLeft"
               },
               {
-                "value":"fire"
+                "value":"launchMissile"
               },
               {
                 "value":"printf"
@@ -4418,7 +4415,7 @@ function loadDict() {
                 "value":"turnLeft"
               },
               {
-                "value":"fire"
+                "value":"launchMissile"
               },
               {
                 "value":"printf"
@@ -4504,7 +4501,7 @@ function loadDict() {
                 "value":"turnLeft"
               },
               {
-                "value":"fire"
+                "value":"launchMissile"
               },
               {
                 "value":"printf"
@@ -4590,7 +4587,7 @@ function loadDict() {
                 "value":"turnLeft"
               },
               {
-                "value":"fire"
+                "value":"launchMissile"
               },
               {
                 "value":"printf"
@@ -4676,7 +4673,7 @@ function loadDict() {
                 "value":"turnLeft"
               },
               {
-                "value":"fire"
+                "value":"launchMissile"
               },
               {
                 "value":"printf"
