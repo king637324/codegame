@@ -5,6 +5,7 @@ var router = express.Router();
 
 // var Equipment = require('../models/equipment')
 var User = require('../models/user')
+var UserSpendTime = require('../models/userspendtime')
 var MapRecord = require('../models/map')
 var DictionaryRecord = require('../models/dictionary')
 var EquipmentRecord = require('../models/equipment')
@@ -1430,6 +1431,62 @@ router.post('/managementUser', function (req, res, next) {
     }
 
 });
+// 以下宜靜 2020.04.14
+router.get('/managementRFMP', ensureAuthenticated, function (req, res, next) {
+    // console.log(req.user)
+    if (!(req.user.username == "NKUSTCCEA"||req.user.username == "teacher")) { //如有其他管理者 在這加
+        res.redirect('/login')
+    }
+    res.render('backstage/managementRFMP', {
+        user: req.user.username
+    });
+});
+
+router.post('/managementRFMP', function (req, res, next) {
+    var type = req.body.type
+    console.log("home post--------");
+    console.log(req.body.type);
+    console.log("--------------");
+    if (type == "init") {
+        var id = req.user.id;
+        // console.log(req.user.id);
+        User.getUserById(id, function (err, user) {
+            if (err) throw err;
+            res.json(user);
+        })
+    }
+    else if (type == "LoadUser") {
+        User.getUser(req.user.id, function (err, users) {
+            console.log("LoadUserlen:",req.body.length);
+            
+            if (err) throw err;
+            res.json(users);
+        })
+    }
+    // UserSpendTime.getAllUserSpendTimeState(function (err, userspendtimeState){
+    //     if (err) throw err;
+    //     var processM = [];
+    //     var len = userspendtimeState.length;
+    //     console.log("len:",len);
+        
+
+
+
+        // User.getUserByUsername(req.user.username, function (err, user) {
+        //     if (err) throw err;
+        //     console.log("id:",req.user.username);
+        //     var len = res.length;
+        //     console.log("len:",len);
+        //     res.json(user);
+        // })
+        //var len = res.length
+        //console.log("len:",len);
+
+    //})
+    
+});
+
+// 以上宜靜 2020.04.14
 
 router.get('/management', ensureAuthenticated, function (req, res, next) {
     // console.log(req.user)

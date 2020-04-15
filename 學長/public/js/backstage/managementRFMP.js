@@ -1,4 +1,5 @@
-// 宜靜 2020.04.10
+// 宜靜 2020.04.15
+
 if (JSON && JSON.stringify && JSON.parse) var Session = Session || (function () {
 
     // cache window 物件
@@ -103,133 +104,8 @@ if (JSON && JSON.stringify && JSON.parse) var Session = Session || (function () 
     //將thisObjsct存到lastObiect
     lastObject = thisObject;
     //如果現在被選到的狀態為"封鎖"，改變底下按鈕的圖片
-    var isCheckClicked = document.getElementById("myonoffswitch");
-    var isDelete = isCheckClicked.checked;
-    if(!isDelete){
-      if (document.getElementById("td0" + mapIndex + "7").innerHTML == "封鎖") {
-        document.getElementById("changeStatus").style.backgroundImage = "url(../img/unBlockade.png)";
-      } else { //如果是"正常"狀態，就改成"封鎖"圖片
-        document.getElementById("changeStatus").style.backgroundImage = "url(../img/blockade.png)";
-      }
-    }
   }
   
-  function createMapPermission(index) {
-    // console.log(allUserData[index]._id);
-    var checkName = "#input0" + index + "6";
-    if ($(checkName).is(":checked")) {
-      var canCreateMapPermission = true;
-      allUserData[index].canCreateMapPermission = true;
-    } else {
-      var canCreateMapPermission = false;
-  
-      allUserData[index].canCreateMapPermission = false;
-    }
-  
-    createLoadingMainView("center");
-    $.ajax({
-      url: "changeUserCreateMapPermission", // 要傳送的頁面
-      method: 'POST', // 使用 POST 方法傳送請求
-      dataType: 'json', // 回傳資料會是 json 格式
-      async: false,
-      data: {
-        userId: allUserData[index]._id,
-        canCreateMapPermission: canCreateMapPermission
-      }, // 將表單資料用打包起來送出去
-      success: function (res) {
-        // console.log(res);
-  
-      }
-    })
-    closeMainLoadingView();
-  }
-  
-  function changeStatus() {
-    //如果有選擇到table
-    if (thisSelectionId) {
-      var userstatus = 0;
-      //如果被選為"封鎖"，改變狀態為"正常"，此處是改table內的欄位
-      if (document.getElementById("td0" + thisIndex + "7").innerHTML == "封鎖") {
-        document.getElementById("td0" + thisIndex + "7").innerHTML = "正常";
-        document.getElementById("changeStatus").style.backgroundImage = "url(../img/blockade.png)";
-        allUserData[thisIndex].userstatus = 0;
-        userstatus = 0
-      } else { //若為"正常"，則改為"封鎖"
-        document.getElementById("td0" + thisIndex + "7").innerHTML = "封鎖";
-        document.getElementById("changeStatus").style.backgroundImage = "url(../img/unBlockade.png)";
-        allUserData[thisIndex].userstatus = 1;
-        userstatus = 1
-      }
-      //此為豐銘更改資料庫用
-      var scriptData = {
-        type: "changeUserStatus",
-        userId: allUserData[thisIndex]._id,
-        userstatus: userstatus
-      }
-      // console.log(scriptData)
-      $.ajax({
-        url: href, // 要傳送的頁面
-        method: 'POST', // 使用 POST 方法傳送請求
-        dataType: 'json', // 回傳資料會是 json 格式
-        data: scriptData, // 將表單資料用打包起來送出去
-        success: function (res) {
-          // console.log(res);
-  
-        }
-      })
-  
-    } else { //若沒選到table則調用提醒視窗顯示錯誤資訊
-      remindValue = "請點選一位使用者";
-      remindView(remindValue);
-    }
-  }
-  
-  function deleteUserBtn() {
-    var dom = document.getElementsByClassName('td0' + 8);
-    var delList = [];
-    for (var j = 0; j < dom.length - 1; j++) {
-      if ($("#input0" + j + "8").prop("checked")) {
-        delList.push(j);
-      }
-    }
-    if (delList.length == 0) {
-      remindValue = "請點選一位使用者";
-      remindView(remindValue);
-    }
-    else {
-      if (confirm("確定要刪除這些使用者嗎?")) {
-        for (var j = 0; j < delList.length; j++) {
-          var scriptData = {
-            userId: allUserData[delList[j]]._id,
-            username: allUserData[delList[j]].username,
-            name: allUserData[delList[j]].name,
-            email: allUserData[delList[j]].email
-          }
-          $.ajax({
-            url: 'API/deleteUser', // 要傳送的頁面
-            method: 'POST', // 使用 POST 方法傳送請求
-            dataType: 'json', // 回傳資料會是 json 格式
-            data: scriptData, // 將表單資料用打包起來送出去
-            success: function (res) {
-              // console.log(res);
-  
-            }
-          })
-        }
-        for (var j = delList.length -1; j > -1 ; j--) {
-          for (var  i= 0; i<completallUserData.length; ++i) {
-            if(completallUserData[i]._id == allUserData[delList[j]]._id){
-              completallUserData.splice(i,1);
-              break;
-            }
-          }
-          allUserData.splice(delList[j],1);
-        }
-        searchFunc()
-  
-      }
-    }
-  }
   var levelDivAlive = false;
   //創造提醒視窗的函式
   function remindView(remindValue) {
@@ -317,18 +193,16 @@ if (JSON && JSON.stringify && JSON.parse) var Session = Session || (function () 
         // console.log(allUserData);
         var mapData = [];
         for (let index = 0; index < res.length; index++) {
+            console.log("lennn:",res.length);
+            
           var obj = res[index];
           var hightLevel = Math.max(obj.EasyEmpire.codeHighestLevel, obj.MediumEmpire.HighestLevel) + 1; //0~49 49+1 -->1~50 51
           if (hightLevel == 51) {
             hightLevel = 50;
           }
           allUserData[index].hightLevel = hightLevel;
-          var userstatusStr = "正常"
-          if (obj.userstatus) {
-            userstatusStr = "封鎖"
-          } else {
-            allUserData[index].userstatus = 0;
-          }
+          
+
           var script = {
             td01: obj.username,
             td02: obj.name,
@@ -379,7 +253,7 @@ if (JSON && JSON.stringify && JSON.parse) var Session = Session || (function () 
       divTag.appendChild(b);
       divTag = document.getElementById("tr" + i);
       //創造6個br標籤
-      for (var j = 0; j <= 7; j++) {
+      for (var j = 0; j <= 8; j++) {
         b = document.createElement("td");
         if (j == 0) {
           b.setAttribute("style", "display:none");
@@ -518,9 +392,9 @@ if (JSON && JSON.stringify && JSON.parse) var Session = Session || (function () 
   }
   
   /*選單*/
-  var levelSelect = document.getElementById("levelSelect");
+  var timeSelect = document.getElementById("timeSelect");
   //剛下拉式選單改變，呼叫changeTdNameDisplay()
-  levelSelect.onchange = function (index) {
+  timeSelect.onchange = function (index) {
     changeTdNameDisplay();
   }
   var selectType = document.getElementById("selectType");
@@ -733,38 +607,6 @@ if (JSON && JSON.stringify && JSON.parse) var Session = Session || (function () 
     }
   }
   
-  /*變更onoffswitch時變更畫面*/
-  function changeMode() {
-    var isCheckClicked = document.getElementById("myonoffswitch");
-    var isDelete = isCheckClicked.checked;
-    // 變成刪除模式
-    if (isDelete) {
-      var dom = document.getElementsByClassName('td0' + 6);
-      for (var j = 0; j < dom.length; j++) {
-        dom[j].style.display = "none"
-      }
-      dom = document.getElementsByClassName('td0' + 8);
-      for (var j = 0; j < dom.length; j++) {
-        dom[j].style.display = "";
-      }
-  
-      var dom = document.getElementById('changeStatus');
-      dom.style.backgroundImage = 'url("../../img/deleteUser.png")';
-      dom.setAttribute("onClick", "deleteUserBtn()");
-    } else {// 變成編輯模式
-      var dom = document.getElementsByClassName('td0' + 6);
-      for (var j = 0; j < dom.length; j++) {
-        dom[j].style.display = ""
-      }
-      var dom = document.getElementsByClassName('td0' + 8);
-      for (var j = 0; j < dom.length; j++) {
-        dom[j].style.display = "none";
-      }
-      var dom = document.getElementById('changeStatus');
-      dom.style.backgroundImage = 'url("../../img/blockade.png")';
-      dom.setAttribute("onClick", "changeStatus()");
-    }
-  }
   var searchTextBox = document.getElementById("searchTextBox");
   //只要搜尋列有輸入就調用一次searchFunc()
   searchTextBox.onkeyup = function () {

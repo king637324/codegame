@@ -1,4 +1,4 @@
-/* 宜靜 2020.04.10 */
+/* 宜靜 2020.04.14 */
 /*main*/
 #bkImg{
     z-index: -1;
@@ -8,78 +8,6 @@
     position: absolute;
     left: 0;
     top: 0;
-  }
-  
-  /*編輯/刪除開關*/
-  .onoffswitch {
-      position: absolute;
-      width: 90px;
-      top: 2.5%;
-      left: 200px;
-      -webkit-user-select:none;
-      -moz-user-select:none;
-      -ms-user-select: none;
-  }
-  .onoffswitch-checkbox {
-      display: none;
-  }
-  .onoffswitch-label {
-      display: block;
-      overflow: hidden;
-      cursor: pointer;
-      border: 2px solid #999999;
-      border-radius: 20px;
-  }
-  .onoffswitch-inner {
-      display: block;
-      width: 200%;
-      margin-left: -100%;
-      transition: margin 0.3s ease-in 0s;
-  }
-  .onoffswitch-inner:before, .onoffswitch-inner:after {
-      display: block;
-      float: left;
-      width: 50%;
-      height: 30px;
-      padding: 0;
-      line-height: 30px;
-      font-size: 14px;
-      color: white;
-      font-family: Trebuchet, Arial, sans-serif;
-      font-weight: bold;
-      box-sizing: border-box;
-  }
-  .onoffswitch-inner:before {
-      content: "刪除";
-      padding-right: 10px;
-      background-color: #34A7C1;
-      color: #FFFFFF;
-  }
-  .onoffswitch-inner:after {
-      content: "編輯";
-      padding-right: 20px;
-      background-color: #EEEEEE;
-      color: #999999;
-      text-align: right;
-  }
-  .onoffswitch-switch {
-      display: block;
-      width: 16px;
-      margin: 7px;
-      background: #FFFFFF;
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      right: 56px;
-      border: 2px solid #999999;
-      border-radius: 20px;
-      transition: all 0.3s ease-in 0s;
-  }
-  .onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-inner {
-      margin-left: 0;
-  }
-  .onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
-      right: 0px;
   }
   
   /*提醒介面*/
@@ -182,7 +110,7 @@
     z-index: 3;
     font-size: calc(15px + 3.5vh);
     letter-spacing: 3px;
-    padding-top: calc(15px + 1vh);
+    padding-top: calc(15px + 3vh);
     font-family:Microsoft JhengHei;
     font-weight: bold;
   }
@@ -191,7 +119,7 @@
     letter-spacing: 3px;
     margin-top: 1vh;
   }
-  #levelSelect{
+  #timeSelect{
     height: 4vh;
     width: 6vw;
     font-size: calc(10px + 0.5vw);
@@ -282,7 +210,7 @@
   
   #createrDiv{
     width: 99.8%;
-    height: 81%;
+    height: 86%;
     background-color: #F5F5F5;
     font-family: Microsoft JhengHei;
     position: absolute;
@@ -307,16 +235,16 @@
     border-color: #8F8F8F;
   }
   #createrDiv .td01{
-    width: 15%;
+    width: 14%;
     overflow: auto;
     cursor: pointer;
   }
   #createrDiv .td02{
-    width: 15%;
+    width: 14%;
     cursor: pointer;
   }
   #createrDiv .td03{
-    width: 27%;
+    width: 25%;
     cursor: pointer;
   }
   #createrDiv .td04{
@@ -325,20 +253,20 @@
     cursor: pointer;
   }
   #createrDiv .td05{
-    width: 12%;
+    width: 9%;
     cursor: pointer;
   }
   #createrDiv .td06{
-    width: 10%;
+    width: 9%;
     cursor: pointer;
   }
   #createrDiv .td07{
-    width: 12%;
+    width: 9%;
     cursor: pointer;
   }
-  .mapCheckbox{
-    width: 3vh;
-    height: 3vh;
+  #createrDiv .td08{
+    width: 18%;
+    cursor: pointer;
   }
   #createrDiv textarea{
     height: 4vh;
@@ -379,25 +307,8 @@
     position: relative;
     overflow: auto;
   }
-  .centerButton{
-    width: 20vh;
-    height: 6vh;
-    font-size: 25px;
-    border: 0;
-    cursor: pointer;
-  }
-  #changeStatus{
-    position: absolute;
-    right: 2.5%;
-    bottom: 1%;
-    background-image: url("../../img/blockade.png");
-    background-size: 100%;
-    background-repeat: no-repeat;
-    background-position: center;
-    background-color: transparent;
-  }
   @media(max-aspect-ratio:17/10){
-    #levelSelect{
+    #timeSelect{
       height: 4vh;
       width: 6vw;
       font-size: calc(10px + 0.5vw);
@@ -408,19 +319,6 @@
       position: absolute;
       top: 3vh;
       left: 10%;
-    }
-    #createrDiv .td03{
-      width: 25%;
-      cursor: pointer;
-    }
-    #createrDiv .td04{
-      width: 9%;
-      overflow: auto;
-      cursor: pointer;
-    }
-    #createrDiv .td05{
-      width: 12%;
-      cursor: pointer;
     }
   }
   

@@ -27,9 +27,13 @@ var UserSchema = mongoose.Schema({
     finishMapNum: { type: Array, "default": []  },
     userstatus:{ type: Number, "default": 0 },
     canCreateMapPermission:{ type: Boolean, "default": false },
-    //以下宜靜
-    Logintime: { type: Array, "default": [] }
-    //以上宜靜
+    //以下宜靜 2020.04.15
+    Logintime: { type: Array, "default": [] },
+    R_score: { type: Number, "default": 0},
+    F_score: {type: Number, "default": 0},
+    M_score: { type: Number, "default": 0},
+    P_score: { type: Number, "default": 0},
+    //以上宜靜 2020.04.15
 })
 
 var User = module.exports = mongoose.model('User', UserSchema)
@@ -186,7 +190,8 @@ module.exports.deleteUserById = function (id, callback) {
     User.deleteOne(query, callback);
 }
 
-//updateUserLogintime 更新使用者登入次數  //宜靜
+// 以下宜靜 2020.04.15
+//updateUserLogintime 更新使用者登入次數
 module.exports.updateUserLogintime = function(id, Logintime, callback) {
     var query = {
       _id: id
@@ -196,3 +201,49 @@ module.exports.updateUserLogintime = function(id, Logintime, callback) {
     }
     User.updateOne(query, setquery, callback);
   }
+
+//updateR_score 更新R的評分值
+module.exports.updateR_score = function(id, R_score, callback) {
+    var query = {
+      _id: id
+    }
+    var setquery = {
+        R_score: R_score
+    }
+    User.updateOne(query, setquery, callback);
+}
+
+//updateF_score 更新F的評分值
+module.exports.updateF_score = function(id, F_score, callback) {
+    var query = {
+      _id: id
+    }
+    var setquery = {
+        F_score: F_score
+    }
+    User.updateOne(query, setquery, callback);
+}
+
+//updateM_score 更新M的評分值
+module.exports.updateM_score = function(id, M_score, callback) {
+    var query = {
+      _id: id
+    }
+    var setquery = {
+        M_score: M_score
+    }
+    User.updateOne(query, setquery, callback);
+}
+
+//updateP_score 更新P的評分值
+module.exports.updateP_score = function(id, P_score, callback) {
+    var query = {
+      _id: id
+    }
+    var setquery = {
+        P_score: P_score
+    }
+    User.updateOne(query, setquery, callback);
+}
+
+// 以上宜靜 2020.04.15

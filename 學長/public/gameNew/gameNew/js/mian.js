@@ -54,7 +54,7 @@ var SpendTime = {
     "startplay": "",
     "endplay": "",
 }
-var startTime;; // 記錄startTime為記錄開始時間的變數
+var startTime; // 記錄startTime為記錄開始時間的變數
 //以上宜靜
 
 xmlhttp.onreadystatechange = function () {
@@ -653,17 +653,6 @@ function endgame() {
     SpendTime.level = mapNum; // 取得闖關的關卡
     SpendTime.endplay = new Date(); //取得 結束闖關時間
     SpendTime.startplay = startTime; // //取得 開始闖關時間
-
-    $.ajax({
-        url: "API/createUserSpendTimeState",              // 要傳送的頁面
-        method: 'POST',               // 使用 POST 方法傳送請求
-        dataType: 'json',             // 回傳資料會是 json 格式
-        async:false,
-        data: SpendTime,  // 將表單資料用打包起來送出去
-        success: function (res) {
-        }
-      });
-    // 以上宜靜
 
     $.ajax({
         url: "API/createUserSpendTimeState",              // 要傳送的頁面
