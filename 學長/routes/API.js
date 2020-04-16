@@ -69,7 +69,7 @@ router.post('/createUserSpendTimeState', function (req, res, next) {
 router.post('/downloadUserPlayTimes', function (req, res, next) {
     UserLogin.getAllUserLoginState(function (err, userLoginState) {
         if (err) throw err;
-
+        
         var processList = [];
         for (let index = 0; index < userLoginState.length; index++) {
             const element = userLoginState[index];

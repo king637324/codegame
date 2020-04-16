@@ -29,10 +29,10 @@ var UserSchema = mongoose.Schema({
     canCreateMapPermission:{ type: Boolean, "default": false },
     //以下宜靜 2020.04.15
     Logintime: { type: Array, "default": [] },
-    R_score: { type: Number, "default": 0},
-    F_score: {type: Number, "default": 0},
-    M_score: { type: Number, "default": 0},
-    P_score: { type: Number, "default": 0},
+    Rscore: { type: Number, "default": 0},
+    Fscore: {type: Number, "default": 0},
+    Mscore: { type: Number, "default": 0},
+    Pscore: { type: Number, "default": 0},
     //以上宜靜 2020.04.15
 })
 
@@ -202,46 +202,46 @@ module.exports.updateUserLogintime = function(id, Logintime, callback) {
     User.updateOne(query, setquery, callback);
   }
 
-//updateR_score 更新R的評分值
-module.exports.updateR_score = function(id, R_score, callback) {
+//updateRscore 更新R的評分值
+module.exports.updateRscore = function(id, Rscore, callback) {
     var query = {
       _id: id
     }
     var setquery = {
-        R_score: R_score
+        Rscore: Rscore
     }
     User.updateOne(query, setquery, callback);
 }
 
-//updateF_score 更新F的評分值
-module.exports.updateF_score = function(id, F_score, callback) {
+//updateFscore 更新F的評分值
+module.exports.updateFscore = function(id, Fscore, callback) {
     var query = {
       _id: id
     }
     var setquery = {
-        F_score: F_score
+        Fscore: Fscore
     }
     User.updateOne(query, setquery, callback);
 }
 
-//updateM_score 更新M的評分值
-module.exports.updateM_score = function(id, M_score, callback) {
+//updateMscore 更新M的評分值
+module.exports.updateMscore = function(id, Mscore, callback) {
     var query = {
       _id: id
     }
     var setquery = {
-        M_score: M_score
+        Mscore: Mscore
     }
     User.updateOne(query, setquery, callback);
 }
 
-//updateP_score 更新P的評分值
-module.exports.updateP_score = function(id, P_score, callback) {
+//updatePscore 更新P的評分值
+module.exports.updatePscore = function(id, Pscore, callback) {
     var query = {
       _id: id
     }
     var setquery = {
-        P_score: P_score
+        Pscore: Pscore
     }
     User.updateOne(query, setquery, callback);
 }

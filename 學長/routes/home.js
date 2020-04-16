@@ -1443,46 +1443,214 @@ router.get('/managementRFMP', ensureAuthenticated, function (req, res, next) {
 });
 
 router.post('/managementRFMP', function (req, res, next) {
-    var type = req.body.type
-    console.log("home post--------");
-    console.log(req.body.type);
-    console.log("--------------");
-    if (type == "init") {
-        var id = req.user.id;
-        // console.log(req.user.id);
-        User.getUserById(id, function (err, user) {
-            if (err) throw err;
-            res.json(user);
-        })
+    /* 陣列測試
+    var test_data = [5,2,1,4,3],test_name = ["E","B","A","D","C"];
+    let time = test_data.length;
+    while(time > 1){
+        time--;
+        for(let i=0; i < test_data.length;i++){
+            var temp;
+            if(test_data[i]>test_data[i+1]){
+                temp = test_data[i];
+                test_data[i] = test_data[i+1];
+                test_data[i+1] = temp;
+
+                temp = test_name[i];
+                test_name[i] = test_name[i+1];
+                test_name[i+1] = temp;
+            }
+        }
     }
-    else if (type == "LoadUser") {
-        User.getUser(req.user.id, function (err, users) {
-            console.log("LoadUserlen:",req.body.length);
-            
-            if (err) throw err;
-            res.json(users);
-        })
-    }
-    // UserSpendTime.getAllUserSpendTimeState(function (err, userspendtimeState){
-    //     if (err) throw err;
-    //     var processM = [];
-    //     var len = userspendtimeState.length;
-    //     console.log("len:",len);
+
+    console.log("test_data",test_data);
+    console.log("test_name",test_name);
+
+    陣列測試*/
+
+    UserSpendTime.getAllUserSpendTimeState(function (err, userSpendTimeState){
+        if (err) throw err;
+        //console.log("testtest:",userSpendTimeState);
+        var UserEmail =  [], Mtotal =  [], Ptotal = []
+        var MQ = [0,0,0,0], FQ = [0,0,0,0];
         
+        var Mscore = [], Pscore = [];
 
+        // M & P數據計算
+        for(let index = 0;index < userSpendTimeState.length ; index++){
+            const M_process = userSpendTimeState[index];
+            var min = (M_process.endplay.getTime() - M_process.startplay.getTime()) / 1000 / 60;  //換算成分鐘
+            // console.log("帳號:",M_process.email);
+            // console.log("mim:",min);
+            // console.log("star:",M_process.starNumber);
+            
+            if(UserEmail.length){
+                var check = true;
+                for(let index = 0;index < UserEmail.length ; index++){
+                    if(M_process.email == UserEmail[index]){
+                        Mtotal[index] = Mtotal[index] + min;
+                        Ptotal[index] = Ptotal[index] + M_process.starNumber;
+                        check = false;
+                    }
+                }
+                    if(check){
+                        UserEmail.push(M_process.email);
+                        Mtotal.push(min);
+                        Ptotal.push(M_process.starNumber);
+                    }
+            }else{
+                UserEmail.push(M_process.email);
+                Mtotal.push(min);
+                Ptotal.push(M_process.starNumber);
+            }
+                // 驗證M數據結果
+                //if(index == userSpendTimeState.length-1){
+                    // console.log("結束UserEmail:",UserEmail);
+                    // console.log("結束UserEmail len:",UserEmail.length);
+                    // console.log("結束Mtotal len:",Mtotal.length);
+                    // console.log("結束Mtotal:",Mtotal);
+                    // console.log("結束Ptotal len:",Ptotal.length);
+                    // console.log("結束Ptotal:",Ptotal);
+                //}
+        } // 結束M & P數據計算
+        
+        // console.log("結束UserEmail:",UserEmail);
+        // console.log("結束UserEmail len:",UserEmail.length);
+        // console.log("結束Mtotal len:",Mtotal.length);
+        // console.log("結束Mtotal:",Mtotal);
+        // console.log("結束Ptotal len:",Ptotal.length);
+        // console.log("結束Ptotal:",Ptotal);
 
+        // M數據由大排到小
+        let Mtime = Mtotal.length;
+        while(Mtime > 1){
+            Mtime--;
+            for(let i=0; i < Mtotal.length;i++){
+                var temp;
+                if(Mtotal[i]<Mtotal[i+1]){
+                    temp = Mtotal[i];
+                    Mtotal[i] = Mtotal[i+1];
+                    Mtotal[i+1] = temp;
 
-        // User.getUserByUsername(req.user.username, function (err, user) {
-        //     if (err) throw err;
-        //     console.log("id:",req.user.username);
-        //     var len = res.length;
-        //     console.log("len:",len);
-        //     res.json(user);
-        // })
-        //var len = res.length
-        //console.log("len:",len);
+                    temp = UserEmail[i];
+                    UserEmail[i] = UserEmail[i+1];
+                    UserEmail[i+1] = temp;
 
-    //})
+                    temp = Ptotal[i];
+                    Ptotal[i] = Ptotal[i+1];
+                    Ptotal[i+1] = temp;
+                }
+            }
+        }
+        // console.log("M數據UserEmail:",UserEmail);
+        // console.log("M數據UserEmail len:",UserEmail.length);
+        // console.log("M數據Mtotal len:",Mtotal.length);
+        console.log("M數據Mtotal:",Mtotal);
+        // console.log("M數據Ptotal len:",Ptotal.length);
+        // console.log("M數據Ptotal:",Ptotal);
+
+        // M數據的五分位數計算
+        for(let i = 0; i < MQ.length; i++){
+            if(i==3){   //取 80%  為 Q4
+                var position = Mtotal.length*0.2;
+                if ((position % 1) == 0) {
+                    MQ[i] = (Mtotal[Math.floor(position)]+Mtotal[Math.floor(position)+1])/2;
+                }else{
+                    MQ[i] = Mtotal[Math.floor(position)]; //整數無條件進位
+                }
+            }
+            if(i==2){   //取 60%  為 Q3
+                var position = Mtotal.length*0.4;
+                if ((position % 1) == 0) {
+                    MQ[i] = (Mtotal[Math.floor(position)]+Mtotal[Math.floor(position)+1])/2;
+                }else{
+                    MQ[i] = Mtotal[Math.floor(position)]; //整數無條件進位
+                }
+            }
+            if(i==1){   //取 40%  為 Q2
+                var position = Mtotal.length*0.6;
+                if ((position % 1) == 0) {
+                    MQ[i] = (Mtotal[Math.floor(position)]+Mtotal[Math.floor(position)+1])/2;
+                }else{
+                    MQ[i] = Mtotal[Math.floor(position)]; //整數無條件進位
+                }
+            }
+            if(i==0){   //取 20%  為 Q1
+                var position = Mtotal.length*0.8;
+                if ((position % 1) == 0) {
+                    MQ[i] = (Mtotal[Math.floor(position)]+Mtotal[Math.floor(position)+1])/2;
+                }else{
+                    MQ[i] = Mtotal[Math.floor(position)]; //整數無條件進位
+                }
+            }
+        }
+        console.log("MQ:",MQ);
+        // 結束 M數據的五分位數計算
+
+        // // P數據由大排到小
+        // let Ptime = Ptotal.length;
+        // while(Ptime > 1){
+        //     Ptime--;
+        //     for(let i=0; i < Ptotal.length;i++){
+        //         var temp;
+        //         if(Ptotal[i] < Ptotal[i+1]){
+        //             temp = Mtotal[i];
+        //             Mtotal[i] = Mtotal[i+1];
+        //             Mtotal[i+1] = temp;
+
+        //             temp = UserEmail[i];
+        //             UserEmail[i] = UserEmail[i+1];
+        //             UserEmail[i+1] = temp;
+
+        //             temp = Ptotal[i];
+        //             Ptotal[i] = Ptotal[i+1];
+        //             Ptotal[i+1] = temp;
+        //         }
+        //     }
+        // }
+        // // console.log("P數據UserEmail:",UserEmail);
+        // // console.log("P數據UserEmail len:",UserEmail.length);
+        // // console.log("P數據Mtotal len:",Mtotal.length);
+        // // console.log("P數據Mtotal:",Mtotal);
+        // // console.log("P數據Ptotal len:",Ptotal.length);
+        // // console.log("P數據Ptotal:",Ptotal);
+
+        // // P數據的五分位數計算
+        // for(let i = 0; i < PQ.length; i++){
+        //     if(i==3){   //取 80%  為 Q4
+        //         var position = Ptotal.length*0.2;
+        //         if ((position % 1) == 0) {
+        //             PQ[i] = (Ptotal[Math.floor(position)]+Ptotal[Math.floor(position)+1])/2;
+        //         }else{
+        //             PQ[i] = Ptotal[Math.floor(position)]; //整數無條件進位
+        //         }
+        //     }
+        //     if(i==2){   //取 60%  為 Q3
+        //         var position = Ptotal.length*0.4;
+        //         if ((position % 1) == 0) {
+        //             PQ[i] = (Ptotal[Math.floor(position)]+Ptotal[Math.floor(position)+1])/2;
+        //         }else{
+        //             PQ[i] = Ptotal[Math.floor(position)]; //整數無條件進位
+        //         }
+        //     }
+        //     if(i==1){   //取 40%  為 Q2
+        //         var position = Ptotal.length*0.6;
+        //         if ((position % 1) == 0) {
+        //             PQ[i] = (Ptotal[Math.floor(position)]+Ptotal[Math.floor(position)+1])/2;
+        //         }else{
+        //             PQ[i] = Ptotal[Math.floor(position)]; //整數無條件進位
+        //         }
+        //     }
+        //     if(i==0){   //取 20%  為 Q1
+        //         var position = Ptotal.length*0.8;
+        //         if ((position % 1) == 0) {
+        //             PQ[i] = (Ptotal[Math.floor(position)]+Ptotal[Math.floor(position)+1])/2;
+        //         }else{
+        //             PQ[i] = Ptotal[Math.floor(position)]; //整數無條件進位
+        //         }
+        //     }
+        // }
+        // // 結束計算P數據的五分位數
+    })
     
 });
 

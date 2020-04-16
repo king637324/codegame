@@ -1,5 +1,4 @@
 // 宜靜 2020.04.15
-
 if (JSON && JSON.stringify && JSON.parse) var Session = Session || (function () {
 
     // cache window 物件
@@ -196,29 +195,9 @@ if (JSON && JSON.stringify && JSON.parse) var Session = Session || (function () 
             console.log("lennn:",res.length);
             
           var obj = res[index];
-          var hightLevel = Math.max(obj.EasyEmpire.codeHighestLevel, obj.MediumEmpire.HighestLevel) + 1; //0~49 49+1 -->1~50 51
-          if (hightLevel == 51) {
-            hightLevel = 50;
-          }
-          allUserData[index].hightLevel = hightLevel;
           
-
-          var script = {
-            td01: obj.username,
-            td02: obj.name,
-            td03: obj.email,
-            td04: obj.starNum,
-            td05: allUserData[index].hightLevel,
-            td06: userstatusStr,
-          }
-          if (obj.canCreateMapPermission) {
-            script.canCreateMapPermission = obj.canCreateMapPermission
-          }
-  
-          mapData.push(script);
         }
-        completallUserData = allUserData.slice(0);
-        createLevelTable(mapData);
+        
       }
     })
   }

@@ -42,8 +42,7 @@ function selectChart(thisSelect) {
 //根據傳入的值創造Chart圖表
 function createselectChart(thisSelect) {
   //datasetsData用來存放要顯示的資料；chartType存放圖表樣式"line"為折線圖...剩下的參考chart.js官網
-  var datasetsData = [0],
-    chartType;
+  var datasetsData = [0],chartType;
   switch (thisSelect) {
     case "playNumber":
       chartType = "line";

@@ -23,6 +23,6 @@ module.exports.createUserSpendTimeState = function (newUserSpendTimeState, callb
 
 module.exports.getAllUserSpendTimeState = function (callback) {
     var query =  { username: { $ne: "" }}
-    UserUserSpendTime.find(query, callback)
+    UserSpendTime.find(query, callback)
 }
 
