@@ -1443,214 +1443,399 @@ router.get('/managementRFMP', ensureAuthenticated, function (req, res, next) {
 });
 
 router.post('/managementRFMP', function (req, res, next) {
-    /* 陣列測試
-    var test_data = [5,2,1,4,3],test_name = ["E","B","A","D","C"];
-    let time = test_data.length;
-    while(time > 1){
-        time--;
-        for(let i=0; i < test_data.length;i++){
-            var temp;
-            if(test_data[i]>test_data[i+1]){
-                temp = test_data[i];
-                test_data[i] = test_data[i+1];
-                test_data[i+1] = temp;
-
-                temp = test_name[i];
-                test_name[i] = test_name[i+1];
-                test_name[i+1] = temp;
-            }
-        }
-    }
-
-    console.log("test_data",test_data);
-    console.log("test_name",test_name);
-
-    陣列測試*/
-
-    UserSpendTime.getAllUserSpendTimeState(function (err, userSpendTimeState){
+    var UserRFMP = []; // 陣列裡中每一筆資料存 [玩家信箱,R數據,F數據,M數據,P數據,R評分,F評分,M評分,P評分,R值,F值,M值,P值,學習者類型]
+                                           // [   0   ,  1  ,  2  ,  3  , 4  ,  5  ,  6  , 7  ,  8  , 9 , 10, 11, 12,    13   ]
+    var RQ = [0,0,0,0],FQ = [0,0,0,0],MQ = [0,0,0,0], PQ = [0,0,0,0];
+    var Rave = 0,Fave = 0,Mave = 0,Fave = 0;
+    var Rtime = new Date().getTime();
+    
+    User.getAllUser(function (err, userState){
         if (err) throw err;
-        //console.log("testtest:",userSpendTimeState);
-        var UserEmail =  [], Mtotal =  [], Ptotal = []
-        var MQ = [0,0,0,0], FQ = [0,0,0,0];
-        
-        var Mscore = [], Pscore = [];
+        console.log("玩家人數:",userState.length);
+        var userlen = 0;    // 判斷玩家人數，因要扣除管理者
 
-        // M & P數據計算
-        for(let index = 0;index < userSpendTimeState.length ; index++){
-            const M_process = userSpendTimeState[index];
-            var min = (M_process.endplay.getTime() - M_process.startplay.getTime()) / 1000 / 60;  //換算成分鐘
-            // console.log("帳號:",M_process.email);
-            // console.log("mim:",min);
-            // console.log("star:",M_process.starNumber);
-            
-            if(UserEmail.length){
-                var check = true;
-                for(let index = 0;index < UserEmail.length ; index++){
-                    if(M_process.email == UserEmail[index]){
-                        Mtotal[index] = Mtotal[index] + min;
-                        Ptotal[index] = Ptotal[index] + M_process.starNumber;
-                        check = false;
+        // 初始化所有玩家RFMP陣列資料
+        for(let index = 0;index < userState.length; index++){
+            if( userState[index].email != undefined ){
+                UserRFMP[userlen] = [userState[index].email,0,0,0,0,0,0,0,0,0,0,0,0,""];
+                userlen = userlen + 1;
+            }
+        }// 結束初始化所有玩家RFMP陣列資料
+
+        // R & F數據計算
+        for(let index = 0;index < userState.length; index++){
+            if(userState[index].Logintime.length){    // 如果userState[index]此玩家有登入資料
+                for(let i=0; i < UserRFMP.length; i++){
+                    if(userState[index].email == UserRFMP[i][0]){
+                        var Login = userState[index].Logintime.length;
+                        var Rsub = (Rtime - userState[index].Logintime[Login-1].getTime()) / 1000 / 60 / 60 / 24;  //換算成天 
+                        UserRFMP[i][1] = Rsub;// UserRFMP[i][1] 存 Rdata
+                        UserRFMP[i][2] = Login;  // UserRFMP[i][2] 存 Fdata
                     }
                 }
-                    if(check){
-                        UserEmail.push(M_process.email);
-                        Mtotal.push(min);
-                        Ptotal.push(M_process.starNumber);
-                    }
-            }else{
-                UserEmail.push(M_process.email);
-                Mtotal.push(min);
-                Ptotal.push(M_process.starNumber);
             }
-                // 驗證M數據結果
-                //if(index == userSpendTimeState.length-1){
-                    // console.log("結束UserEmail:",UserEmail);
-                    // console.log("結束UserEmail len:",UserEmail.length);
-                    // console.log("結束Mtotal len:",Mtotal.length);
-                    // console.log("結束Mtotal:",Mtotal);
-                    // console.log("結束Ptotal len:",Ptotal.length);
-                    // console.log("結束Ptotal:",Ptotal);
-                //}
-        } // 結束M & P數據計算
-        
-        // console.log("結束UserEmail:",UserEmail);
-        // console.log("結束UserEmail len:",UserEmail.length);
-        // console.log("結束Mtotal len:",Mtotal.length);
-        // console.log("結束Mtotal:",Mtotal);
-        // console.log("結束Ptotal len:",Ptotal.length);
-        // console.log("結束Ptotal:",Ptotal);
+        } // 結束 R & F 數據計算
 
-        // M數據由大排到小
-        let Mtime = Mtotal.length;
-        while(Mtime > 1){
-            Mtime--;
-            for(let i=0; i < Mtotal.length;i++){
+        // R數據由小排到大
+        let Rtime = UserRFMP.length;
+        while(Rtime > 1){
+            Rtime--;
+            for(let i=0; i < UserRFMP.length-1;i++){
                 var temp;
-                if(Mtotal[i]<Mtotal[i+1]){
-                    temp = Mtotal[i];
-                    Mtotal[i] = Mtotal[i+1];
-                    Mtotal[i+1] = temp;
-
-                    temp = UserEmail[i];
-                    UserEmail[i] = UserEmail[i+1];
-                    UserEmail[i+1] = temp;
-
-                    temp = Ptotal[i];
-                    Ptotal[i] = Ptotal[i+1];
-                    Ptotal[i+1] = temp;
+                if( UserRFMP[i][1] > UserRFMP[i+1][1] ){
+                    temp = UserRFMP[i];
+                    UserRFMP[i] = UserRFMP[i+1];
+                    UserRFMP[i+1] = temp;
                 }
             }
-        }
-        // console.log("M數據UserEmail:",UserEmail);
-        // console.log("M數據UserEmail len:",UserEmail.length);
-        // console.log("M數據Mtotal len:",Mtotal.length);
-        console.log("M數據Mtotal:",Mtotal);
-        // console.log("M數據Ptotal len:",Ptotal.length);
-        // console.log("M數據Ptotal:",Ptotal);
+        } 
 
-        // M數據的五分位數計算
-        for(let i = 0; i < MQ.length; i++){
+        // R數據的五分位數計算
+        for(let i = 0; i < RQ.length; i++){
             if(i==3){   //取 80%  為 Q4
-                var position = Mtotal.length*0.2;
+                var position = UserRFMP.length*0.2;
                 if ((position % 1) == 0) {
-                    MQ[i] = (Mtotal[Math.floor(position)]+Mtotal[Math.floor(position)+1])/2;
+                    RQ[i] = (UserRFMP[Math.floor(position)][1] + UserRFMP[Math.floor(position)+1][1])/2;
                 }else{
-                    MQ[i] = Mtotal[Math.floor(position)]; //整數無條件進位
+                    RQ[i] = UserRFMP[Math.floor(position)][1]; //整數無條件進位
                 }
             }
             if(i==2){   //取 60%  為 Q3
-                var position = Mtotal.length*0.4;
+                var position = UserRFMP.length*0.4;
                 if ((position % 1) == 0) {
-                    MQ[i] = (Mtotal[Math.floor(position)]+Mtotal[Math.floor(position)+1])/2;
+                    RQ[i] = (UserRFMP[Math.floor(position)][1] + UserRFMP[Math.floor(position)+1][1])/2;
                 }else{
-                    MQ[i] = Mtotal[Math.floor(position)]; //整數無條件進位
+                    RQ[i] = UserRFMP[Math.floor(position)][1]; //整數無條件進位
                 }
             }
             if(i==1){   //取 40%  為 Q2
-                var position = Mtotal.length*0.6;
+                var position = UserRFMP.length*0.6;
                 if ((position % 1) == 0) {
-                    MQ[i] = (Mtotal[Math.floor(position)]+Mtotal[Math.floor(position)+1])/2;
+                    RQ[i] = (UserRFMP[Math.floor(position)][1] + UserRFMP[Math.floor(position)+1][1])/2;
                 }else{
-                    MQ[i] = Mtotal[Math.floor(position)]; //整數無條件進位
+                    RQ[i] = UserRFMP[Math.floor(position)][1]; //整數無條件進位
                 }
             }
             if(i==0){   //取 20%  為 Q1
-                var position = Mtotal.length*0.8;
+                var position = UserRFMP.length*0.8;
                 if ((position % 1) == 0) {
-                    MQ[i] = (Mtotal[Math.floor(position)]+Mtotal[Math.floor(position)+1])/2;
+                    RQ[i] = (UserRFMP[Math.floor(position)][1] + UserRFMP[Math.floor(position)+1][1])/2;
                 }else{
-                    MQ[i] = Mtotal[Math.floor(position)]; //整數無條件進位
+                    RQ[i] = UserRFMP[Math.floor(position)][1]; //整數無條件進位
                 }
             }
         }
-        console.log("MQ:",MQ);
-        // 結束 M數據的五分位數計算
+        console.log("RQ:",RQ);
+        // 結束 R數據的五分位數計算
 
-        // // P數據由大排到小
-        // let Ptime = Ptotal.length;
-        // while(Ptime > 1){
-        //     Ptime--;
-        //     for(let i=0; i < Ptotal.length;i++){
-        //         var temp;
-        //         if(Ptotal[i] < Ptotal[i+1]){
-        //             temp = Mtotal[i];
-        //             Mtotal[i] = Mtotal[i+1];
-        //             Mtotal[i+1] = temp;
+        // 玩家R評分計算
+        for(let index = 0; index < UserRFMP.length; index++){
+            if(UserRFMP[index][1] >= RQ[3]){  // 如果大於等於RQ4，得5分
+                UserRFMP[index][5] = 5;
+            }else if((UserRFMP[index][1] < RQ[3]) && (UserRFMP[index][1] >= RQ[2])){  // 如果小於RQ4，且大於等於RQ3，得4分
+                UserRFMP[index][5] = 4;
+            }else if((UserRFMP[index][1] < RQ[2]) && (UserRFMP[index][1] >= RQ[1])){  // 如果小於RQ3，且大於等於RQ2，得3分
+                UserRFMP[index][5] = 3;
+            }else if((UserRFMP[index][1] < RQ[1]) && (UserRFMP[index][1] >= RQ[0])){  // 如果小於RQ2，且大於等於RQ1，得2分
+                UserRFMP[index][5] = 2;
+            }else{  // 如果小於等於MQ1，得1分
+                UserRFMP[index][5] = 1;
+            }
+        } // 結束 玩家R評分計算
 
-        //             temp = UserEmail[i];
-        //             UserEmail[i] = UserEmail[i+1];
-        //             UserEmail[i+1] = temp;
+        for(let i=0;i < UserRFMP.length; i++){
+            Rave = Rave + UserRFMP[i][1];
+        }
+        console.log("R評分總分數:",Rave);
+        Rave = Rave / UserRFMP.length;
+        console.log("R評分平均:",Rave);
 
-        //             temp = Ptotal[i];
-        //             Ptotal[i] = Ptotal[i+1];
-        //             Ptotal[i+1] = temp;
-        //         }
-        //     }
+        // // 更新使用者Rscore
+        // for(let i=0;i < UserRFMP.length; i++){
+        //     User.updateRscore(UserRFMP[i][0], UserRFMP[i][1] ,function (err, record) {
+        //         if (err) throw err;
+        //    })
         // }
-        // // console.log("P數據UserEmail:",UserEmail);
-        // // console.log("P數據UserEmail len:",UserEmail.length);
-        // // console.log("P數據Mtotal len:",Mtotal.length);
-        // // console.log("P數據Mtotal:",Mtotal);
-        // // console.log("P數據Ptotal len:",Ptotal.length);
-        // // console.log("P數據Ptotal:",Ptotal);
 
-        // // P數據的五分位數計算
-        // for(let i = 0; i < PQ.length; i++){
-        //     if(i==3){   //取 80%  為 Q4
-        //         var position = Ptotal.length*0.2;
-        //         if ((position % 1) == 0) {
-        //             PQ[i] = (Ptotal[Math.floor(position)]+Ptotal[Math.floor(position)+1])/2;
-        //         }else{
-        //             PQ[i] = Ptotal[Math.floor(position)]; //整數無條件進位
-        //         }
-        //     }
-        //     if(i==2){   //取 60%  為 Q3
-        //         var position = Ptotal.length*0.4;
-        //         if ((position % 1) == 0) {
-        //             PQ[i] = (Ptotal[Math.floor(position)]+Ptotal[Math.floor(position)+1])/2;
-        //         }else{
-        //             PQ[i] = Ptotal[Math.floor(position)]; //整數無條件進位
-        //         }
-        //     }
-        //     if(i==1){   //取 40%  為 Q2
-        //         var position = Ptotal.length*0.6;
-        //         if ((position % 1) == 0) {
-        //             PQ[i] = (Ptotal[Math.floor(position)]+Ptotal[Math.floor(position)+1])/2;
-        //         }else{
-        //             PQ[i] = Ptotal[Math.floor(position)]; //整數無條件進位
-        //         }
-        //     }
-        //     if(i==0){   //取 20%  為 Q1
-        //         var position = Ptotal.length*0.8;
-        //         if ((position % 1) == 0) {
-        //             PQ[i] = (Ptotal[Math.floor(position)]+Ptotal[Math.floor(position)+1])/2;
-        //         }else{
-        //             PQ[i] = Ptotal[Math.floor(position)]; //整數無條件進位
-        //         }
-        //     }
+        // F數據由大排到小
+        let Ftime = UserRFMP.length;
+        while(Ftime > 1){
+            Ftime--;
+            for(let i=0; i < UserRFMP.length-1;i++){
+                var temp;
+                if( UserRFMP[i][2] < UserRFMP[i+1][2] ){
+                    temp = UserRFMP[i];
+                    UserRFMP[i] = UserRFMP[i+1];
+                    UserRFMP[i+1] = temp;
+                }
+            }
+        }  
+
+        // F數據的五分位數計算
+        for(let i = 0; i < FQ.length; i++){
+            if(i==3){   //取 80%  為 Q4
+                var position = UserRFMP.length*0.2;
+                if ((position % 1) == 0) {
+                    FQ[i] = (UserRFMP[Math.floor(position)][2] + UserRFMP[Math.floor(position)+1][2])/2;
+                }else{
+                    FQ[i] = UserRFMP[Math.floor(position)][2]; //整數無條件進位
+                }
+            }
+            if(i==2){   //取 60%  為 Q3
+                var position = UserRFMP.length*0.4;
+                if ((position % 1) == 0) {
+                    FQ[i] = (UserRFMP[Math.floor(position)][2] + UserRFMP[Math.floor(position)+1][2])/2;
+                }else{
+                    FQ[i] = UserRFMP[Math.floor(position)][2]; //整數無條件進位
+                }
+            }
+            if(i==1){   //取 40%  為 Q2
+                var position = UserRFMP.length*0.6;
+                if ((position % 1) == 0) {
+                    FQ[i] = (UserRFMP[Math.floor(position)][2] + UserRFMP[Math.floor(position)+1][2])/2;
+                }else{
+                    FQ[i] = UserRFMP[Math.floor(position)][2]; //整數無條件進位
+                }
+            }
+            if(i==0){   //取 20%  為 Q1
+                var position = UserRFMP.length*0.8;
+                if ((position % 1) == 0) {
+                    FQ[i] = (UserRFMP[Math.floor(position)][2] + UserRFMP[Math.floor(position)+1][2])/2;
+                }else{
+                    FQ[i] = UserRFMP[Math.floor(position)][2]; //整數無條件進位
+                }
+            }
+        }
+        console.log("FQ:",FQ);
+        // 結束 F數據的五分位數計算
+
+        // 玩家F評分計算
+        for(let index = 0; index < UserRFMP.length; index++){
+            if(UserRFMP[index][2] >= FQ[3]){  // 如果大於等於FQ4，得5分
+                UserRFMP[index][6] = 5;
+            }else if((UserRFMP[index][2] < FQ[3]) && (UserRFMP[index][2] >= FQ[2])){  // 如果小於FQ4，且大於等於FQ3，得4分
+                UserRFMP[index][6] = 4;
+            }else if((UserRFMP[index][2] < FQ[2]) && (UserRFMP[index][2] >= FQ[1])){  // 如果小於FQ3，且大於等於FQ2，得3分
+                UserRFMP[index][6] = 3;
+            }else if((UserRFMP[index][2] < FQ[1]) && (UserRFMP[index][2] >= FQ[0])){  // 如果小於FQ2，且大於等於FQ1，得2分
+                UserRFMP[index][6] = 2;
+            }else{  // 如果小於等於FQ1，得1分
+                UserRFMP[index][5] = 1;
+            }
+        } // 結束 玩家F評分計算
+
+        for(let i=0;i < UserRFMP.length; i++){
+            Fave = Fave + UserRFMP[i][6];
+        }
+        console.log("F評分總分數:",Fave);
+        Fave = Fave / UserRFMP.length;
+        console.log("F評分平均:",Fave);
+
+        // // 更新使用者Fscore
+        // for(let i=0;i < UserRFMP.length; i++){
+        //     User.updateFscore(UserRFMP[i][0], UserRFMP[i][6] ,function (err, record) {
+        //         if (err) throw err;
+        //    })
         // }
-        // // 結束計算P數據的五分位數
-    })
+
+        // 以下做 M & P的計算
+        UserSpendTime.getAllUserSpendTimeState(function (err, userSpendTimeState){
+            if (err) throw err;
+    
+            // M & P數據計算
+            for(let index = 0;index < userSpendTimeState.length ;index++){
+                const MP_process = userSpendTimeState[index];
+                var min = (MP_process.endplay.getTime() - MP_process.startplay.getTime()) / 1000 / 60;  //換算成分鐘
+                var check = true;
+                for(let index = 0;index < UserRFMP.length ; index++){
+                    if(MP_process.email == UserRFMP[index][0]){
+                        UserRFMP[index][3] = UserRFMP[index][3] + min;  // UserRFMP[index][3] 存 Mdata
+                        UserRFMP[index][4] = UserRFMP[index][4] + MP_process.starNumber;  // UserRFMP[index][4] 存 Pdata
+                        check = false;
+                    }
+                }
+                if(check){
+                    UserRFMP[UserRFMP.length] = [,,,min,MP_process.starNumber];
+                }   
+            } // 結束M & P數據計算
+            
+    
+            // M數據由大排到小
+            let Mtime = UserRFMP.length;
+            while(Mtime > 1){
+                Mtime--;
+                for(let i=0; i < UserRFMP.length-1;i++){
+                    var temp;
+                    if( UserRFMP[i][3] < UserRFMP[i+1][3] ){
+                        temp = UserRFMP[i];
+                        UserRFMP[i] = UserRFMP[i+1];
+                        UserRFMP[i+1] = temp;
+                    }
+                }
+            }   
+    
+            // M數據的五分位數計算
+            for(let i = 0; i < MQ.length; i++){
+                if(i==3){   //取 80%  為 Q4
+                    var position = UserRFMP.length*0.2;
+                    if ((position % 1) == 0) {
+                        MQ[i] = (UserRFMP[Math.floor(position)][3] + UserRFMP[Math.floor(position)+1][3])/2;
+                    }else{
+                        MQ[i] = UserRFMP[Math.floor(position)][3]; //整數無條件進位
+                    }
+                }
+                if(i==2){   //取 60%  為 Q3
+                    var position = UserRFMP.length*0.4;
+                    if ((position % 1) == 0) {
+                        MQ[i] = (UserRFMP[Math.floor(position)][3] + UserRFMP[Math.floor(position)+1][3])/2;
+                    }else{
+                        MQ[i] = UserRFMP[Math.floor(position)][3]; //整數無條件進位
+                    }
+                }
+                if(i==1){   //取 40%  為 Q2
+                    var position = UserRFMP.length*0.6;
+                    if ((position % 1) == 0) {
+                        MQ[i] = (UserRFMP[Math.floor(position)][3] + UserRFMP[Math.floor(position)+1][3])/2;
+                    }else{
+                        MQ[i] = UserRFMP[Math.floor(position)][3]; //整數無條件進位
+                    }
+                }
+                if(i==0){   //取 20%  為 Q1
+                    var position = UserRFMP.length*0.8;
+                    if ((position % 1) == 0) {
+                        MQ[i] = (UserRFMP[Math.floor(position)][3] + UserRFMP[Math.floor(position)+1][3])/2;
+                    }else{
+                        MQ[i] = UserRFMP[Math.floor(position)][3]; //整數無條件進位
+                    }
+                }
+            }
+            console.log("MQ:",MQ);
+            // 結束 M數據的五分位數計算
+    
+            // 玩家M評分計算
+            for(let index = 0; index < UserRFMP.length; index++){
+                if(UserRFMP[index][3] >= MQ[3]){  // 如果大於等於MQ4，得5分
+                    UserRFMP[index][7] = 5;
+                }else if((UserRFMP[index][3] < MQ[3]) && (UserRFMP[index][3] >= MQ[2])){  // 如果小於MQ4，且大於等於MQ3，得4分
+                    UserRFMP[index][7] = 4;
+                }else if((UserRFMP[index][3] < MQ[2]) && (UserRFMP[index][3] >= MQ[1])){  // 如果小於MQ3，且大於等於MQ2，得3分
+                    UserRFMP[index][7] = 3;
+                }else if((UserRFMP[index][3] < MQ[1]) && (UserRFMP[index][3] >= MQ[0])){  // 如果小於MQ2，且大於等於MQ1，得2分
+                    UserRFMP[index][7] = 2;
+                }else{  // 如果小於等於MQ1，得1分
+                    UserRFMP[index][7] = 1;
+                }
+            } // 結束 玩家M評分計算
+    
+            for(let i=0;i < UserRFMP.length; i++){
+                Mave = Mave + UserRFMP[i][7];
+            }
+            console.log("M評分總分數:",Mave);
+            Mave = Mave / UserRFMP.length;
+            console.log("M評分平均:",Mave);
+    
+            // // 更新使用者Mscore
+            // for(let i=0;i < UserRFMP.length; i++){
+            //     User.updateMscore(UserRFMP[i][0], UserRFMP[i][7] ,function (err, record) {
+            //         if (err) throw err;
+            //    })
+            // }
+            
+            // P數據由大排到小
+            let Ptime = UserRFMP.length;
+            while(Ptime > 1){
+                Ptime--;
+                for(let i=0; i < UserRFMP.length-1;i++){
+                    var temp;
+                    if( UserRFMP[i][4] < UserRFMP[i+1][4] ){
+                        temp = UserRFMP[i];
+                        UserRFMP[i] = UserRFMP[i+1];
+                        UserRFMP[i+1] = temp;
+                    }
+                }
+            }
+    
+            // P數據的五分位數計算
+            for(let i = 0; i < PQ.length; i++){
+                if(i==3){   //取 80%  為 Q4
+                    var position = UserRFMP.length*0.2;
+                    if ((position % 1) == 0) {
+                        PQ[i] = (UserRFMP[Math.floor(position)][4] + UserRFMP[Math.floor(position)+1][4])/2;
+                    }else{
+                        PQ[i] = UserRFMP[Math.floor(position)][4]; //整數無條件進位
+                    }
+                }
+                if(i==2){   //取 60%  為 Q3
+                    var position = UserRFMP.length*0.4;
+                    if ((position % 1) == 0) {
+                        PQ[i] = (UserRFMP[Math.floor(position)][4] + UserRFMP[Math.floor(position)+1][4])/2;
+                    }else{
+                        PQ[i] = UserRFMP[Math.floor(position)][4]; //整數無條件進位
+                    }
+                }
+                if(i==1){   //取 40%  為 Q2
+                    var position = UserRFMP.length*0.6;
+                    if ((position % 1) == 0) {
+                        PQ[i] = (UserRFMP[Math.floor(position)][4] + UserRFMP[Math.floor(position)+1][4])/2;
+                    }else{
+                        PQ[i] = UserRFMP[Math.floor(position)][4]; //整數無條件進位
+                    }
+                }
+                if(i==0){   //取 20%  為 Q1
+                    var position = UserRFMP.length*0.8;
+                    if ((position % 1) == 0) {
+                        PQ[i] = (UserRFMP[Math.floor(position)][4] + UserRFMP[Math.floor(position)+1][4])/2;
+                    }else{
+                        PQ[i] = UserRFMP[Math.floor(position)][4]; //整數無條件進位
+                    }
+                }
+            }
+            console.log("PQ:",PQ);
+            // 結束 P數據的五分位數計算
+            console.log("F評分總分數 init:",Fave);
+            // 玩家P評分計算
+            for(let index = 0; index < UserRFMP.length; index++){
+                if(UserRFMP[index][4] >= PQ[3]){  // 如果大於等於PQ4，得5分
+                    UserRFMP[index][8] = 5;
+                }else if((UserRFMP[index][4] < PQ[3]) && (UserRFMP[index][4] >= PQ[2])){  // 如果小於PQ4，且大於等於PQ3，得4分
+                    UserRFMP[index][8] = 4;
+                }else if((UserRFMP[index][4] < PQ[2]) && (UserRFMP[index][4] >= PQ[1])){  // 如果小於PQ3，且大於等於PQ2，得3分
+                    UserRFMP[index][8] = 3;
+                }else if((UserRFMP[index][4] < PQ[1]) && (UserRFMP[index][4] >= PQ[0])){  // 如果小於PQ2，且大於等於PQ1，得2分
+                    UserRFMP[index][8] = 2;
+                }else{  // 如果小於等於PQ1，得1分
+                    UserRFMP[index][8] = 1;
+                }
+                if(UserRFMP[index][4] == 0 ){  // 如果等於0，得0分
+                    UserRFMP[index][8] = 0;
+                }
+            } // 結束 玩家P評分計算
+    
+            for(let i=0;i < UserRFMP.length; i++){
+                Fave = Fave + UserRFMP[i][8];
+            }
+            console.log("F評分總分數:",Fave);
+            Fave = Fave / UserRFMP.length;
+            console.log("F評分平均:",Fave);
+    
+            // // 更新使用者Pscore
+            // for(let i=0;i < UserRFMP.length; i++){
+            //     User.updatePscore(UserRFMP[i][0], UserRFMP[i][8] ,function (err, record) {
+            //         if (err) throw err;
+            //    })
+            // }
+
+
+            for(let i=0;i < UserRFMP.length; i++){
+                console.log("裡面UserRFMP[",i,"]:",UserRFMP[i]);
+            }
+        }) // 結束 UserSpendTime.getAllUserSpendTimeState
+        for(let i=0;i < UserRFMP.length; i++){
+            console.log("外面UserRFMP[",i,"]:",UserRFMP[i]);
+        }
+        
+        
+    }) // 結束 User.getAllUser
     
 });
 

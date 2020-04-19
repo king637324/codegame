@@ -203,9 +203,9 @@ module.exports.updateUserLogintime = function(id, Logintime, callback) {
   }
 
 //updateRscore 更新R的評分值
-module.exports.updateRscore = function(id, Rscore, callback) {
+module.exports.updateRscore = function(email, Rscore, callback) {
     var query = {
-      _id: id
+        email: email
     }
     var setquery = {
         Rscore: Rscore
@@ -214,9 +214,9 @@ module.exports.updateRscore = function(id, Rscore, callback) {
 }
 
 //updateFscore 更新F的評分值
-module.exports.updateFscore = function(id, Fscore, callback) {
+module.exports.updateFscore = function(email, Fscore, callback) {
     var query = {
-      _id: id
+        email: email
     }
     var setquery = {
         Fscore: Fscore
@@ -225,9 +225,9 @@ module.exports.updateFscore = function(id, Fscore, callback) {
 }
 
 //updateMscore 更新M的評分值
-module.exports.updateMscore = function(id, Mscore, callback) {
+module.exports.updateMscore = function(email, Mscore, callback) {
     var query = {
-      _id: id
+        email: email
     }
     var setquery = {
         Mscore: Mscore
@@ -236,14 +236,19 @@ module.exports.updateMscore = function(id, Mscore, callback) {
 }
 
 //updatePscore 更新P的評分值
-module.exports.updatePscore = function(id, Pscore, callback) {
+module.exports.updatePscore = function(email, Pscore, callback) {
     var query = {
-      _id: id
+        email: email
     }
     var setquery = {
         Pscore: Pscore
     }
     User.updateOne(query, setquery, callback);
+}
+
+module.exports.getAllUser = function (callback) {
+    var query =  { username: { $ne: "" }}
+    User.find(query, callback)
 }
 
 // 以上宜靜 2020.04.15
