@@ -1447,7 +1447,7 @@ router.post('/managementRFMP', function (req, res, next) {
                                            // [   0   ,  1  ,  2  ,  3  , 4  ,  5  ,  6  , 7  ,  8  , 9 , 10, 11, 12,    13   ]
     var RQ = [0,0,0,0],FQ = [0,0,0,0],MQ = [0,0,0,0], PQ = [0,0,0,0];
     var Rave = 0,Fave = 0,Mave = 0,Fave = 0;
-    var Rtime = new Date().getTime();
+    var Rday = new Date().getTime();
     
     User.getAllUser(function (err, userState){
         if (err) throw err;
@@ -1456,7 +1456,7 @@ router.post('/managementRFMP', function (req, res, next) {
 
         // 初始化所有玩家RFMP陣列資料
         for(let index = 0;index < userState.length; index++){
-            if( userState[index].email != undefined ){
+            if( userState[index].email != "NKUSTCCEA@gmail.com" ){
                 UserRFMP[userlen] = [userState[index].email,0,0,0,0,0,0,0,0,0,0,0,0,""];
                 userlen = userlen + 1;
             }
@@ -1468,7 +1468,7 @@ router.post('/managementRFMP', function (req, res, next) {
                 for(let i=0; i < UserRFMP.length; i++){
                     if(userState[index].email == UserRFMP[i][0]){
                         var Login = userState[index].Logintime.length;
-                        var Rsub = (Rtime - userState[index].Logintime[Login-1].getTime()) / 1000 / 60 / 60 / 24;  //換算成天 
+                        var Rsub = (Rday - userState[index].Logintime[Login-1].getTime()) / 1000 / 60 / 60 / 24;  //換算成天 
                         UserRFMP[i][1] = Rsub;// UserRFMP[i][1] 存 Rdata
                         UserRFMP[i][2] = Login;  // UserRFMP[i][2] 存 Fdata
                     }
@@ -1530,13 +1530,13 @@ router.post('/managementRFMP', function (req, res, next) {
 
         // 玩家R評分計算
         for(let index = 0; index < UserRFMP.length; index++){
-            if(UserRFMP[index][1] >= RQ[3]){  // 如果大於等於RQ4，得5分
+            if(UserRFMP[index][1] <= RQ[3]){  // 如果大於等於RQ4，得5分
                 UserRFMP[index][5] = 5;
-            }else if((UserRFMP[index][1] < RQ[3]) && (UserRFMP[index][1] >= RQ[2])){  // 如果小於RQ4，且大於等於RQ3，得4分
+            }else if((UserRFMP[index][1] > RQ[3]) && (UserRFMP[index][1] <= RQ[2])){  // 如果小於RQ4，且大於等於RQ3，得4分
                 UserRFMP[index][5] = 4;
-            }else if((UserRFMP[index][1] < RQ[2]) && (UserRFMP[index][1] >= RQ[1])){  // 如果小於RQ3，且大於等於RQ2，得3分
+            }else if((UserRFMP[index][1] > RQ[2]) && (UserRFMP[index][1] <= RQ[1])){  // 如果小於RQ3，且大於等於RQ2，得3分
                 UserRFMP[index][5] = 3;
-            }else if((UserRFMP[index][1] < RQ[1]) && (UserRFMP[index][1] >= RQ[0])){  // 如果小於RQ2，且大於等於RQ1，得2分
+            }else if((UserRFMP[index][1] > RQ[1]) && (UserRFMP[index][1] <= RQ[0])){  // 如果小於RQ2，且大於等於RQ1，得2分
                 UserRFMP[index][5] = 2;
             }else{  // 如果小於等於MQ1，得1分
                 UserRFMP[index][5] = 1;
