@@ -1431,6 +1431,7 @@ router.post('/managementUser', function (req, res, next) {
     }
 
 });
+
 // 以下宜靜 2020.04.14
 router.get('/managementRFMP', ensureAuthenticated, function (req, res, next) {
     // console.log(req.user)
@@ -1444,14 +1445,14 @@ router.get('/managementRFMP', ensureAuthenticated, function (req, res, next) {
 
 router.post('/managementRFMP', function (req, res, next) {
     var UserRFMP = []; // 陣列裡中每一筆資料存 [玩家信箱,R數據,F數據,M數據,P數據,R評分,F評分,M評分,P評分,R值,F值,M值,P值,學習者類型]
-                                           // [   0   ,  1  ,  2  ,  3  , 4  ,  5  ,  6  , 7  ,  8  , 9 , 10, 11, 12,    13   ]
+                                          // [   0   ,  1  ,  2 ,  3  , 4  ,  5  ,  6  , 7  ,  8  , 9 , 10,11, 12,    13   ]
     var RQ = [0,0,0,0],FQ = [0,0,0,0],MQ = [0,0,0,0], PQ = [0,0,0,0];
-    var Rave = 0,Fave = 0,Mave = 0,Fave = 0;
+    var Rave = 0,Fave = 0,Mave = 0,Pave = 0;
     var Rday = new Date().getTime();
     
     User.getAllUser(function (err, userState){
         if (err) throw err;
-        console.log("玩家人數:",userState.length);
+        console.log("玩家人數:",userState.length - 1);
         var userlen = 0;    // 判斷玩家人數，因要扣除管理者
 
         // 初始化所有玩家RFMP陣列資料
@@ -1469,20 +1470,20 @@ router.post('/managementRFMP', function (req, res, next) {
                     if(userState[index].email == UserRFMP[i][0]){
                         var Login = userState[index].Logintime.length;
                         var Rsub = (Rday - userState[index].Logintime[Login-1].getTime()) / 1000 / 60 / 60 / 24;  //換算成天 
-                        UserRFMP[i][1] = Rsub;// UserRFMP[i][1] 存 Rdata
+                        UserRFMP[i][1] = 1 / Rsub;// UserRFMP[i][1] 存 Rdata
                         UserRFMP[i][2] = Login;  // UserRFMP[i][2] 存 Fdata
                     }
                 }
             }
         } // 結束 R & F 數據計算
 
-        // R數據由小排到大
+        // R數據由大排到小
         let Rtime = UserRFMP.length;
         while(Rtime > 1){
             Rtime--;
             for(let i=0; i < UserRFMP.length-1;i++){
                 var temp;
-                if( UserRFMP[i][1] > UserRFMP[i+1][1] ){
+                if( UserRFMP[i][1] < UserRFMP[i+1][1] ){
                     temp = UserRFMP[i];
                     UserRFMP[i] = UserRFMP[i+1];
                     UserRFMP[i+1] = temp;
@@ -1530,32 +1531,35 @@ router.post('/managementRFMP', function (req, res, next) {
 
         // 玩家R評分計算
         for(let index = 0; index < UserRFMP.length; index++){
-            if(UserRFMP[index][1] <= RQ[3]){  // 如果大於等於RQ4，得5分
+            if(UserRFMP[index][1] >= RQ[3]){  // 如果大於等於RQ4，得5分
                 UserRFMP[index][5] = 5;
-            }else if((UserRFMP[index][1] > RQ[3]) && (UserRFMP[index][1] <= RQ[2])){  // 如果小於RQ4，且大於等於RQ3，得4分
+            }else if((UserRFMP[index][1] < RQ[3]) && (UserRFMP[index][1] >= RQ[2])){  // 如果小於RQ4，且大於等於RQ3，得4分
                 UserRFMP[index][5] = 4;
-            }else if((UserRFMP[index][1] > RQ[2]) && (UserRFMP[index][1] <= RQ[1])){  // 如果小於RQ3，且大於等於RQ2，得3分
+            }else if((UserRFMP[index][1] < RQ[2]) && (UserRFMP[index][1] >= RQ[1])){  // 如果小於RQ3，且大於等於RQ2，得3分
                 UserRFMP[index][5] = 3;
-            }else if((UserRFMP[index][1] > RQ[1]) && (UserRFMP[index][1] <= RQ[0])){  // 如果小於RQ2，且大於等於RQ1，得2分
+            }else if((UserRFMP[index][1] < RQ[1]) && (UserRFMP[index][1] >= RQ[0])){  // 如果小於RQ2，且大於等於RQ1，得2分
                 UserRFMP[index][5] = 2;
             }else{  // 如果小於等於MQ1，得1分
                 UserRFMP[index][5] = 1;
             }
         } // 結束 玩家R評分計算
 
+
         for(let i=0;i < UserRFMP.length; i++){
-            Rave = Rave + UserRFMP[i][1];
+            Rave = Rave + UserRFMP[i][5];
         }
         console.log("R評分總分數:",Rave);
         Rave = Rave / UserRFMP.length;
         console.log("R評分平均:",Rave);
 
-        // // 更新使用者Rscore
-        // for(let i=0;i < UserRFMP.length; i++){
-        //     User.updateRscore(UserRFMP[i][0], UserRFMP[i][1] ,function (err, record) {
-        //         if (err) throw err;
-        //    })
-        // }
+        
+
+        // 更新使用者Rscore
+        for(let i=0;i < UserRFMP.length; i++){
+            User.updateRscore(UserRFMP[i][0], UserRFMP[i][5] ,function (err, record) {
+                if (err) throw err;
+           })
+        }
 
         // F數據由大排到小
         let Ftime = UserRFMP.length;
@@ -1620,7 +1624,7 @@ router.post('/managementRFMP', function (req, res, next) {
             }else if((UserRFMP[index][2] < FQ[1]) && (UserRFMP[index][2] >= FQ[0])){  // 如果小於FQ2，且大於等於FQ1，得2分
                 UserRFMP[index][6] = 2;
             }else{  // 如果小於等於FQ1，得1分
-                UserRFMP[index][5] = 1;
+                UserRFMP[index][6] = 1;
             }
         } // 結束 玩家F評分計算
 
@@ -1631,12 +1635,14 @@ router.post('/managementRFMP', function (req, res, next) {
         Fave = Fave / UserRFMP.length;
         console.log("F評分平均:",Fave);
 
-        // // 更新使用者Fscore
-        // for(let i=0;i < UserRFMP.length; i++){
-        //     User.updateFscore(UserRFMP[i][0], UserRFMP[i][6] ,function (err, record) {
-        //         if (err) throw err;
-        //    })
-        // }
+        
+
+        // 更新使用者Fscore
+        for(let i=0;i < UserRFMP.length; i++){
+            User.updateFscore(UserRFMP[i][0], UserRFMP[i][6] ,function (err, record) {
+                if (err) throw err;
+           })
+        }
 
         // 以下做 M & P的計算
         UserSpendTime.getAllUserSpendTimeState(function (err, userSpendTimeState){
@@ -1646,20 +1652,14 @@ router.post('/managementRFMP', function (req, res, next) {
             for(let index = 0;index < userSpendTimeState.length ;index++){
                 const MP_process = userSpendTimeState[index];
                 var min = (MP_process.endplay.getTime() - MP_process.startplay.getTime()) / 1000 / 60;  //換算成分鐘
-                var check = true;
                 for(let index = 0;index < UserRFMP.length ; index++){
                     if(MP_process.email == UserRFMP[index][0]){
                         UserRFMP[index][3] = UserRFMP[index][3] + min;  // UserRFMP[index][3] 存 Mdata
                         UserRFMP[index][4] = UserRFMP[index][4] + MP_process.starNumber;  // UserRFMP[index][4] 存 Pdata
-                        check = false;
                     }
                 }
-                if(check){
-                    UserRFMP[UserRFMP.length] = [,,,min,MP_process.starNumber];
-                }   
             } // 結束M & P數據計算
-            
-    
+
             // M數據由大排到小
             let Mtime = UserRFMP.length;
             while(Mtime > 1){
@@ -1734,12 +1734,12 @@ router.post('/managementRFMP', function (req, res, next) {
             Mave = Mave / UserRFMP.length;
             console.log("M評分平均:",Mave);
     
-            // // 更新使用者Mscore
-            // for(let i=0;i < UserRFMP.length; i++){
-            //     User.updateMscore(UserRFMP[i][0], UserRFMP[i][7] ,function (err, record) {
-            //         if (err) throw err;
-            //    })
-            // }
+            // 更新使用者Mscore
+            for(let i=0;i < UserRFMP.length; i++){
+                User.updateMscore(UserRFMP[i][0], UserRFMP[i][7] ,function (err, record) {
+                    if (err) throw err;
+               })
+            }
             
             // P數據由大排到小
             let Ptime = UserRFMP.length;
@@ -1792,7 +1792,6 @@ router.post('/managementRFMP', function (req, res, next) {
             }
             console.log("PQ:",PQ);
             // 結束 P數據的五分位數計算
-            console.log("F評分總分數 init:",Fave);
             // 玩家P評分計算
             for(let index = 0; index < UserRFMP.length; index++){
                 if(UserRFMP[index][4] >= PQ[3]){  // 如果大於等於PQ4，得5分
@@ -1806,35 +1805,59 @@ router.post('/managementRFMP', function (req, res, next) {
                 }else{  // 如果小於等於PQ1，得1分
                     UserRFMP[index][8] = 1;
                 }
-                if(UserRFMP[index][4] == 0 ){  // 如果等於0，得0分
-                    UserRFMP[index][8] = 0;
-                }
             } // 結束 玩家P評分計算
     
             for(let i=0;i < UserRFMP.length; i++){
-                Fave = Fave + UserRFMP[i][8];
+                Pave = Pave + UserRFMP[i][8];
             }
-            console.log("F評分總分數:",Fave);
-            Fave = Fave / UserRFMP.length;
-            console.log("F評分平均:",Fave);
+            console.log("P評分總分數:",Pave);
+            Pave = Pave / UserRFMP.length;
+            console.log("P評分平均:",Pave);
     
-            // // 更新使用者Pscore
-            // for(let i=0;i < UserRFMP.length; i++){
-            //     User.updatePscore(UserRFMP[i][0], UserRFMP[i][8] ,function (err, record) {
-            //         if (err) throw err;
-            //    })
-            // }
+            // 更新使用者Pscore
+            for(let i=0;i < UserRFMP.length; i++){
+                User.updatePscore(UserRFMP[i][0], UserRFMP[i][8] ,function (err, record) {
+                    if (err) throw err;
+               })
+            }
 
+            // 計算 RFMP值 以及 學習者類型判斷
+            for(let i=0;i < UserRFMP.length; i++){
+                if(UserRFMP[i][5] > Rave){  UserRFMP[i][9] = 1;     }   // UserRFMP[index][9] 存 R值
+                if(UserRFMP[i][6] > Fave){  UserRFMP[i][10] = 1;    }   // UserRFMP[index][10] 存 F值
+                if(UserRFMP[i][7] > Mave){  UserRFMP[i][11] = 1;    }   // UserRFMP[index][11] 存 M值
+                if(UserRFMP[i][8] > Pave){  UserRFMP[i][12] = 1;    }   // UserRFMP[index][12] 存 P值
+
+                if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "關懷型學習者";   } // 1
+                if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "成就型學習者";   } // 2
+                if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "關懷型學習者";   } // 3
+                if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "一般型學習者";   } // 4
+                if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "關懷型學習者";   } // 5
+                if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "一般型學習者";   } // 6
+                if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "扶持型學習者";   } // 7
+                if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "成就型學習者";   } // 8
+                if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "關懷型學習者";   } // 9
+                if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "成就型學習者";   } // 10
+                if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "扶持型學習者";   } // 11
+                if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "傑出型學習者";   } // 12
+                if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "扶持型學習者";   } // 13
+                if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "傑出型學習者";   } // 14
+                if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "扶持型學習者";   } // 15
+                if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "傑出型學習者";   } // 16
+
+                // 更新使用者 學習者類型
+                User.updateLearnerType(UserRFMP[i][0], UserRFMP[i][13] ,function (err, record) {
+                    if (err) throw err;
+                })
+                
+            } // 結束計算 RFMP值 以及 學習者類型判斷
 
             for(let i=0;i < UserRFMP.length; i++){
-                console.log("裡面UserRFMP[",i,"]:",UserRFMP[i]);
+                console.log("UserRFMP[",i,"]:",UserRFMP[i]);
             }
+
         }) // 結束 UserSpendTime.getAllUserSpendTimeState
-        for(let i=0;i < UserRFMP.length; i++){
-            console.log("外面UserRFMP[",i,"]:",UserRFMP[i]);
-        }
-        
-        
+
     }) // 結束 User.getAllUser
     
 });

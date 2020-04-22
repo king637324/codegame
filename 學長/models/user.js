@@ -33,6 +33,7 @@ var UserSchema = mongoose.Schema({
     Fscore: {type: Number, "default": 0},
     Mscore: { type: Number, "default": 0},
     Pscore: { type: Number, "default": 0},
+    LearnerType: { type: String , "default": ""}
     //以上宜靜 2020.04.15
 })
 
@@ -246,6 +247,20 @@ module.exports.updatePscore = function(email, Pscore, callback) {
     User.updateOne(query, setquery, callback);
 }
 
+//updateLearnerType 更新玩家類型
+module.exports.updateLearnerType = function(email, LearnerType, callback) {
+    var query = {
+        email: email
+    }
+    var setquery = {
+        LearnerType: LearnerType
+    }
+    User.updateOne(query, setquery, callback);
+}
+
+
+
+// 得到所有玩家資料
 module.exports.getAllUser = function (callback) {
     var query =  { username: { $ne: "" }}
     User.find(query, callback)
