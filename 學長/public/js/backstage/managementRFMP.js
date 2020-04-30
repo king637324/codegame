@@ -79,6 +79,7 @@ if (JSON && JSON.stringify && JSON.parse) var Session = Session || (function () 
     var href = "/logout";
     window.location.replace(href);
   }
+
   var thisSelectionId, args;
   var divTag, level, thisIndex;
   var lastObject = null, lastColor;
@@ -182,22 +183,33 @@ if (JSON && JSON.stringify && JSON.parse) var Session = Session || (function () 
       type: "LoadUser",
     }
     $.ajax({
-      url: href, // 要傳送的頁面
+      url: "home/managementRFMP", // 要傳送的頁面
       method: 'POST', // 使用 POST 方法傳送請求
       dataType: 'json', // 回傳資料會是 json 格式
       data: scriptData, // 將表單資料用打包起來送出去
       success: function (res) {
         // console.log(res);
-        allUserData = res;
-        // console.log(allUserData);
-        var mapData = [];
-        for (let index = 0; index < res.length; index++) {
-            console.log("lennn:",res.length);
-            
-          var obj = res[index];
-          
+      allUserData = res;
+      // console.log(allUserData);
+      var mapData = [];
+      for (let index = 0; index < res.length; index++) {
+        var obj = res[index];
+        
+        var script = {
+          td01: obj.username,
+          td02: obj.name,
+          td03: obj.email,
+          td04: obj.Rscore,
+          td05: obj.Fscore,
+          td06: obj.Mscore,
+          td07: obj.Pscore,
+          td08: obj.LearnerType,
         }
         
+        mapData.push(script);
+      }
+      completallUserData = allUserData.slice(0);
+      createLevelTable(mapData);
       }
     })
   }
