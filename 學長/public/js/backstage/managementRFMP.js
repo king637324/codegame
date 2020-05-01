@@ -55,9 +55,11 @@ if (JSON && JSON.stringify && JSON.parse) var Session = Session || (function () 
     href = href.substr(0, index + 1);
     window.location.replace(href);
   }
+
+
+  
   var href = window.location.href;
-  var user, equipmentData, achievemenData, dictionaryData, levelDivAlive = false, isOblivionOpen;
-  var swordLevel = 0, shieldLevel = 0, levelUpLevel = 0, musicLevel = 1, bkMusicSwitch, bkMusicVolumn = 0.1, args, gameSpeed, musicData;
+  var user, levelDivAlive = false;
   var allUserData, completallUserData, oldDisMapNum = 0;
   
   initHome();
@@ -80,8 +82,8 @@ if (JSON && JSON.stringify && JSON.parse) var Session = Session || (function () 
     window.location.replace(href);
   }
 
-  var thisSelectionId, args;
-  var divTag, level, thisIndex;
+  var thisSelectionId;
+  var divTag, thisIndex;
   var lastObject = null, lastColor;
   //當那一列資料被選到調用此函式
   function selectionLevel(thisObject) {
@@ -91,7 +93,6 @@ if (JSON && JSON.stringify && JSON.parse) var Session = Session || (function () 
       //將該table後面的數字切割出來並轉為Int
       mapIndex = parseInt(thisSelectionId.substr("lostUserCreateTable".length));
       thisIndex = mapIndex;
-      // console.log(thisIndex);
     }
     if (lastObject != null) {
       //將上一個被選到的table的顏色設為原本的顏色
@@ -103,7 +104,6 @@ if (JSON && JSON.stringify && JSON.parse) var Session = Session || (function () 
     thisObject.style.backgroundColor = "#C2C2C2";
     //將thisObjsct存到lastObiect
     lastObject = thisObject;
-    //如果現在被選到的狀態為"封鎖"，改變底下按鈕的圖片
   }
   
   var levelDivAlive = false;
@@ -183,12 +183,11 @@ if (JSON && JSON.stringify && JSON.parse) var Session = Session || (function () 
       type: "LoadUser",
     }
     $.ajax({
-      url: "home/managementRFMP", // 要傳送的頁面
+      url: href, // 要傳送的頁面
       method: 'POST', // 使用 POST 方法傳送請求
       dataType: 'json', // 回傳資料會是 json 格式
       data: scriptData, // 將表單資料用打包起來送出去
       success: function (res) {
-        // console.log(res);
       allUserData = res;
       // console.log(allUserData);
       var mapData = [];
@@ -218,11 +217,9 @@ if (JSON && JSON.stringify && JSON.parse) var Session = Session || (function () 
   /*建立表格*/
   function createLevelTable(scriptData) {
   
-    // console.log(scriptData);
     oldDisMapNum = scriptData.length;
     //根據scriptData的長度創造對應數量的table
     for (var i = 0; i < scriptData.length; i++) {
-      // for (var i = 0; i < 20; i++) {
       var obj = scriptData[i];
       divTag = document.getElementById("createrDiv");
       //創造table標籤
@@ -243,62 +240,36 @@ if (JSON && JSON.stringify && JSON.parse) var Session = Session || (function () 
       b.setAttribute("id", "tr" + i);
       divTag.appendChild(b);
       divTag = document.getElementById("tr" + i);
-      //創造6個br標籤
-      for (var j = 0; j <= 8; j++) {
+      //創造8個br標籤
+      for (var j = 1; j <= 8; j++) {
         b = document.createElement("td");
-        if (j == 0) {
-          b.setAttribute("style", "display:none");
-          b.setAttribute("id", "td0" + i + 8);
-          b.setAttribute("class", "td0" + 8);
-        }else{
-          b.setAttribute("id", "td0" + i + j);
-          b.setAttribute("class", "td0" + j);
-        }
+        b.setAttribute("id", "td0" + i + j);
+        b.setAttribute("class", "td0" + j);
         divTag.appendChild(b);
+
         //在每個br標籤內創立input標籤來顯示文字
-        if (j == 0) {
-          divTag = document.getElementById("td0" + i + 8);
-        }else{
-          divTag = document.getElementById("td0" + i + j);
-        }
+        divTag = document.getElementById("td0" + i + j);
         b = document.createElement("input");
         b.setAttribute("type", "text");
-        if (j == 0) {
-          b.setAttribute("id", "input0" + i + 8);
-        }else{
-          b.setAttribute("id", "input0" + i + j);
-        }
+        b.setAttribute("id", "input0" + i + j);
         b.setAttribute("readonly", "readonly");
-        // b.setAttribute("onclick", "createMapPermission(" + i + ")");
         divTag.appendChild(b);
         if (j == 1) { /*使用者帳號*/
           document.getElementById("input0" + i + j).value = obj.td01;
-          // document.getElementById("td0" + i + j).innerHTML = "aa";
         } else if (j == 2) { /*使用者名稱*/
           document.getElementById("input0" + i + j).value = obj.td02;
-          // document.getElementById("td0" + i + j).innerHTML = "aa";
         } else if (j == 3) { /*使用者信箱*/
           document.getElementById("input0" + i + j).value = obj.td03;
-          // document.getElementById("td0" + i + j).innerHTML = "karta1335618@gmail.com";
-        } else if (j == 4) { /*星星數*/
+        } else if (j == 4) { /*R評分*/
           document.getElementById("input0" + i + j).value = obj.td04;
-          // document.getElementById("td0" + i + j).innerHTML = "50";
-        } else if (j == 5) { /*最高的關卡*/
+        } else if (j == 5) { /*F評分*/
           document.getElementById("input0" + i + j).value = obj.td05;
-          // document.getElementById("td0" + i + j).innerHTML = "13";
-        } else if (j == 6) { /*使用者狀態*/
-          b.setAttribute("type", "checkbox");
-          b.setAttribute("class", "mapCheckbox");
-          if (obj.canCreateMapPermission) {
-            b.setAttribute("checked", true);
-          }
-          b.setAttribute("onclick", "createMapPermission(" + i + ")");
-        } else if (j == 7) {
+        } else if (j == 6) { /*M評分*/
           document.getElementById("input0" + i + j).value = obj.td06;
-          // document.getElementById("td0" + i + j).innerHTML = "封鎖"
-        } else if (j == 0) { /*刪除狀態*/
-          b.setAttribute("type", "checkbox");
-          b.setAttribute("class", "mapCheckbox");
+        } else if (j == 7) { /*F評分*/
+          document.getElementById("input0" + i + j).value = obj.td07;
+        } else if (j == 8) { /*學習者類型*/
+          document.getElementById("input0" + i + j).value = obj.td08;
         }
         divTag = document.getElementById("tr" + i);
       }
@@ -306,17 +277,10 @@ if (JSON && JSON.stringify && JSON.parse) var Session = Session || (function () 
   }
   
   
-  var levelNameStatus = 0,
-    conditionStatus = 0,
-    creatorStatus = 0,
-    evaluateStatus = 0,
-    dateStatus = 0,
-    introductionStatus = 0;
-  var tdStatus = [0, 0, 0, 0, 0, 0];
+  var tdStatus = [0, 0, 0, 0, 0, 0, 0, 0];
   //改變排序時會調用此函式
   function changeTdName(thisObiect) {
-    var str = thisObiect.className,
-      s, s2;
+    var str = thisObiect.className,s, s2;
     var thisStatus = parseInt(str.substr(str.length - 1, 1)) - 1;
     s = thisObiect.innerHTML;
     // console.log(s2.length);
@@ -345,28 +309,30 @@ if (JSON && JSON.stringify && JSON.parse) var Session = Session || (function () 
     changeTdNameDisplay();
   }
   
-  var TdNameTable = ["username", "name", "email", "starNum", "hightLevel", "userstatus"];
+  var TdNameTable = ["username", "name", "email", "Rscore", "Fscore", "Mscore","Pscore","LearnerType"];
   //左上方的下拉式選單狀態改變時會調用此函式，基本上也是豐銘在用
+  // 2020.05.01 可以參考當作改成立體圖使用 (宜靜)
   function changeTdNameDisplay() {
-    var index = levelSelect.selectedIndex;
-    if (index == 0) { //全部
-      allUserData = completallUserData.slice(0);
-    } else if (index == 1) { //封鎖
-      allUserData.length = 0;
-      for (let indexS = 0; indexS < completallUserData.length; indexS++) {
-        if (completallUserData[indexS].userstatus == 1) {
-          allUserData.push(completallUserData[indexS]);
-        }
-      }
-    } else { //未封鎖
-      allUserData.length = 0;
-      for (let indexS = 0; indexS < completallUserData.length; indexS++) {
-        if (completallUserData[indexS].userstatus == 0) {
-          allUserData.push(completallUserData[indexS]);
-        }
-      }
-    }
+    // var index = levelSelect.selectedIndex;
+    // if (index == 0) { //全部
+    //   allUserData = completallUserData.slice(0);
+    // } else if (index == 1) { //封鎖
+    //   allUserData.length = 0;
+    //   for (let indexS = 0; indexS < completallUserData.length; indexS++) {
+    //     if (completallUserData[indexS].userstatus == 1) {
+    //       allUserData.push(completallUserData[indexS]);
+    //     }
+    //   }
+    // } else { //未封鎖
+    //   allUserData.length = 0;
+    //   for (let indexS = 0; indexS < completallUserData.length; indexS++) {
+    //     if (completallUserData[indexS].userstatus == 0) {
+    //       allUserData.push(completallUserData[indexS]);
+    //     }
+    //   }
+    // }
   
+    // 照要求順序排 由小到大 or 由大到小
     for (let index = tdStatus.length - 1; index > -1; index--) {
       var item = TdNameTable[index];
       if (tdStatus[index] == 1) {
@@ -379,6 +345,7 @@ if (JSON && JSON.stringify && JSON.parse) var Session = Session || (function () 
         });
       }
     }
+
     updateMapData(allUserData);
   }
   
@@ -390,7 +357,7 @@ if (JSON && JSON.stringify && JSON.parse) var Session = Session || (function () 
   }
   var selectType = document.getElementById("selectType");
   var searchType = 0;
-  var searchTypeTable = ["username", "name", "email", "hightLevel", "starNum", "userstatus"];
+  var searchTypeTable = ["username", "name", "email", "Rscore", "Fscore", "Mscore","Pscore","LearnerType"];
   //當搜尋欄位被輸入時呼叫searchFunc()
   selectType.onchange = function (index) {
     searchType = selectType.selectedIndex;
@@ -444,28 +411,18 @@ if (JSON && JSON.stringify && JSON.parse) var Session = Session || (function () 
     var mapData = [];
     for (let index = 0; index < res.length; index++) {
       var obj = res[index]
-      var hightLevel = Math.max(obj.EasyEmpire.codeHighestLevel, obj.MediumEmpire.HighestLevel) + 1; //0~49 49+1 -->1~50 51
-      if (hightLevel == 51) {
-        hightLevel = 50;
-      }
-      allUserData[index].hightLevel = hightLevel;
-      var userstatusStr = "正常"
-      if (obj.userstatus) {
-        userstatusStr = "封鎖"
-      } else {
-        allUserData[index].userstatus = 0;
-      }
+      
       var script = {
         td01: obj.username,
         td02: obj.name,
         td03: obj.email,
-        td04: obj.starNum,
-        td05: allUserData[index].hightLevel,
-        td06: userstatusStr
+        td04: obj.Rscore,
+        td05: obj.Fscore,
+        td06: obj.Mscore,
+        td07: obj.Pscore,
+        td08: obj.LearnerType
       }
-      if (obj.canCreateMapPermission) {
-        script.canCreateMapPermission = obj.canCreateMapPermission
-      }
+      
       mapData.push(script);
     }
     // console.log(mapData);
@@ -484,21 +441,13 @@ if (JSON && JSON.stringify && JSON.parse) var Session = Session || (function () 
         document.getElementById("input0" + i + "3").value = obj.td03;
         document.getElementById("input0" + i + "4").value = obj.td04;
         document.getElementById("input0" + i + "5").value = obj.td05;
-        if (obj.canCreateMapPermission) {
-          $("#input0" + i + "6").prop("checked", true);
-          // document.getElementById("input0" + i + "6").setAttribute("checked",true);
-        } else {
-          // document.getElementById("input0" + i + "6").setAttribute("checked",false);
-          $("#input0" + i + "6").prop("checked", false);
-        }
-        // document.getElementById("input0" + i + "7").value = obj.td06;
-        document.getElementById("td0" + i + "7").innerHTML = obj.td06;
+        document.getElementById("input0" + i + "6").value = obj.td06;
+        document.getElementById("input0" + i + "7").value = obj.td07;
+        document.getElementById("input0" + i + "8").value = obj.td08;
   
         if ((i % 2) == 0) {
           document.getElementById("lostUserCreateTable" + i).style.backgroundColor = "#F0E0CF";
         }
-        // divTag.style.backgroundColor = "#F5F5F5";
-        // divTag.style.backgroundColor = "rgb(153, 204, 255)";
       } else {
         // console.log(td01[i]);
         divTag = document.getElementById("createrDiv");
@@ -516,29 +465,15 @@ if (JSON && JSON.stringify && JSON.parse) var Session = Session || (function () 
         b.setAttribute("id", "tr" + i);
         divTag.appendChild(b);
         divTag = document.getElementById("tr" + i);
-        for (var j = 0; j <= 7; j++) {
+        for (var j = 1; j <= 8; j++) {
           b = document.createElement("td");
-          if (j == 0) {
-            b.setAttribute("style", "display:none");
-            b.setAttribute("id", "td0" + i + 8);
-            b.setAttribute("class", "td0" + 8);
-          }else{
-            b.setAttribute("id", "td0" + i + j);
-            b.setAttribute("class", "td0" + j);
-          }
+          b.setAttribute("id", "td0" + i + j);
+          b.setAttribute("class", "td0" + j);
           divTag.appendChild(b);
-          if (j == 0) {
-            divTag = document.getElementById("td0" + i + 8);
-          }else{
-            divTag = document.getElementById("td0" + i + j);
-          }
+          divTag = document.getElementById("td0" + i + j);
           b = document.createElement("input");
           b.setAttribute("type", "text");
-          if(j == 0){
-            b.setAttribute("id", "input0" + i + 8);
-          }else{
-            b.setAttribute("id", "input0" + i + j);
-          }
+          b.setAttribute("id", "input0" + i + j);
           b.setAttribute("readonly", "readonly");
           divTag.appendChild(b);
   
@@ -551,29 +486,18 @@ if (JSON && JSON.stringify && JSON.parse) var Session = Session || (function () 
           } else if (j == 3) { /*使用者信箱*/
             document.getElementById("input0" + i + j).value = obj.td03;
             // document.getElementById("td0" + i + j).innerHTML = "karta1335618@gmail.com";
-          } else if (j == 4) { /*星星數*/
+          } else if (j == 4) { /*R評分*/
             document.getElementById("input0" + i + j).value = obj.td04;
             // document.getElementById("td0" + i + j).innerHTML = "50";
-          } else if (j == 5) { /*最高的關卡*/
+          } else if (j == 5) { /*F評分*/
             document.getElementById("input0" + i + j).value = obj.td05;
             // document.getElementById("td0" + i + j).innerHTML = "13";
-          } else if (j == 6) {
-            b = document.getElementById("input0" + i + "6");
-            b.setAttribute("type", "checkbox");
-            b.setAttribute("class", "mapCheckbox");
-            b.setAttribute("onclick", "createMapPermission(" + i + ")");
-            if (obj.canCreateMapPermission) {
-              // b.setAttribute("checked",true);
-              $("#input0" + i + "6").prop("checked", true);
-            }
-          } else if (j == 7) { /*使用者狀態*/
-            document.getElementById("td0" + i + "7").innerHTML = obj.td06;
-            // document.getElementById("input0" + i + j).value = obj.td06;
-            // document.getElementById("td0" + i + j).innerHTML = "封鎖"
-          } else if (j == 0) {
-            b = document.getElementById("input0" + i + "8");
-            b.setAttribute("type", "checkbox");
-            b.setAttribute("class", "mapCheckbox");
+          } else if (j == 6) { /*M評分*/
+            document.getElementById("input0" + i + j).value = obj.td06;
+          } else if (j == 7) { /*F評分*/
+            document.getElementById("input0" + i + j).value = obj.td07;
+          } else if (j == 8) { /*學習者類型*/
+            document.getElementById("input0" + i + j).value = obj.td08;
           }
           divTag = document.getElementById("tr" + i);
         }

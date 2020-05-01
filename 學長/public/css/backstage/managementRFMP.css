@@ -114,6 +114,15 @@
     font-family:Microsoft JhengHei;
     font-weight: bold;
   }
+  .selectBarDiv{
+    font-size: calc(12px + 1vh);
+    letter-spacing: 3px;
+    margin-top: 1vh;
+    position: absolute;
+    width: 100%;
+    top: 8.5%;
+    
+  }
   .centerLost font{
     font-size: 6vh;
     letter-spacing: 3px;
@@ -214,7 +223,7 @@
     background-color: #F5F5F5;
     font-family: Microsoft JhengHei;
     position: absolute;
-    top: 10%;
+    top: 12%;
     border-style: solid;
     border-width: 2px;
     border-color: black;
@@ -240,7 +249,7 @@
     cursor: pointer;
   }
   #createrDiv .td02{
-    width: 14%;
+    width: 16%;
     cursor: pointer;
   }
   #createrDiv .td03{
@@ -248,20 +257,20 @@
     cursor: pointer;
   }
   #createrDiv .td04{
-    width: 9%;
+    width: 8%;
     overflow: auto;
     cursor: pointer;
   }
   #createrDiv .td05{
-    width: 9%;
+    width: 8%;
     cursor: pointer;
   }
   #createrDiv .td06{
-    width: 9%;
+    width: 8%;
     cursor: pointer;
   }
   #createrDiv .td07{
-    width: 9%;
+    width: 8%;
     cursor: pointer;
   }
   #createrDiv .td08{
