@@ -176,7 +176,39 @@ if (JSON && JSON.stringify && JSON.parse) var Session = Session || (function () 
     levelDivAlive = false;
   }
   
+  /* 設定時間搜尋判斷區間 */
+  function TimeSelectFunc() {
+    var startTime = document.getElementById("timeStart"); //起始日期
+    var endTime = document.getElementById("timeEnd"); //結束日期
   
+    if (startTime.value.length < 1) {
+      alert("開始時間尚未填完整");
+    } else if (endTime.value.length < 1) {
+      alert("結束時間尚未填完整");
+    } else {
+      var ST = new Date(startTime.value.toString()).getTime();
+      var ET = new Date(endTime.value.toString()).getTime();
+
+      $.ajax({
+        url: href, // 要傳送的頁面
+        method: 'POST', // 使用 POST 方法傳送請求
+        dataType: 'json', // 回傳資料會是 json 格式
+        data: {type:"Calculate",
+              startTime:ST,
+              endTime:ET}, // 將表單資料用打包起來送出去
+        success: function (res) {
+          console.log("TimeSelect成功");
+          //alert("TimeSelect成功");
+          sendLoadUsernameMap();
+        },
+        error:function(err){
+          console.log(err);
+        }
+      })
+    }
+  }
+
+
   /*建立表格*/
   function sendLoadUsernameMap() {
     var scriptData = {

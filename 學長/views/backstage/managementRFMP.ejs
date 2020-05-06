@@ -42,15 +42,13 @@
               <i class="fas fa-search"></i>
             </a>
           </div>
-          <div class="selectBarDiv">
-            <table class="selectBar">
+          <div class="timeselectBarDiv">
+            <table class="timeselectBar">
               <tr>
                 <td>
-                  起：<input type="datetime-local" id="timeStart" value="">
-                  訖：<input type="datetime-local" id="timeEnd" value="">
-                  <input type="button" id="selectBtn" value="  計算  " onclick="setTimeFunc()">
-                  <input type="button" id="clrBtn" value="  取消  " onclick="clrFunc()">
-                  <input type="button" id="reset_zoom" value="重設比例" onclick="resetzoom()">
+                  起：<input type="date" id="timeStart" value="">
+                  訖：<input type="date" id="timeEnd" value="">
+                  <input type="button" id="calculateBtn" value="    計算    " onclick="TimeSelectFunc()">
                 </td>
               </tr>
             </table>

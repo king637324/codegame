@@ -114,7 +114,7 @@
     font-family:Microsoft JhengHei;
     font-weight: bold;
   }
-  .selectBarDiv{
+  .timeselectBarDiv{
     font-size: calc(12px + 1vh);
     letter-spacing: 3px;
     margin-top: 1vh;
@@ -330,4 +330,8 @@
       left: 10%;
     }
   }
+  #calculateBtn{
+    height: 25px;
+  }
+
   
