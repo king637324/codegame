@@ -1448,8 +1448,8 @@ router.post('/managementRFMP', function (req, res, next) {
         var type = req.body.type;
         var startTime = req.body.startTime;
         var endTime = req.body.endTime;
-        console.log(type);
-        console.log(startTime);
+        console.log("type:",type);
+        console.log("startTime:",startTime);
         console.log(endTime);
         if (type == "init") {
             console.log("11111111111111111111111");
@@ -1461,10 +1461,10 @@ router.post('/managementRFMP', function (req, res, next) {
         }else if(type == "Calculate"){
             console.log("22222222222222222222222");
             var UserRFMP = []; // 陣列裡中每一筆資料存 [玩家信箱,R數據,F數據,M數據,P數據,R評分,F評分,M評分,P評分,R值,F值,M值,P值,學習者類型]
-                                                // [   0   ,  1  ,  2 ,  3  , 4  ,  5  ,  6  , 7  ,  8  , 9 , 10,11, 12,    13   ]
+                                                   // [   0   ,  1  ,  2 ,  3  , 4  ,  5  ,  6  , 7  ,  8  , 9 , 10,11, 12,    13   ]
             var RQ = [0,0,0,0],FQ = [0,0,0,0],MQ = [0,0,0,0], PQ = [0,0,0,0];
             var Rave = 0,Fave = 0,Mave = 0,Pave = 0;
-            var Rday = new Date().getTime();
+            var Rday = endTime;
             
             User.getAllUser(function (err, userState){
                 if (err) throw err;
@@ -1481,13 +1481,20 @@ router.post('/managementRFMP', function (req, res, next) {
 
                 // R & F數據計算
                 for(let index = 0;index < userState.length; index++){
+                    var FIntervalLen = 0,FIntervalData=[];  // 紀錄 管理者所設定的時間內登入次數以及登入時間資料
                     if(userState[index].Logintime.length){    // 如果userState[index]此玩家有登入資料
                         for(let i=0; i < UserRFMP.length; i++){
                             if(userState[index].email == UserRFMP[i][0]){
                                 var Login = userState[index].Logintime.length;
-                                var Rsub = (Rday - userState[index].Logintime[Login-1].getTime()) / 1000 / 60 / 60 / 24;  //換算成天 
+                                for(let j=0; j < Login; j++){   // 只抓存管理者所設定的時間內的資料
+                                    if((userState[index].Logintime[j] > startTime) && (userState[index].Logintime[j] < endTime)){
+                                        FIntervalLen = FIntervalLen + 1;
+                                        FIntervalData.push(userState[index].Logintime[j]);
+                                    }
+                                }
+                                var Rsub = (Rday - FIntervalData[FIntervalLen-1].getTime()) / 1000 / 60 / 60 / 24;  //換算成天 
                                 UserRFMP[i][1] = 1 / Rsub;// UserRFMP[i][1] 存 Rdata
-                                UserRFMP[i][2] = Login;  // UserRFMP[i][2] 存 Fdata
+                                UserRFMP[i][2] = FIntervalLen;  // UserRFMP[i][2] 存 Fdata
                             }
                         }
                     }
@@ -1663,7 +1670,14 @@ router.post('/managementRFMP', function (req, res, next) {
                 // 以下做 M & P的計算
                 UserSpendTime.getAllUserSpendTimeState(function (err, userSpendTimeState){
                     if (err) throw err;
-            
+                    
+
+                    // var MPIntervalLen = 0,MPIntervalData=[];  // 紀錄 管理者所設定的時間內登入次數以及登入時間資料
+                    // if((userState[index].Logintime[j] > startTime) && (userState[index].Logintime[j] < endTime)){
+                    //     MPIntervalLen = MPIntervalLen + 1;
+                    //     MPIntervalData.push(userState[index].Logintime[j]);
+                    // }
+
                     // M & P數據計算
                     for(let index = 0;index < userSpendTimeState.length ;index++){
                         const MP_process = userSpendTimeState[index];
@@ -1689,7 +1703,7 @@ router.post('/managementRFMP', function (req, res, next) {
                             }
                         }
                     }   
-            
+                    
                     // M數據的五分位數計算
                     for(let i = 0; i < MQ.length; i++){
                         if(i==3){   //取 80%  為 Q4
