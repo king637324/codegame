@@ -198,8 +198,7 @@ if (JSON && JSON.stringify && JSON.parse) var Session = Session || (function () 
               endTime:ET}, // 將表單資料用打包起來送出去
         success: function (res) {
           console.log("TimeSelect成功");
-          //alert("TimeSelect成功");
-          sendLoadUsernameMap();
+          updateLoadUsernameMap();
         },
         error:function(err){
           console.log(err);
@@ -207,6 +206,25 @@ if (JSON && JSON.stringify && JSON.parse) var Session = Session || (function () 
       })
     }
   }
+  /*更新表格*/
+  function updateLoadUsernameMap() {
+    var scriptData = {
+      type: "LoadUser",
+    }
+    $.ajax({
+      url: href, // 要傳送的頁面
+      method: 'POST', // 使用 POST 方法傳送請求
+      dataType: 'json', // 回傳資料會是 json 格式
+      data: scriptData, // 將表單資料用打包起來送出去
+      success: function (res) {
+      allUserData = res;
+      console.log("updateLoad成功");
+      console.log(allUserData);
+      updateMapData(allUserData);
+      }
+    })
+  }
+
 
 
   /*建立表格*/
@@ -462,7 +480,7 @@ if (JSON && JSON.stringify && JSON.parse) var Session = Session || (function () 
   }
   //表單更動時，需要重新創立表格
   function updateLevelTable(scriptData) {
-    // console.log(scriptData);
+    //console.log(scriptData);
   
     for (var i = 0; i < scriptData.length; i++) {
   
@@ -547,11 +565,6 @@ if (JSON && JSON.stringify && JSON.parse) var Session = Session || (function () 
       }
     }
     oldDisMapNum = scriptData.length
-    changeMode();
-    var dom = document.getElementsByClassName('td0' + 8);
-    for (var j = 0; j < dom.length - 1; j++) {
-      $("#input0" + j + "8").prop("checked", false);
-    }
   }
   
   var searchTextBox = document.getElementById("searchTextBox");

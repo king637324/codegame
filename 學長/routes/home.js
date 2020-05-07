@@ -1450,7 +1450,7 @@ router.post('/managementRFMP', function (req, res, next) {
         var endTime = req.body.endTime;
         console.log("type:",type);
         console.log("startTime:",startTime);
-        console.log(endTime);
+        console.log("endTime:",endTime);
         if (type == "init") {
             console.log("11111111111111111111111");
             var id = req.user.id;
@@ -1459,16 +1459,15 @@ router.post('/managementRFMP', function (req, res, next) {
                 res.json(user);
             })
         }else if(type == "Calculate"){
-            console.log("22222222222222222222222");
+            console.log("Calculate   22222222222222222222222");
             var UserRFMP = []; // 陣列裡中每一筆資料存 [玩家信箱,R數據,F數據,M數據,P數據,R評分,F評分,M評分,P評分,R值,F值,M值,P值,學習者類型]
-                                                   // [   0   ,  1  ,  2 ,  3  , 4  ,  5  ,  6  , 7  ,  8  , 9 , 10,11, 12,    13   ]
+                                                  // [   0   ,  1  ,  2 ,  3  , 4  ,  5  ,  6  , 7  ,  8  , 9 , 10,11, 12,    13   ]
             var RQ = [0,0,0,0],FQ = [0,0,0,0],MQ = [0,0,0,0], PQ = [0,0,0,0];
             var Rave = 0,Fave = 0,Mave = 0,Pave = 0;
             var Rday = endTime;
-            
             User.getAllUser(function (err, userState){
                 if (err) throw err;
-                console.log("玩家人數:",userState.length - 1);
+                // console.log("玩家人數:",userState.length - 1);
                 var userlen = 0;    // 判斷玩家人數，因要扣除管理者
 
                 // 初始化所有玩家RFMP陣列資料
@@ -1492,9 +1491,15 @@ router.post('/managementRFMP', function (req, res, next) {
                                         FIntervalData.push(userState[index].Logintime[j]);
                                     }
                                 }
-                                var Rsub = (Rday - FIntervalData[FIntervalLen-1].getTime()) / 1000 / 60 / 60 / 24;  //換算成天 
-                                UserRFMP[i][1] = 1 / Rsub;// UserRFMP[i][1] 存 Rdata
-                                UserRFMP[i][2] = FIntervalLen;  // UserRFMP[i][2] 存 Fdata
+                                if(FIntervalLen == 0){
+                                    UserRFMP[i][1] = 0;// UserRFMP[i][1] 存 Rdata
+                                    UserRFMP[i][2] = FIntervalLen;  // UserRFMP[i][2] 存 Fdata
+                                }else{
+                                    var RInterval = FIntervalData[FIntervalLen-1].getTime();
+                                    var Rsub = (Rday - RInterval) / 1000 / 60 / 60 / 24;  //換算成天 
+                                    UserRFMP[i][1] = 1 / Rsub;// UserRFMP[i][1] 存 Rdata
+                                    UserRFMP[i][2] = FIntervalLen;  // UserRFMP[i][2] 存 Fdata
+                                }
                             }
                         }
                     }
@@ -1513,7 +1518,7 @@ router.post('/managementRFMP', function (req, res, next) {
                         }
                     }
                 } 
-
+                
                 // R數據的五分位數計算
                 for(let i = 0; i < RQ.length; i++){
                     if(i==3){   //取 80%  為 Q4
@@ -1549,7 +1554,7 @@ router.post('/managementRFMP', function (req, res, next) {
                         }
                     }
                 }
-                console.log("RQ:",RQ);
+                // console.log("RQ:",RQ);
                 // 結束 R數據的五分位數計算
 
                 // 玩家R評分計算
@@ -1571,7 +1576,7 @@ router.post('/managementRFMP', function (req, res, next) {
                 for(let i=0;i < UserRFMP.length; i++){
                     Rave = Rave + UserRFMP[i][5];
                 }
-                console.log("R評分總分數:",Rave);
+                // console.log("R評分總分數:",Rave);
                 Rave = Rave / UserRFMP.length;
                 console.log("R評分平均:",Rave);
 
@@ -1633,7 +1638,7 @@ router.post('/managementRFMP', function (req, res, next) {
                         }
                     }
                 }
-                console.log("FQ:",FQ);
+                // console.log("FQ:",FQ);
                 // 結束 F數據的五分位數計算
 
                 // 玩家F評分計算
@@ -1654,7 +1659,7 @@ router.post('/managementRFMP', function (req, res, next) {
                 for(let i=0;i < UserRFMP.length; i++){
                     Fave = Fave + UserRFMP[i][6];
                 }
-                console.log("F評分總分數:",Fave);
+                // console.log("F評分總分數:",Fave);
                 Fave = Fave / UserRFMP.length;
                 console.log("F評分平均:",Fave);
 
@@ -1670,22 +1675,18 @@ router.post('/managementRFMP', function (req, res, next) {
                 // 以下做 M & P的計算
                 UserSpendTime.getAllUserSpendTimeState(function (err, userSpendTimeState){
                     if (err) throw err;
-                    
-
-                    // var MPIntervalLen = 0,MPIntervalData=[];  // 紀錄 管理者所設定的時間內登入次數以及登入時間資料
-                    // if((userState[index].Logintime[j] > startTime) && (userState[index].Logintime[j] < endTime)){
-                    //     MPIntervalLen = MPIntervalLen + 1;
-                    //     MPIntervalData.push(userState[index].Logintime[j]);
-                    // }
 
                     // M & P數據計算
                     for(let index = 0;index < userSpendTimeState.length ;index++){
                         const MP_process = userSpendTimeState[index];
-                        var min = (MP_process.endplay.getTime() - MP_process.startplay.getTime()) / 1000 / 60;  //換算成分鐘
-                        for(let index = 0;index < UserRFMP.length ; index++){
-                            if(MP_process.email == UserRFMP[index][0]){
-                                UserRFMP[index][3] = UserRFMP[index][3] + min;  // UserRFMP[index][3] 存 Mdata
-                                UserRFMP[index][4] = UserRFMP[index][4] + MP_process.starNumber;  // UserRFMP[index][4] 存 Pdata
+                        var MPIntervalLen = 0,MPIntervalData=[];  // 紀錄 管理者所設定的時間內登入次數以及登入時間資料
+                        if((MP_process.startplay.getTime() > startTime) && (MP_process.endplay.getTime() < endTime)){
+                            var min = (MP_process.endplay.getTime() - MP_process.startplay.getTime()) / 1000 / 60;  //換算成分鐘
+                            for(let index = 0;index < UserRFMP.length ; index++){
+                                if(MP_process.email == UserRFMP[index][0]){
+                                    UserRFMP[index][3] = UserRFMP[index][3] + min;  // UserRFMP[index][3] 存 Mdata
+                                    UserRFMP[index][4] = UserRFMP[index][4] + MP_process.starNumber;  // UserRFMP[index][4] 存 Pdata
+                                }
                             }
                         }
                     } // 結束M & P數據計算
@@ -1739,7 +1740,7 @@ router.post('/managementRFMP', function (req, res, next) {
                             }
                         }
                     }
-                    console.log("MQ:",MQ);
+                    // console.log("MQ:",MQ);
                     // 結束 M數據的五分位數計算
             
                     // 玩家M評分計算
@@ -1760,7 +1761,7 @@ router.post('/managementRFMP', function (req, res, next) {
                     for(let i=0;i < UserRFMP.length; i++){
                         Mave = Mave + UserRFMP[i][7];
                     }
-                    console.log("M評分總分數:",Mave);
+                    // console.log("M評分總分數:",Mave);
                     Mave = Mave / UserRFMP.length;
                     console.log("M評分平均:",Mave);
             
@@ -1820,7 +1821,7 @@ router.post('/managementRFMP', function (req, res, next) {
                             }
                         }
                     }
-                    console.log("PQ:",PQ);
+                    // console.log("PQ:",PQ);
                     // 結束 P數據的五分位數計算
                     // 玩家P評分計算
                     for(let index = 0; index < UserRFMP.length; index++){
@@ -1840,7 +1841,7 @@ router.post('/managementRFMP', function (req, res, next) {
                     for(let i=0;i < UserRFMP.length; i++){
                         Pave = Pave + UserRFMP[i][8];
                     }
-                    console.log("P評分總分數:",Pave);
+                    // console.log("P評分總分數:",Pave);
                     Pave = Pave / UserRFMP.length;
                     console.log("P評分平均:",Pave);
             
@@ -1853,10 +1854,10 @@ router.post('/managementRFMP', function (req, res, next) {
 
                     // 計算 RFMP值 以及 學習者類型判斷
                     for(let i=0;i < UserRFMP.length; i++){
-                        if(UserRFMP[i][5] > Rave){  UserRFMP[i][9] = 1;     }   // UserRFMP[index][9] 存 R值
-                        if(UserRFMP[i][6] > Fave){  UserRFMP[i][10] = 1;    }   // UserRFMP[index][10] 存 F值
-                        if(UserRFMP[i][7] > Mave){  UserRFMP[i][11] = 1;    }   // UserRFMP[index][11] 存 M值
-                        if(UserRFMP[i][8] > Pave){  UserRFMP[i][12] = 1;    }   // UserRFMP[index][12] 存 P值
+                        if(UserRFMP[i][5] >= Rave){  UserRFMP[i][9] = 1;     }   // UserRFMP[index][9] 存 R值
+                        if(UserRFMP[i][6] >= Fave){  UserRFMP[i][10] = 1;    }   // UserRFMP[index][10] 存 F值
+                        if(UserRFMP[i][7] >= Mave){  UserRFMP[i][11] = 1;    }   // UserRFMP[index][11] 存 M值
+                        if(UserRFMP[i][8] >= Pave){  UserRFMP[i][12] = 1;    }   // UserRFMP[index][12] 存 P值
 
                         if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "關懷型";   } // 1
                         else if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "成就型";   } // 2
@@ -1882,9 +1883,9 @@ router.post('/managementRFMP', function (req, res, next) {
                         
                     } // 結束計算 RFMP值 以及 學習者類型判斷
 
-                    for(let i=0;i < UserRFMP.length; i++){
-                        console.log("UserRFMP[",i,"]:",UserRFMP[i]);
-                    }
+                    // for(let i=0;i < UserRFMP.length; i++){
+                    //     console.log("UserRFMP[",i,"]:",UserRFMP[i]);
+                    // }
 
                 }) // 結束 UserSpendTime.getAllUserSpendTimeState
                 
@@ -1892,7 +1893,7 @@ router.post('/managementRFMP', function (req, res, next) {
             res.json(null);
         }
         else if (type == "LoadUser") {
-            console.log("33333333333333333333333");
+            console.log("LoadUser  33333333333333333333333");
             User.getUser(req.user.id, function (err, users) {
                 if (err) throw err;
                 res.json(users);
