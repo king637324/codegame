@@ -197,7 +197,6 @@ if (JSON && JSON.stringify && JSON.parse) var Session = Session || (function () 
               startTime:ST,
               endTime:ET}, // 將表單資料用打包起來送出去
         success: function (res) {
-          console.log("TimeSelect成功");
           updateLoadUsernameMap();
         },
         error:function(err){
@@ -218,7 +217,6 @@ if (JSON && JSON.stringify && JSON.parse) var Session = Session || (function () 
       data: scriptData, // 將表單資料用打包起來送出去
       success: function (res) {
       allUserData = res;
-      console.log("updateLoad成功");
       console.log(allUserData);
       updateMapData(allUserData);
       }
@@ -396,6 +394,9 @@ if (JSON && JSON.stringify && JSON.parse) var Session = Session || (function () 
       }
     }
 
+
+    
+
     updateMapData(allUserData);
   }
   
@@ -415,6 +416,12 @@ if (JSON && JSON.stringify && JSON.parse) var Session = Session || (function () 
   }
   //搜尋函式，也是豐銘的
   function searchFunc() {
+    var searchTextBox = document.getElementById("searchTextBox");
+    
+    if (searchTextBox.value == "" || searchTextBox.value.length == 0) {
+      changeTdNameDisplay();
+    }
+    
     // var a = document.getElementById("searchTextBox");
     // if (a.value == "") {
     //   a.className = "search-text";
@@ -424,14 +431,21 @@ if (JSON && JSON.stringify && JSON.parse) var Session = Session || (function () 
     // }
     // console.log("search:up");
     // console.log(searchTextBox.value);
+    
+    
     if (searchTextBox.value.length > 0) {
       allUserData.length = 0;
+      
       for (let indexS = 0; indexS < completallUserData.length; indexS++) {
         // const element = completallUserData[indexS];
         var compareStr = completallUserData[indexS][searchTypeTable[searchType]].toString()
-        if (compareStr.indexOf(searchTextBox.value) > -1) {
+        
+        if (compareStr.indexOf(searchTextBox.value) > -1) {        
           allUserData.push(completallUserData[indexS]);
         }
+
+      
+        
       }
       for (let index = tdStatus.length - 1; index > -1; index--) {
         var item = TdNameTable[index];
@@ -449,6 +463,11 @@ if (JSON && JSON.stringify && JSON.parse) var Session = Session || (function () 
       }
       updateMapData(allUserData)
     } else {
+
+      for (let indexS = 0; indexS < completallUserData.length; indexS++) {
+          allUserData.push(completallUserData[indexS]);
+      }
+      
       changeTdNameDisplay();
     }
     // updateMapData(allUserData)
@@ -578,4 +597,3 @@ if (JSON && JSON.stringify && JSON.parse) var Session = Session || (function () 
       changeTdNameDisplay();
     }
   }
-  
