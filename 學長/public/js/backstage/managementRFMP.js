@@ -1,4 +1,4 @@
-// 宜靜 2020.04.15
+// 宜靜 2020.05.12
 if (JSON && JSON.stringify && JSON.parse) var Session = Session || (function () {
 
     // cache window 物件
@@ -467,7 +467,7 @@ if (JSON && JSON.stringify && JSON.parse) var Session = Session || (function () 
       for (let indexS = 0; indexS < completallUserData.length; indexS++) {
           allUserData.push(completallUserData[indexS]);
       }
-      
+
       changeTdNameDisplay();
     }
     // updateMapData(allUserData)

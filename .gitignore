@@ -55,6 +55,10 @@ us/node_modules
 us/node_modules/
 us/jspm_packages/
 
+codegame0507/node_modules
+codegame0507/node_modules/
+codegame0507/jspm_packages/
+
 # TypeScript v1 declaration files
 typings/
 

@@ -27,14 +27,14 @@ var UserSchema = mongoose.Schema({
     finishMapNum: { type: Array, "default": []  },
     userstatus:{ type: Number, "default": 0 },
     canCreateMapPermission:{ type: Boolean, "default": false },
-    //以下宜靜 2020.04.15
+    //以下宜靜 2020.05.12
     Logintime: { type: Array, "default": [] },
     Rscore: { type: Number, "default": 0},
     Fscore: {type: Number, "default": 0},
     Mscore: { type: Number, "default": 0},
     Pscore: { type: Number, "default": 0},
     LearnerType: { type: String , "default": ""}
-    //以上宜靜 2020.04.15
+    //以上宜靜 2020.05.12
 })
 
 var User = module.exports = mongoose.model('User', UserSchema)
@@ -191,7 +191,7 @@ module.exports.deleteUserById = function (id, callback) {
     User.deleteOne(query, callback);
 }
 
-// 以下宜靜 2020.04.15
+// 以下宜靜 2020.05.12
 //updateUserLogintime 更新使用者登入次數
 module.exports.updateUserLogintime = function(id, Logintime, callback) {
     var query = {
@@ -266,4 +266,4 @@ module.exports.getAllUser = function (callback) {
     User.find(query, callback)
 }
 
-// 以上宜靜 2020.04.15
+// 以上宜靜 2020.05.12

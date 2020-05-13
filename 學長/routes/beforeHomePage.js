@@ -256,7 +256,7 @@ passport.use(new LocalStrategy(
                          if (err) throw err;
                            return done(null, user)
                     })
-                    //以上宜靜
+                    //以上宜靜 2020.05.12
                     
                 } else {
                     var script = 'InvalidPassword ' + username + " " + password;
