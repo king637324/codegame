@@ -38,6 +38,12 @@ server.listen(port, function() {
 
 var io = socket(server);
 
+
+
+
+
+
+
 io.on('connection', function(socket) {
   socket.on("script", function(script) {
     //從伺服端拿到script的資訊
@@ -145,7 +151,7 @@ io.of('/lobby').on('connection', function(socket) {
 
 
   //創造房間
-  socket.on('createRoom', function(title) {
+  socket.on('createRoom', function(title, CurrentMap) {
     Room.findRoom({
       'title': new RegExp('^' + title + '$', 'i')
     }, function(err, room) {
@@ -157,7 +163,8 @@ io.of('/lobby').on('connection', function(socket) {
         });
       } else {
         Room.create({
-          title: title
+          title: title,
+          CurrentMap: CurrentMap
         }, function(err, newRoom) {
           if (err) throw err;
           socket.emit('GoToRoom', newRoom); //馬上創建馬上進入房間
@@ -250,7 +257,7 @@ io.of('/rooms').on('connection', function(socket) {
 
   socket.on('ready', function(roomId) {
     Room.findRoomId(roomId, function(err, room) {
-      if (room.connections.length == 4) { //這裡決定”準備房間”要幾個人都按開始鍵才會進入”遊戲房間“
+      if (room.connections.length == 1) { //這裡決定”準備房間”要幾個人都按開始鍵才會進入”遊戲房間“
         const result = room.connections.every(x => x.playerStatus == 1); //核對是否房內四人的遊戲狀態都是1(準備中)，如果符合，result會為true
         if (result) {
           GameRoom.create({ //創造”遊戲房間“的資料庫
@@ -276,13 +283,19 @@ io.of('/rooms').on('connection', function(socket) {
     })
   })
 
-
+  socket.on('MapChange', function(roomId, mapName) {
+    // console.log(roomId, "_____", mapName);
+    Room.findRoomId(roomId, function(err, room) {
+      Room.changeMap(room, mapName)
+    })
+  })
 
 
 
   socket.on('disconnect', function() {
 
     Room.removeUser(socket, function(err, room, userId, cuntUserInRoom) {
+      console.log(`${userId}移除`);
 
       io.of('/lobby').emit('RoomPlayerNum', room); //更新大廳的房間人數
 

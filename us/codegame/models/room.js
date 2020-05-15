@@ -20,6 +20,10 @@ var RoomSchema = new mongoose.Schema({
   roomStatus: { //0是(未開始)，１是(已開始)
     type: Number,
     "default": 0
+  },
+  CurrentMap: {
+    type: String,
+    required: true
   }
 });
 
@@ -138,9 +142,10 @@ module.exports.removeUser = function(socket, callback) {
       });
 
       if (!pass) {
-        if (room.roomStatus == 0) { //如果房間狀態是0(未開始)
-          room.connections.id(room.connections[target]._id).remove();
-        }
+        // if (room.roomStatus == 0) { //如果房間狀態是0(未開始)
+        //   room.connections.id(room.connections[target]._id).remove();
+        // }
+        room.connections.id(room.connections[target]._id).remove();
         room.save(function(err) {
           callback(err, room, userId, cunt);
         });
@@ -168,8 +173,6 @@ module.exports.changePlayerStatus = function(room, status, socket) {
 
 
 module.exports.changeRoomStatus = function(room, status) {
-
-
   roomModel.updateOne({
     _id: room._id,
   }, {
@@ -180,6 +183,21 @@ module.exports.changeRoomStatus = function(room, status) {
     // console.log(message);
   })
 }
+
+module.exports.changeMap = function(room, map) {
+
+  roomModel.updateOne({
+    _id: room._id,
+  }, {
+    $set: {
+      "CurrentMap": map
+    }
+  }, function(err, message) {
+    // console.log(message);
+  })
+}
+
+
 
 
 

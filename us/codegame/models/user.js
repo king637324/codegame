@@ -85,7 +85,15 @@ var UserSchema = mongoose.Schema({
   canCreateMapPermission: {
     type: Boolean,
     "default": false
-  }
+  },
+  //以下宜靜 2020.05.12
+  Logintime: { type: Array, "default": [] },
+  Rscore: { type: Number, "default": 0},
+  Fscore: {type: Number, "default": 0},
+  Mscore: { type: Number, "default": 0},
+  Pscore: { type: Number, "default": 0},
+  LearnerType: { type: String , "default": ""}
+  //以上宜靜 2020.05.12
 })
 
 var User = module.exports = mongoose.model('User', UserSchema)
@@ -278,3 +286,80 @@ module.exports.updatefinishMapNumById = function(id, finishMapNum, callback) {
   User.updateOne(query, setquery, callback);
 
 }
+
+// 以下宜靜 2020.05.12
+//updateUserLogintime 更新使用者登入次數
+module.exports.updateUserLogintime = function(id, Logintime, callback) {
+  var query = {
+    _id: id
+  }
+  var setquery = {
+      Logintime: Logintime
+  }
+  User.updateOne(query, setquery, callback);
+}
+
+//updateRscore 更新R的評分值
+module.exports.updateRscore = function(email, Rscore, callback) {
+  var query = {
+      email: email
+  }
+  var setquery = {
+      Rscore: Rscore
+  }
+  User.updateOne(query, setquery, callback);
+}
+
+//updateFscore 更新F的評分值
+module.exports.updateFscore = function(email, Fscore, callback) {
+  var query = {
+      email: email
+  }
+  var setquery = {
+      Fscore: Fscore
+  }
+  User.updateOne(query, setquery, callback);
+}
+
+//updateMscore 更新M的評分值
+module.exports.updateMscore = function(email, Mscore, callback) {
+  var query = {
+      email: email
+  }
+  var setquery = {
+      Mscore: Mscore
+  }
+  User.updateOne(query, setquery, callback);
+}
+
+//updatePscore 更新P的評分值
+module.exports.updatePscore = function(email, Pscore, callback) {
+  var query = {
+      email: email
+  }
+  var setquery = {
+      Pscore: Pscore
+  }
+  User.updateOne(query, setquery, callback);
+}
+
+//updateLearnerType 更新玩家類型
+module.exports.updateLearnerType = function(email, LearnerType, callback) {
+  var query = {
+      email: email
+  }
+  var setquery = {
+      LearnerType: LearnerType
+  }
+  User.updateOne(query, setquery, callback);
+}
+
+
+
+// 得到所有玩家資料
+module.exports.getAllUser = function (callback) {
+  var query =  { username: { $ne: "" }}
+  User.find(query, callback)
+}
+
+// 以上宜靜 2020.05.12

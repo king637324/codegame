@@ -22,3 +22,9 @@ module.exports.getAllUserLoginState = function (callback) {
     var query =  { username: { $ne: "" }}
     UserLogin.find(query, callback)
 }
+
+module.exports.deleteUserLoginStateById = function (username, name, email, callback) {
+    var query = { username: username, name: name, email: email };
+
+    UserLogin.deleteMany(query, callback);
+}

@@ -357,8 +357,8 @@
   border-width: 2px;
   background-color: rgba(0, 0, 0, 0);
   position: absolute;
-  left: 1vw;
-  bottom: 2vh;
+  left: 6vw;
+  bottom: 5vh;
   cursor: pointer;
 }
 
@@ -443,38 +443,14 @@
   background-size: 100% 100%;
   background-color: transparent;
   position: absolute;
-  top: 0%;
+  top: 2%;
   right: 0px;
   cursor: pointer;
 }
 
-#textButtonDiv .clearButton {
-  width: 9vh;
-  height: 9vh;
-  border: 0px;
-  background-image: url('../../img/clearButton.png');
-  background-repeat: no-repeat;
-  background-size: 100% 100%;
-  background-color: transparent;
-  position: absolute;
-  top: 11%;
-  right: 0px;
-  cursor: pointer;
-}
 
-#textButtonDiv .restartButton {
-  width: 9vh;
-  height: 9vh;
-  border: 0px;
-  background-image: url('../../img/RestartButton.png');
-  background-repeat: no-repeat;
-  background-size: 100% 100%;
-  background-color: transparent;
-  position: absolute;
-  top: 22%;
-  right: 0px;
-  cursor: pointer;
-}
+
+
 
 #textButtonDiv .settingButton {
   width: 9vh;
@@ -485,7 +461,7 @@
   background-size: 100% 100%;
   background-color: transparent;
   position: absolute;
-  top: 33%;
+  top: 13%;
   right: 0px;
   cursor: pointer;
 }
