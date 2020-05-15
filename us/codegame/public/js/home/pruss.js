@@ -1,4 +1,4 @@
-if (JSON && JSON.stringify && JSON.parse) var Session = Session || (function() {
+if (JSON && JSON.stringify && JSON.parse) var Session = Session || (function () {
 
   // cache window 物件
   var win = window.top || window;
@@ -20,29 +20,24 @@ if (JSON && JSON.stringify && JSON.parse) var Session = Session || (function() {
   return {
 
     // 設定一個 session 變數
-    set: function(name, value) {
+    set: function (name, value) {
       store[name] = value;
     },
 
     // 列出指定的 session 資料
-    get: function(name) {
+    get: function (name) {
       return (store[name] ? store[name] : undefined);
     },
 
     // 清除資料 ( session )
-    clear: function() {
-      store = {};
-    },
+    clear: function () { store = {}; },
 
     // 列出所有存入的資料
-    dump: function() {
-      return JSON.stringify(store);
-    }
+    dump: function () { return JSON.stringify(store); }
 
   };
 
 })();
-
 function back() {
   var index = 0;
   var href = window.location.href;
@@ -59,29 +54,23 @@ var href = window.location.href;
 var scriptData = {
   type: "init"
 }
-var user, equipmentData, achievemenData, dictionaryData, levelDescription, thisLevelStarNum, isBlockly = true,
-  achievementStr;
-var swordLevel = 0,
-  shieldLevel = 0,
-  levelUpLevel = 0,
-  musicLevel = 1,
-  bkMusicSwitch, bkMusicVolumn = 0.1,
-  levelStage, gameSpeed;
+var user, equipmentData, achievemenData, dictionaryData, levelDescription, thisLevelStarNum, isBlockly = true, achievementStr;
+var swordLevel = 0, shieldLevel = 0, levelUpLevel = 0, musicLevel = 1, bkMusicSwitch, bkMusicVolumn = 0.1, levelStage, gameSpeed;
 var musicData;
 
 createLoadingMainView("centerBlockly");
 $.ajax({
-  url: href, // 要傳送的頁面
-  method: 'POST', // 使用 POST 方法傳送請求
-  dataType: 'json', // 回傳資料會是 json 格式
-  data: scriptData, // 將表單資料用打包起來送出去
+  url: href,              // 要傳送的頁面
+  method: 'POST',               // 使用 POST 方法傳送請求
+  dataType: 'json',             // 回傳資料會是 json 格式
+  data: scriptData,  // 將表單資料用打包起來送出去
   async: false,
-  success: function(res) {
+  success: function (res) {
     // console.log(res);
     user = res;
 
     var xmlhttp = new XMLHttpRequest();
-    xmlhttp.onreadystatechange = function() {
+    xmlhttp.onreadystatechange = function () {
       if (this.readyState == 4 && this.status == 200) {
         achievemenData = JSON.parse(this.responseText);
         initHome();
@@ -122,12 +111,12 @@ var scriptData = {
   type: "loadDict"
 }
 $.ajax({
-  url: href, // 要傳送的頁面
-  method: 'POST', // 使用 POST 方法傳送請求
-  dataType: 'json', // 回傳資料會是 json 格式
-  data: scriptData, // 將表單資料用打包起來送出去
+  url: href,              // 要傳送的頁面
+  method: 'POST',               // 使用 POST 方法傳送請求
+  dataType: 'json',             // 回傳資料會是 json 格式
+  data: scriptData,  // 將表單資料用打包起來送出去
   async: false,
-  success: function(res) {
+  success: function (res) {
     // console.log(res);
     dictionaryData = {
       code: res
@@ -143,12 +132,12 @@ var scriptData = {
   type: "loadEquip"
 }
 $.ajax({
-  url: href, // 要傳送的頁面
-  method: 'POST', // 使用 POST 方法傳送請求
-  dataType: 'json', // 回傳資料會是 json 格式
-  data: scriptData, // 將表單資料用打包起來送出去
+  url: href,              // 要傳送的頁面
+  method: 'POST',               // 使用 POST 方法傳送請求
+  dataType: 'json',             // 回傳資料會是 json 格式
+  data: scriptData,  // 將表單資料用打包起來送出去
   async: false,
-  success: function(res) {
+  success: function (res) {
     // console.log(res);
     equipmentData = res;
   }
@@ -159,11 +148,11 @@ function getEquipmentData() {
 }
 
 $.ajax({
-  url: "loadGameMapData", // 要傳送的頁面
-  method: 'POST', // 使用 POST 方法傳送請求
-  dataType: 'json', // 回傳資料會是 json 格式
+  url: "loadGameMapData",              // 要傳送的頁面
+  method: 'POST',               // 使用 POST 方法傳送請求
+  dataType: 'json',             // 回傳資料會是 json 格式
   async: false,
-  success: function(res) {
+  success: function (res) {
     levelDescription = {
       Early: res
     }
@@ -176,12 +165,11 @@ function error() {
   window.location.replace(href);
 
 }
-
 function initHome() {
   if (Session.get("isBlockly") != null) {
     isBlockly = Session.get("isBlockly");
     document.getElementById("myonoffswitch").checked = isBlockly;
-  } else {}
+  } else { }
   if (Session.get("bkMusicVolumn") != null && Session.get("bkMusicSwitch") != null && Session.get("musicLevel") != null && Session.get("gameSpeed") != null) {
     // console.log("???");
     bkMusicVolumn = Session.get("bkMusicVolumn");
@@ -212,17 +200,16 @@ function initHome() {
   changeLevelStage();
   achievementStr = achievementJudge();
 }
-
 function weaponLevelup() {
   var scriptData = {
     type: "weaponLevelup",
   }
   $.ajax({
-    url: href, // 要傳送的頁面
-    method: 'POST', // 使用 POST 方法傳送請求
-    dataType: 'json', // 回傳資料會是 json 格式
-    data: scriptData, // 將表單資料用打包起來送出去
-    success: function(res) {
+    url: href,              // 要傳送的頁面
+    method: 'POST',               // 使用 POST 方法傳送請求
+    dataType: 'json',             // 回傳資料會是 json 格式
+    data: scriptData,  // 將表單資料用打包起來送出去
+    success: function (res) {
       if (res.err) {
         error();
       }
@@ -231,17 +218,16 @@ function weaponLevelup() {
     }
   })
 }
-
 function armorLevelup() {
   var scriptData = {
     type: "armorLevelup",
   }
   $.ajax({
-    url: href, // 要傳送的頁面
-    method: 'POST', // 使用 POST 方法傳送請求
-    dataType: 'json', // 回傳資料會是 json 格式
-    data: scriptData, // 將表單資料用打包起來送出去
-    success: function(res) {
+    url: href,              // 要傳送的頁面
+    method: 'POST',               // 使用 POST 方法傳送請求
+    dataType: 'json',             // 回傳資料會是 json 格式
+    data: scriptData,  // 將表單資料用打包起來送出去
+    success: function (res) {
       if (res.err) {
         error();
       }
@@ -250,7 +236,6 @@ function armorLevelup() {
     }
   })
 }
-
 function getJson() {
   return dictionaryData;
 }
@@ -267,25 +252,23 @@ var dataTitle = ["帳&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp號：",
   "主&nbsp要&nbsp進&nbsp度：",
   "成&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp就：",
   "上架地圖數：",
-  "已獲得星星數："
-];
+  "已獲得星星數："];
 var userMap = [];
 var scriptData = {
   type: "userMap"
 }
 $.ajax({
-  url: href, // 要傳送的頁面
-  method: 'POST', // 使用 POST 方法傳送請求
-  dataType: 'json', // 回傳資料會是 json 格式
-  data: scriptData, // 將表單資料用打包起來送出去
-  success: function(res) {
+  url: href,              // 要傳送的頁面
+  method: 'POST',               // 使用 POST 方法傳送請求
+  dataType: 'json',             // 回傳資料會是 json 格式
+  data: scriptData,  // 將表單資料用打包起來送出去
+  success: function (res) {
     // console.log(res);
     // console.log("res:", res);
 
     userMap = res.length;
   }
 })
-
 function userData() {
   try {
     divTag = document.getElementById("userDataView");
@@ -294,7 +277,7 @@ function userData() {
     divTag = document.getElementById("userDataBkView");
     parentObj = divTag.parentNode;
     parentObj.removeChild(divTag);
-  } catch (e) {}
+  } catch (e) { }
   divID = "userDataView";
   divTag = document.getElementById("centerBlockly");
   b = document.createElement("div");
@@ -321,25 +304,23 @@ function userData() {
   divTag.appendChild(b);
   createUserView(divID);
 }
-
 function closeFunc(thisDiv, thisDiv2) {
   try {
     document.getElementById("changePasswordBtn").className = "";
     document.getElementById("clossDiv").className = "";
-  } catch (e) {}
+  } catch (e) { }
   try {
     divTag = document.getElementById(thisDiv);
     parentObj = divTag.parentNode;
     parentObj.removeChild(divTag);
-  } catch (e) {}
+  } catch (e) { }
   try {
     divTag = document.getElementById(thisDiv2);
     parentObj = divTag.parentNode;
     parentObj.removeChild(divTag);
-  } catch (e) {}
+  } catch (e) { }
   levelDivAlive = false;
 }
-
 function createUserView(mainDiv) {
   divTag = document.getElementById(mainDiv);
   b = document.createElement("h1");
@@ -402,10 +383,8 @@ function createUserView(mainDiv) {
     }
   }
 }
-
 function changePassword(thisDiv) {
-  var tdValue = ["舊密碼", "新密碼", "確認新密碼"],
-    inputID = ["oldPassword", "newPassword", "checkPassword"];
+  var tdValue = ["舊密碼", "新密碼", "確認新密碼"], inputID = ["oldPassword", "newPassword", "checkPassword"];
   document.getElementById("changePasswordBtn").className = "disabled";
   document.getElementById("clossDiv").className = "disabled";
   divTag = document.getElementById("userDataView");
@@ -462,7 +441,6 @@ function changePassword(thisDiv) {
 
   divTag.appendChild(b);
 }
-
 function changePass() {
   oldPassword = document.getElementById("oldPassword");
   newPassword = document.getElementById("newPassword");
@@ -475,31 +453,38 @@ function changePass() {
     // alert("動作失敗<br>" + "\"舊密碼\"不能為空");
     remindValue = "動作失敗<br>" + "\"舊密碼\"不能為空";
     remindView(remindValue);
-  } else if (strOP.indexOf(" ") != -1) {
+  }
+  else if (strOP.indexOf(" ") != -1) {
     // alert("動作失敗<br>" + "\"舊密碼\"有空白字元");
     remindValue = "動作失敗<br>" + "\"舊密碼\"有空白字元";
     remindView(remindValue);
-  } else if (newPassword.value == "") {
+  }
+  else if (newPassword.value == "") {
     // alert("動作失敗<br>" + "\"密碼\"不能為空");
     remindValue = "動作失敗<br>" + "\"密碼\"不能為空";
     remindView(remindValue);
-  } else if (strP.indexOf(" ") != -1) {
+  }
+  else if (strP.indexOf(" ") != -1) {
     // alert("動作失敗\n" + "\"密碼\"有空白字元");
     remindValue = "動作失敗<br>" + "\"密碼\"有空白字元";
     remindView(remindValue);
-  } else if (checkPassword.value == "") {
+  }
+  else if (checkPassword.value == "") {
     // alert("動作失敗\n" + "\"確認密碼\"不能為空");
     remindValue = "動作失敗<br>" + "\"確認密碼\"不能為空";
     remindView(remindValue);
-  } else if (strCP.indexOf(" ") != -1) {
+  }
+  else if (strCP.indexOf(" ") != -1) {
     // alert("動作失敗\n" + "\"確認密碼\"有空白字元");
     remindValue = "動作失敗<br>" + "\"確認密碼\"有空白字元";
     remindView(remindValue);
-  } else if (newPassword.value != checkPassword.value) {
+  }
+  else if (newPassword.value != checkPassword.value) {
     // alert("動作失敗\n" + "\"密碼\"與\"確認密碼\"不同");
     remindValue = "動作失敗<br>" + "\"密碼\"與\"確認密碼\"不同";
     remindView(remindValue);
-  } else {
+  }
+  else {
     var scriptData = {
       type: "changePassword",
       oldPassword: oldPassword.value,
@@ -509,11 +494,11 @@ function changePass() {
     // alert("wait");
     var href = window.location.href;
     $.ajax({
-      url: href, // 要傳送的頁面
-      method: 'POST', // 使用 POST 方法傳送請求
-      dataType: 'json', // 回傳資料會是 json 格式
-      data: scriptData, // 將表單資料用打包起來送出去
-      success: function(res) {
+      url: href,              // 要傳送的頁面
+      method: 'POST',         // 使用 POST 方法傳送請求
+      dataType: 'json',       // 回傳資料會是 json 格式
+      data: scriptData,       // 將表單資料用打包起來送出去
+      success: function (res) {
         result = "動作失敗<br>";
         // alert(res.responce );
         if (res.responce == "sucesss") {
@@ -522,7 +507,8 @@ function changePass() {
           remindValue = result;
           remindView(remindValue);
           closeFunc("changePasswordView");
-        } else if (res.responce == "failPassUndifine") {
+        }
+        else if (res.responce == "failPassUndifine") {
           result += "\"舊密碼\"錯誤";
           // alert(result);
           remindValue = result;
@@ -532,7 +518,6 @@ function changePass() {
     });
   }
 }
-
 function logout() {
   // console.log("dddddd");
   var href = "/logout";
@@ -548,7 +533,6 @@ function logout() {
 var levelDivAlive = false;
 var parentObj, divID;
 viewRecordFontText = ["星星", "指令個數", "程式碼"];
-
 function btnClick(number) {
   var divTag = document.getElementById("centerBlockly");
   var b;
@@ -563,28 +547,39 @@ function btnClick(number) {
   } catch (e) {
     divTag = document.getElementById("centerBlockly");
   }
-
-  html = `<div id="levelDiv">
-          <form id="levelForm">
-          <h3 id="levelDescription">第${number}關</h3>
-          <div id="startDiv"></div>
-          <input type="button" title="關" id="clossDiv" value="x" onclick="closeFunc('levelDiv')">
-          </form>
-          </div>`
-
-
+  b = document.createElement("div");
+  b.setAttribute("id", "levelDiv");
+  divTag.appendChild(b);
+  divTag = document.getElementById("levelDiv");
+  b = document.createElement("form");
+  b.setAttribute("id", "levelForm");
   levelDivAlive = true;
-
-  $("#centerBlockly").append(html);
-
-
+  divTag.appendChild(b);
+  b = document.createElement("input");
+  b.setAttribute("type", "button");
+  b.setAttribute("title", "關閉");
+  b.setAttribute("id", "clossDiv");
+  b.setAttribute("value", "X");
+  b.setAttribute("onclick", "closeFunc(\"levelDiv\")");
+  divTag.appendChild(b);
+  divTag = document.getElementById("levelForm");
+  b = document.createElement("h3");
+  b.setAttribute("id", "levelDescription");
+  b.innerHTML = "第" + number + "關";
+  divTag.appendChild(b);
+  /*星星圖*/
+  b = document.createElement("div");
+  b.setAttribute("id", "startDiv");
+  divTag.appendChild(b);
+  divTag = document.getElementById("startDiv");
   for (var i = 0; i < 3; i++) {
-    html = `<img id="startImg${i}" class="unStartImg">`
-    $("#startDiv").append(html);
+    b = document.createElement("img");
+    b.setAttribute("id", "startImg" + i);
+    b.setAttribute("class", "unStartImg");
+    //b.setAttribute("src","img/levelStart.png");
+    divTag.appendChild(b);
   }
-
-  var codeStar = 0
-  var blockStar = 0
+  var codeStar = 0, blockStar = 0;
   number--;
   var codeLevel = -1;
   for (let index = 0; index < user.EasyEmpire.codeLevel.length; index++) {
@@ -619,63 +614,71 @@ function btnClick(number) {
     document.getElementById("startImg" + i).className = "startImg";
   }
   /*主要函式*/
-  html = `<div id="mainGrammar">
-        </div>`
-  $("#startDiv").append(html);
-
-
+  b = document.createElement("div");
+  b.setAttribute("id", "mainGrammar");
+  divTag.appendChild(b);
+  divTag = document.getElementById("mainGrammar");
+  // console.log(levelDescription.Early[number].mainGrammar.length);
   for (var i = 0; i < levelDescription.Early[number].mainGrammar.length; i++) {
-    html = `<div class="innerGrammar" id="innerGrammar${i}">${levelDescription.Early[number].mainGrammar[i].innerGrammar}</div>`
-    $("#mainGrammar").append(html);
+    b = document.createElement("div");
+    b.setAttribute("class", "innerGrammar");
+    b.setAttribute("id", "innerGrammar" + i);
+    divTag.appendChild(b);
+    b.innerHTML = levelDescription.Early[number].mainGrammar[i].innerGrammar;
   }
+  b = document.createElement("br");
+  divTag.appendChild(b);
 
+  b = document.createElement("br");
+  divTag.appendChild(b);
 
   /*關卡說明*/
-  html = `<br>
-          <br>
-          <textarea rows="20" cols="20" id="levelDescriptiontextarea" readonly="readonly">${levelDescription.Early[number].description}</textarea>
-          <br>`
+  b = document.createElement("textarea");
+  b.setAttribute("rows", "20");
+  b.setAttribute("cols", "20");
+  b.setAttribute("id", "levelDescriptiontextarea");
+  b.setAttribute("readonly", "readonly");
+  divTag.appendChild(b);
+  b.innerHTML = levelDescription.Early[number].description;
+  b = document.createElement("br");
+  divTag.appendChild(b);
 
-  /*關卡按鈕*/
-  html += `<input type="button" id="historyCode" value="查看紀錄" onclick="viewRecord('${number}')">
-          <input type="button" id="levelBtn" value="進入關卡">`
-
-  $("#mainGrammar").append(html);
-
-
-
+  //number--;
+  b = document.createElement("input");
+  b.setAttribute("type", "button");
+  b.setAttribute("id", "historyCode");
+  b.setAttribute("value", "查看紀錄");
+  b.setAttribute("onclick", "viewRecord(" + number + ")");
+  divTag.appendChild(b);
+  b = document.createElement("input");
+  b.setAttribute("type", "button");
+  b.setAttribute("id", "levelBtn");
+  b.setAttribute("value", "進入關卡");
   try {
     if (isCheckClicked.checked) {
       if (number < 10) {
         // console.log(number);
-        $("#levelBtn").attr('onclick', "location.href='gameView_blockly?level=" + number + "'")
+        b.setAttribute("onclick", "location.href='gameView_blockly?level=" + number + "'");
       } else {
-        $("#levelBtn").attr('onclick', "location.href='gameView_blockly?level=" + number + "'")
+        b.setAttribute("onclick", "location.href='gameView_blockly?level=" + number + "'");
       }
     } else {
       if (number < 10) {
         // console.log(number);
-        $("#levelBtn").attr('onclick', "location.href='gameView_text?level=" + number + "'")
+        b.setAttribute("onclick", "location.href='gameView_text?level=" + number + "'");
       } else {
-        $("#levelBtn").attr('onclick', "location.href='gameView_text?level=" + number + "'")
+        b.setAttribute("onclick", "location.href='gameView_text?level=" + number + "'");
       }
     }
   } catch (e) {
-    $("#levelBtn").attr('onclick', "location.href='gameView_text?level=" + number + 23 + "'")
+    b.setAttribute("onclick", "location.href='gameView_text?level=" + number + 23 + "'");
   }
-
-
+  divTag.appendChild(b);
 }
-
-
-
-
 var lastRecord, allRecord = 0;
-
 function viewRecord(number) {
   var divTag = document.getElementById("centerBlockly");
-  var isCheckClicked, codeText, codeNum, niceRecord = 999,
-    niceStar = -1;
+  var isCheckClicked, codeText, codeNum, niceRecord = 999, niceStar = -1;
   isCheckClicked = document.getElementById("myonoffswitch");
   // console.log(number);
   if (isCheckClicked.checked) {
@@ -851,10 +854,8 @@ function viewRecord(number) {
 
   }
 }
-
 function changeViewRecord(number, changeType) {
-  var isCheckClicked, codeText, codeNum, niceRecord = 999,
-    niceStar = -1;
+  var isCheckClicked, codeText, codeNum, niceRecord = 999, niceStar = -1;
   isCheckClicked = document.getElementById("myonoffswitch");
 
   if (isCheckClicked.checked) {
@@ -952,7 +953,8 @@ function equipageView(mainDiv) {
   b.setAttribute("id", "allTitle");
   divTag.appendChild(b);
   document.getElementById("allTitle").innerHTML = "裝備";
-  if (user.isadmin) {
+
+  if (user.username == "NKUSTCCEA" || user.username == "teacher") {
     b = document.createElement("input");
     b.setAttribute("type", "button");
     b.setAttribute("id", "modifyEquipageView");
@@ -1116,7 +1118,8 @@ function equipageView(mainDiv) {
       } else {
         temp.className = "levelChange";
       }
-    } else {
+    }
+    else {
       if (li == 0) {
         temp.className = "levelFontDefault";
       } else if (li == 9) {
@@ -1136,7 +1139,8 @@ function equipageView(mainDiv) {
       } else {
         temp.className = "levelChange";
       }
-    } else {
+    }
+    else {
       if (li == 0) {
         temp.className = "levelFontDefault";
       } else if (li == 9) {
@@ -1146,8 +1150,7 @@ function equipageView(mainDiv) {
       }
     }
   }
-  var swordmaxFlag = false,
-    shiledmaxFlag = false;
+  var swordmaxFlag = false, shiledmaxFlag = false;
   if ((swordLevel + shieldLevel) >= 15) {
     if (swordLevel == 10) {
       document.getElementById("levelUpDefault0").innerHTML = "";
@@ -1155,13 +1158,15 @@ function equipageView(mainDiv) {
       document.getElementById("swordLevelUpDivH3").innerHTML = text;
       var text = "防禦力：" + equipmentData.armorLevel[shieldLevel].attack + " &nbsp 下一級為：" + equipmentData.armorLevel[shieldLevel + 1].attack;
       document.getElementById("shieldLevelUpDivH3").innerHTML = text;
-    } else if (shieldLevel == 10) {
+    }
+    else if (shieldLevel == 10) {
       document.getElementById("levelUpDefault1").innerHTML = "";
       var text = "防禦力：" + equipmentData.armorLevel[shieldLevel].attack + "  等級已升到最滿";
       document.getElementById("shieldLevelUpDivH3").innerHTML = text;
       var text = "攻擊力：" + equipmentData.weaponLevel[swordLevel].attack + " &nbsp 下一級為：" + equipmentData.weaponLevel[swordLevel + 1].attack;
       document.getElementById("swordLevelUpDivH3").innerHTML = text;
-    } else {
+    }
+    else {
       var text = "攻擊力：" + equipmentData.weaponLevel[swordLevel].attack + " &nbsp 下一級為：" + equipmentData.weaponLevel[swordLevel + 1].attack;
       document.getElementById("swordLevelUpDivH3").innerHTML = text;
       var text = "防禦力：" + equipmentData.armorLevel[shieldLevel].attack + " &nbsp 下一級為：" + equipmentData.armorLevel[shieldLevel + 1].attack;
@@ -1173,7 +1178,8 @@ function equipageView(mainDiv) {
     // document.getElementById("levelUpDefault1").innerHTML = "已達<br>上限";
     document.getElementById("levelUpDefault0").className = "levelUpDefault2";
     document.getElementById("levelUpDefault1").className = "levelUpDefault2";
-  } else if (swordLevel == 10) {
+  }
+  else if (swordLevel == 10) {
     document.getElementById("levelUpDefault0").innerHTML = "";
     var text = "攻擊力：" + equipmentData.weaponLevel[swordLevel].attack + "  等級已升到最滿";
     document.getElementById("swordLevelUpDivH3").innerHTML = text;
@@ -1188,11 +1194,13 @@ function equipageView(mainDiv) {
     if (star <= user.starNum) {
       document.getElementById("levelUpDefault0").className = "highestLevel";
       document.getElementById("levelUpDefault1").className = "levelUp";
-    } else {
+    }
+    else {
       document.getElementById("levelUpDefault0").className = "levelUpDefault";
       document.getElementById("levelUpDefault1").className = "levelUpDefault";
     }
-  } else if (shieldLevel == 10) {
+  }
+  else if (shieldLevel == 10) {
     document.getElementById("levelUpDefault1").innerHTML = "";
     var text = "防禦力：" + equipmentData.armorLevel[shieldLevel].attack + "  等級已升到最滿";
     document.getElementById("shieldLevelUpDivH3").innerHTML = text;
@@ -1206,11 +1214,13 @@ function equipageView(mainDiv) {
     if (star <= user.starNum) {
       document.getElementById("levelUpDefault0").className = "levelUp";
       document.getElementById("levelUpDefault1").className = "highestLevel";
-    } else {
+    }
+    else {
       document.getElementById("levelUpDefault0").className = "levelUpDefault";
       document.getElementById("levelUpDefault1").className = "levelUpDefault";
     }
-  } else {
+  }
+  else {
     var text = "攻擊力：" + equipmentData.weaponLevel[swordLevel].attack + " &nbsp 下一級為：" + equipmentData.weaponLevel[swordLevel + 1].attack;
     document.getElementById("swordLevelUpDivH3").innerHTML = text;
     var text = "防禦力：" + equipmentData.armorLevel[shieldLevel].attack + " &nbsp 下一級為：" + equipmentData.armorLevel[shieldLevel + 1].attack;
@@ -1223,7 +1233,8 @@ function equipageView(mainDiv) {
     if (star <= user.starNum) {
       document.getElementById("levelUpDefault0").className = "levelUp";
       document.getElementById("levelUpDefault1").className = "levelUp";
-    } else {
+    }
+    else {
       document.getElementById("levelUpDefault0").className = "levelUpDefault";
       document.getElementById("levelUpDefault1").className = "levelUpDefault";
     }
@@ -1236,11 +1247,11 @@ function resetEquipClick() {
     type: "resetEquip"
   }
   $.ajax({
-    url: href, // 要傳送的頁面
-    method: 'POST', // 使用 POST 方法傳送請求
-    dataType: 'json', // 回傳資料會是 json 格式
-    data: scriptData, // 將表單資料用打包起來送出去
-    success: function(res) {
+    url: href,              // 要傳送的頁面
+    method: 'POST',         // 使用 POST 方法傳送請求
+    dataType: 'json',       // 回傳資料會是 json 格式
+    data: scriptData,       // 將表單資料用打包起來送出去
+    success: function (res) {
       user = res;
       swordLevel = 0;
       shieldLevel = 0;
@@ -1276,7 +1287,8 @@ function swordLevelUp() {
     var text = "攻擊力：" + equipmentData.weaponLevel[swordLevel].attack + " &nbsp 下一級為：" + equipmentData.weaponLevel[swordLevel + 1].attack;
     document.getElementById("swordLevelUpDivH3").innerHTML = text;
 
-  } else if (swordLevel >= 10) {
+  }
+  else if (swordLevel >= 10) {
     document.getElementById("levelUpDefault0").innerHTML = "";
     var text = "攻擊力：" + equipmentData.weaponLevel[swordLevel].attack + "  等級已升到最滿"
     document.getElementById("swordLevelUpDivH3").innerHTML = text;
@@ -1286,13 +1298,15 @@ function swordLevelUp() {
     var star = equipmentData.levelUpLevel[levelUpLevel].star;
     var text = "x" + star;
     document.getElementById("levelUpFont1").innerHTML = text;
-  } else {
+  }
+  else {
     var star = equipmentData.levelUpLevel[levelUpLevel].star;
     var text = "x" + star;
     document.getElementById("levelUpFont0").innerHTML = text;
     if (star <= user.starNum) {
       document.getElementById("levelUpDefault0").className = "levelUp";
-    } else {
+    }
+    else {
       document.getElementById("levelUpDefault0").className = "levelUpDefault";
     }
     var text = "攻擊力：" + equipmentData.weaponLevel[swordLevel].attack + " &nbsp 下一級為：" + equipmentData.weaponLevel[swordLevel + 1].attack;
@@ -1308,7 +1322,8 @@ function swordLevelUp() {
     if (star > user.starNum) {
       document.getElementById("levelUpDefault0").className = "levelUpDefault";
       document.getElementById("levelUpDefault1").className = "levelUpDefault";
-    } else {
+    }
+    else {
 
       document.getElementById("levelUpDefault0").className = "levelUp";
       if (shieldLevel < 10) {
@@ -1346,7 +1361,8 @@ function shieldLevelUp() {
 
     var text = "防禦力：" + equipmentData.armorLevel[shieldLevel].attack + " &nbsp 下一級為：" + equipmentData.armorLevel[shieldLevel + 1].attack;
     document.getElementById("shieldLevelUpDivH3").innerHTML = text;
-  } else if (shieldLevel >= 10) {
+  }
+  else if (shieldLevel >= 10) {
     document.getElementById("levelUpDefault1").innerHTML = "";
     var text = "防禦力：" + equipmentData.armorLevel[shieldLevel].attack + "  等級已升到最滿";
     document.getElementById("shieldLevelUpDivH3").innerHTML = text;
@@ -1356,13 +1372,15 @@ function shieldLevelUp() {
     var text = "x" + star;
     document.getElementById("levelUpFont0").innerHTML = text;
 
-  } else {
+  }
+  else {
     var star = equipmentData.levelUpLevel[levelUpLevel].star;
     var text = "x" + star;
     document.getElementById("levelUpFont1").innerHTML = text;
     if (star <= user.starNum) {
       document.getElementById("levelUpDefault1").className = "levelUp";
-    } else {
+    }
+    else {
       document.getElementById("levelUpDefault1").className = "levelUpDefault";
     }
     var text = "防禦力：" + equipmentData.armorLevel[shieldLevel].attack + " &nbsp 下一級為：" + equipmentData.armorLevel[shieldLevel + 1].attack;
@@ -1377,7 +1395,8 @@ function shieldLevelUp() {
     if (star > user.starNum) {
       document.getElementById("levelUpDefault0").className = "levelUpDefault";
       document.getElementById("levelUpDefault1").className = "levelUpDefault";
-    } else {
+    }
+    else {
       if (swordLevel < 10) {
 
         document.getElementById("levelUpDefault0").className = "levelUp";
@@ -1463,7 +1482,8 @@ function instructionView(mainDiv) {
       b.setAttribute("id", "actionFont" + i);
       divTag.appendChild(b);
       document.getElementById("actionFont" + i).innerHTML = dic[i / 2].type;
-      if (user.isadmin) {
+
+      if (user.username == "NKUSTCCEA" || user.username == "teacher") {
         var fistChildLength = document.getElementById("td" + i).childNodes[0].innerHTML.length;
         b = document.createElement("input");
         b.setAttribute("type", "button");
@@ -1570,9 +1590,11 @@ function achievementView(mainDiv) {
 
         if (achievemenData.record[i].level == 1) {
           b.setAttribute("class", "champtionCopper");
-        } else if (achievemenData.record[i].level == 2) {
+        }
+        else if (achievemenData.record[i].level == 2) {
           b.setAttribute("class", "champtionSilver");
-        } else if (achievemenData.record[i].level == 3) {
+        }
+        else if (achievemenData.record[i].level == 3) {
           b.setAttribute("class", "champtionGold");
         }
         divTag.appendChild(b);
@@ -1625,13 +1647,9 @@ function achievementView(mainDiv) {
 }
 /*成就判斷*/
 function achievementJudge() {
-  var maxValue = [1, 2, 1],
-    isGet = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+  var maxValue = [1, 2, 1], isGet = [0, 0, 0, 0, 0, 0, 0, 0, 0];
   var empire = [user.EasyEmpire, user.MediumEmpire]
-  var maxLevel = 0,
-    getThreeStar = 0,
-    equipmentLevel = user.levelUpLevel,
-    highestLevel = [empire[0].codeHighestLevel, empire[1].HighestLevel];
+  var maxLevel = 0, getThreeStar = 0, equipmentLevel = user.levelUpLevel, highestLevel = [empire[0].codeHighestLevel, empire[1].HighestLevel];
   if (highestLevel[0] > highestLevel[1]) {
     maxLevel = highestLevel[0];
   } else {
@@ -1661,14 +1679,14 @@ function achievementJudge() {
             isGet[typeVar + valueVar] = 1;
           }
           break;
-          /*獲得三星數*/
+        /*獲得三星數*/
         case 1:
           // console.log(typeVar + valueVar + 2,achievemenData.record[typeVar + valueVar + 2]);
           if (getThreeStar >= achievemenData.record[typeVar + valueVar + 2].limit[0].value) {
             isGet[typeVar + valueVar + 2] = 1;
           }
           break;
-          /*裝備升級數*/
+        /*裝備升級數*/
         case 2:
           if (equipmentLevel >= achievemenData.record[typeVar + valueVar + 4].limit[0].value) {
             isGet[typeVar + valueVar + 4] = 1;
@@ -1910,7 +1928,6 @@ function settingAllView(mainDiv) {
     b.className = "musicVolumeInnerDiv";
   }
 }
-
 function musicLevelUp() {
   b = document.getElementById("musicVolumeInnerDiv" + musicLevel);
   if (musicLevel <= 9) {
@@ -1926,7 +1943,6 @@ function musicLevelUp() {
   bkMusicSwitch++;
   sendSession();
 }
-
 function musicLevelDown() {
   if (musicLevel < 9) {
     b = document.getElementById("musicVolumeInnerDiv" + musicLevel);
@@ -1966,7 +1982,6 @@ function chk(input) {
   sendSession();
   return true;
 }
-
 function chk2(input) {
   for (var i = 0; i < document.form2.c1.length; i++) {
     document.form2.c1[i].checked = false;
@@ -2000,8 +2015,7 @@ function changeLevelStage() {
   var isCheckClicked;
   var levelStarStr = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0
-  ];
+    0, 0, 0, 0];
   isCheckClicked = document.getElementById("myonoffswitch");
   isBlockly = isCheckClicked.checked;
   sendSession();
@@ -2034,7 +2048,8 @@ function changeLevelStage() {
   }
   if (blockLevel == -1) {
     blockLevel = 1;
-  } else {
+  }
+  else {
     blockLevel += 2;
   }
   var totalLevel = Math.max(codeLevel, blockLevel);
@@ -2073,7 +2088,6 @@ function changeLevelStage() {
 
 
 var levelDivAlive = false;
-
 function remindView(remindValue) {
   var isTwoLine = false;
   for (var i = 0; i < remindValue.length; i++) {
@@ -2089,7 +2103,7 @@ function remindView(remindValue) {
     divTag = document.getElementById("remindBkView");
     parentObj = divTag.parentNode;
     parentObj.removeChild(divTag);
-  } catch (e) {}
+  } catch (e) { }
   divTag = document.getElementById("centerBlockly");
   b = document.createElement("div");
   b.setAttribute("id", "remindBkView");

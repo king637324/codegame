@@ -12,7 +12,6 @@ let lang = 'cpp', inputStr = "", codeStr = "";
 var mapNum = "01";
 var map = [];    ///0 是草地  1是沙漠  2是海洋
 var people_init;    //x,y,面相   0->  1^  2<-  3 down
-var people_init2;
 var end_init = [];  //x,y,面相        0- 1 |
 var mapObject = []; //問號石頭[2] 是對於問號的方向
 var imgObject = [], mapwinLinit;
@@ -29,9 +28,6 @@ var stepValue = [[1, 0], [0, -1], [-1, 0], [0, 1]];
 var now_PeooleEESW, old_PeooleEESW;
 var now_PeooleX, old_PeooleX;
 var now_PeooleY, old_PeooleY;
-var now_PeooleEESW2, old_PeooleEESW2;
-var now_PeooleX2, old_PeooleX2;
-var now_PeooleY2, old_PeooleY2;
 var finishCoin = true, gameEndingCode = 0;   //0 未完成 1完成 2經過終點線 3駛出地圖_失敗 4撞到障礙物_失敗  5編譯失敗    10
 var gameEndingCodeDic = new Array();  //0 未完成 1完成 2經過終點線 3駛出地圖_失敗 4撞到障礙物_失敗  5編譯失敗 8不必要的指令過多
 var iscodesheetTeseLive = false, decodeMod = 1; //0 api 編譯  1 自行編譯     //測試 先佔為1
@@ -39,7 +35,7 @@ var decodeOutput = "";
 var textarea_0 = document.getElementById('textarea_0');
 var textarea_1 = document.getElementById('textarea_1');
 var btn1 = document.getElementById('btn1');
-var backgroundGraph, objectGraph, peopleGraph, peopleGraph2, HPObject = [];
+var backgroundGraph, objectGraph, peopleGraph, HPObject = [];
 var iscreatecanvas = 0;  //0 fase 1 true 2 load success
 var iscreateImg = 0;  //0 fase 1 true 2 load success
 var haveFoggy = false, complementStep = false;
@@ -47,14 +43,21 @@ var lock2DelObjpos = 0;
 var codeValue;
 var xmlhttp = new XMLHttpRequest();
 var computeEndCode;
-var errMessage;
-var player;
-var p1_x, p1_y, p1_z;
-var p2_x, p2_y, p2_z;
-var peopleAtk = equipmentData.weaponLevel[user.weaponLevel].attack;
-var peopleArmor = equipmentData.armorLevel[user.armorLevel].attack;
-console.log(peopleAtk, peopleArmor);
 var socket = io();
+var errMessage;
+//以下宜靜
+var SpendTime = {
+    "username": "",
+    "name": "",
+    "email": "",
+    "level": "",
+    "starNumber": 0,
+    "startplay": "",
+    "endplay": "",
+}
+var startTime; // 記錄startTime為記錄開始時間的變數
+//以上宜靜
+
 xmlhttp.onreadystatechange = function () {
     if (this.readyState == 4 && this.status == 200) {
         codeValue = this.responseText;
@@ -74,42 +77,10 @@ xmlhttp.send();
 // xmlhttp.open("GET", "json/equipment.json", true);
 // xmlhttp.send();
 
-socket.on("test", function(n) {
-    if(n == 1){
-        //console.log("updateBack");
-        updateBackgroundGraph();
-    }else if(n == 2){
-        //console.log("updateObject");
-        updateObjectGraph();
-    }else if(n == 3){
-        //console.log("updatePeople");
-        updatePeopleGraph();
-        updatePeopleGraph2();
-
-    }else if(n == 4){
-        //console.log("updateCanvas");
-        updateCanvas();
-    }
-});
-socket.on('answer', function (obj) {
-    if (obj.cpuUsage != null && obj.memoryUsage != null) {
-        decode_JDOODLE_api(obj.stdout);
-    }
-    /*else {
-        gameEndingCode = 5;
-        closeLoadingView();
-        console.log("Error =  compiler error");
-        endgame();
-    }    */
-
-
-});
-socket.on("go", function(s, u){
-    decodeOutput = s;
-    player = u;
-    console.log("player :",player);
-    console.log("decode :",decodeOutput);
-    codeOutputTranstionAction();
+socket.on('answer', function(obj) {
+  if (obj.cpuUsage != null && obj.memoryUsage != null) {
+    decode_JDOODLE_api(obj.stdout);
+  }
 });
 
 var initCode = [
@@ -128,7 +99,6 @@ int main(int argc, char *argv[])
 ].join('\n')
 textarea_0.value = initCode;
 // console.log(initCode);
-
 function setup() {
     // console.log("setup");
 
@@ -224,8 +194,7 @@ function init_setup() {
                         // console.log("initCode=",initCode);
 
                         loadData();
-                        //updateCanvas();
-                        socket.emit("update", 4);
+                        updateCanvas();
                     }
                 };
                 var url = "gameNew/gameNew/json/" + file + ".cpp"
@@ -234,8 +203,7 @@ function init_setup() {
             }
             else {
                 loadData();
-                //updateCanvas();
-                socket.emit("update", 4);
+                updateCanvas();
             }
         }
     })
@@ -298,6 +266,18 @@ function init_setup() {
 //     setup(); //resize
 // }
 function loadData() {
+    //以下宜靜
+    startTime = new Date(); // 取得 開始闖關時間
+    
+    $(document).ready(function() {
+        SpendTime = {
+        "username": user.username,
+        "name":user.name,
+        "email":user.email,
+        }
+    })
+    //以上宜靜
+
     var mapNumber = data;
     if (mapNumber.foggy) {
         haveFoggy = true;
@@ -309,7 +289,6 @@ function loadData() {
     map = mapNumber['mapValue'];
     mapSize = Math.sqrt(mapNumber['mapSize']);
     people_init = mapNumber['people_init'];
-    people_init2 = mapNumber['people_init2'];
     end_init = mapNumber['end_init'];
     mapObject = mapNumber['obj'];
     mapwinLinit = mapNumber['winLinit'];
@@ -353,7 +332,6 @@ function loadData() {
     //     var stemp = initCode.substr(initCode.indexOf('#') - 1);
     //     initCode = linit + stemp;
     // }
-
     var s1 = mapwinLinit["threeStar"], s2 = mapwinLinit["twoStar"];
     var linit = "/* 3星:" + s1 + "個動作包含" + s1 + "個動作以內  \n   2星:" + s2 + "個動作包含" + s2 + "個動作以內" + s1 + "個動作以上  \n   1星:滿足過關條件即可*/ \n\n";
     var stemp;
@@ -382,70 +360,43 @@ function loadData() {
     var dx = people_init["postion"][0] * edgeToWidth, dy = people_init["postion"][1] * edgeToHeight, drotate = 360 - people_init["postion"][2] * 90;
     old_PeooleX = dx, old_PeooleY = dy, old_PeooleEESW = drotate;
     now_PeooleX = dx, now_PeooleY = dy, now_PeooleEESW = drotate;
-    var dx2 = people_init2["postion"][0] * edgeToWidth, dy2 = people_init2["postion"][1] * edgeToHeight, drotate2 = 360 - people_init2["postion"][2] * 90;
-    old_PeooleX2 = dx2, old_PeooleY2 = dy2, old_PeooleEESW2 = drotate2;
-    now_PeooleX2 = dx2, now_PeooleY2 = dy2, now_PeooleEESW2 = drotate2;
-
-    p1_x = people_init["postion"][0];
-    p1_y = people_init["postion"][1];
-    p1_z = people_init["postion"][2];
-    p2_x = people_init2["postion"][0];
-    p2_y = people_init2["postion"][1];
-    p2_z = people_init2["postion"][2];
 
     edgeToWidth = width / mapSize;
     edgeToHeight = height / mapSize;
     iscreatecanvas = 1;
     action_now = 0;
     peopleGraph = createGraphics(width, height);
-    peopleGraph2 = createGraphics(width, height);
     objectGraph = createGraphics(width, height);
     backgroundGraph = createGraphics(width, height);
     pg = createGraphics(edgeToWidth, edgeToHeight);
-    /*updateBackgroundGraph();
+    updateBackgroundGraph();
     updateObjectGraph();
-    updatePeopleGraph();*/
-    socket.emit("update", 1);
-    socket.emit("update", 2);
-    socket.emit("update", 3);
-    codeToCompiler();
+    updatePeopleGraph();
 }
 
 
 // var timeD = new Date().getTime();
 function endgame() {
     // console.log((new Date().getTime())- timeD);
-   /* onChanged = false;
+
+    onChanged = false;
     onChanging = false;
     action_code = [];
-    clear();*/
-    //updateCanvas();
-    socket.emit("update", 4);
+    clear();
+    updateCanvas();
     for (var i = 0; i < end_init.length; ++i) {
-        //var dx = end_init[i]["postion"][0] * edgeToWidth, dy = end_init[i]["postion"][1] * edgeToHeight, drotate = (360 - end_init[i]["postion"][2] * 90) % 180;
+        var dx = end_init[i]["postion"][0] * edgeToWidth, dy = end_init[i]["postion"][1] * edgeToHeight, drotate = (360 - end_init[i]["postion"][2] * 90) % 180;
         var ddx = Math.abs(dx - old_PeooleX);
         var ddy = Math.abs(dy - old_PeooleY);
-
-        var ddx2 = Math.abs(dx - old_PeooleX2);
-        var ddy2 = Math.abs(dy - old_PeooleY2);
-        
         // console.log(ddx, " ", ddy);
-        //if (ddx < stepSpeed * 2 && ddy < stepSpeed * 2) {
-            /*if (dx == old_PeooleX && dy == old_PeooleY) {
-            //if (drotate == (((old_PeooleEESW + 360) % 180) + 90) % 180) {
+        if (ddx < stepSpeed * 2 && ddy < stepSpeed * 2) {
+            // if (dx == old_PeooleX && dy == old_PeooleY) {
+            if (drotate == (((old_PeooleEESW + 360) % 180) + 90) % 180) {
                 gameEndingCode = 1;
             }
             else {
                 gameEndingCode = 2;
-            }*/
-        //}
-        var dx = end_init[i]["postion"][0], dy = end_init[i]["postion"][1];
-        
-        if(p1_x == dx && p1_y == dy){
-            gameEndingCode = 1;
-        }
-        else{
-            gameEndingCode = 2;
+            }
         }
     }
     if (!finishCoin) {
@@ -523,7 +474,7 @@ function endgame() {
     var systemCall = ["moveForward", "moveForward(", "moveForward()", "moveForward();", ";moveForward();",
         "turnRight", "turnRight(", "turnRight()", "turnRight();", ";turnRight();",
         "turnLeft", "turnLeft(", "turnLeft()", "turnLeft();", ";turnLeft();",
-        "fire", "fire(", "fire()", "fire();", ";fire();",
+        "launchMissile", "launchMissile(", "launchMissile()", "launchMissile();", ";launchMissile();",
         "printf", "printf(", "scanf", "scanf("];
     for (var i = 0; i < funname.length; ++i) {
         var e0 = funname[i];
@@ -674,34 +625,52 @@ function endgame() {
     if (gameEndingCode == 1) {
 
 
-        console.log("counter:", counter);
-        console.log("funname:", funname);
+        // console.log("counter:", counter);
+        // console.log("funname:", funname);
         // console.log("funname.length:", funname.length);
         // console.log("funcounter:", funcounter);
-        console.log("總動作為:", tc);
+        // console.log("總動作為:", tc);
 
         if (mapwinLinit["threeStar"][0] >= tc) {
             result = "拍手!恭喜你獲得三星! \n~來繼續挑戰下關吧~";
             createEndView(3, result, tc, computeEndCode);
+            SpendTime.starNumber = 3; // 宜靜
         }
         else if (mapwinLinit["twoStar"][0] >= tc) {
             result = "恭喜你二星! \n~差一點就有一星了!加油~";
             createEndView(2, result, tc, computeEndCode);
+            SpendTime.starNumber = 2; // 宜靜
         }
         else {
             result = "好可惜只有一星! \n~在檢查看看有沒有可以縮減的~";
             createEndView(1, result, tc, computeEndCode);
+            SpendTime.starNumber = 1; // 宜靜
         }
     }
-    /*else {
+    else {
         result = gameEndingCodeDic[gameEndingCode];
-        console.log(gameEndingCodeDic[gameEndingCode]);
+        // console.log(gameEndingCodeDic[gameEndingCode]);
         createEndView(0, result, tc, computeEndCode, errMessage);
+        SpendTime.starNumber = 0; // 宜靜
         // alert(gameEndingCodeDic[gameEndingCode]);
-    }*/
-
-
+    }
     // alert(result);
+
+    //以下宜靜
+    SpendTime.level = mapNum; // 取得闖關的關卡
+    SpendTime.endplay = new Date(); //取得 結束闖關時間
+    SpendTime.startplay = startTime; // //取得 開始闖關時間
+
+    $.ajax({
+        url: "API/createUserSpendTimeState",              // 要傳送的頁面
+        method: 'POST',               // 使用 POST 方法傳送請求
+        dataType: 'json',             // 回傳資料會是 json 格式
+        async:false,
+        data: SpendTime,  // 將表單資料用打包起來送出去
+        success: function (res) {
+        }
+      });
+    // 以上宜靜
 }
 
 
@@ -712,31 +681,20 @@ function draw() {
         var dx = people_init["postion"][0] * edgeToWidth, dy = people_init["postion"][1] * edgeToHeight, drotate = 360 - people_init["postion"][2] * 90;
         old_PeooleX = dx, old_PeooleY = dy, old_PeooleEESW = drotate;
         now_PeooleX = dx, now_PeooleY = dy, now_PeooleEESW = drotate;
-        var dx2 = people_init2["postion"][0] * edgeToWidth, dy2 = people_init2["postion"][1] * edgeToHeight, drotate2 = 360 - people_init2["postion"][2] * 90;
-        old_PeooleX2 = dx2, old_PeooleY2 = dy2, old_PeooleEESW2 = drotate2;
-        now_PeooleX2 = dx2, now_PeooleY2 = dy2, now_PeooleEESW2 = drotate2;
-        /*updateObjectGraph();
+        updateObjectGraph();
         updatePeopleGraph();
         updateBackgroundGraph();
-        updateCanvas();*/
-        socket.emit("update", 2);
-        socket.emit("update", 3);
-        socket.emit("update", 1);
-        socket.emit("update", 4);
+        updateCanvas();
         iscreatecanvas = 2;
     }
     if (iscreatecanvas > 1 && iscreatecanvas < 400) {
         ++iscreatecanvas;
         if (iscreatecanvas % 50 == 0) {
             // console.log(iscreatecanvas);
-            /*updateBackgroundGraph();
+            updateBackgroundGraph();
             updateObjectGraph();
             updatePeopleGraph();
-            updateCanvas();*/
-            socket.emit("update", 1);
-            socket.emit("update", 2);
-            socket.emit("update", 3);
-            socket.emit("update", 4);
+            updateCanvas();
         }
     }
 
@@ -754,14 +712,10 @@ function draw() {
             now_PeooleEESW = old_PeooleEESW;
             now_PeooleX = old_PeooleX;
             now_PeooleY = old_PeooleY;
-            now_PeooleEESW2 = old_PeooleEESW2;
-            now_PeooleX2 = old_PeooleX2;
-            now_PeooleY2 = old_PeooleY2;
-            stepSpeed = 7; //控制車子速度
-            //stepSpeed = gameSpeed; //控制車子速度
-            //stepSpeed = gameSpeed + 1 + Math.floor(ActionLen / 50); //控制車子速度
+            // stepSpeed = 7; //控制車子速度
+            // stepSpeed = gameSpeed; //控制車子速度
+            stepSpeed = gameSpeed + 1 + Math.floor(ActionLen / 50); //控制車子速度
             delayResSpeed = 30 - (gameSpeed - 6) * 5;
-            //delayResSpeed = 1;
             turnSpeed = 2 + Math.floor(stepSpeed / 2);
         }
         while (ActionLen - action_now > 0) {
@@ -783,7 +737,6 @@ function draw() {
                 pipleLineO = 0;
                 tempAction = action_code[action_now];
             }
-            
 
             var type = tempAction.type;
             if (type == "E") {
@@ -797,35 +750,18 @@ function draw() {
                         const y = mapObject[ssi].postion[1];
                         var dx = Math.abs(x * edgeToWidth - old_PeooleX);
                         var dy = Math.abs(y * edgeToHeight - old_PeooleY);
-                        var dx2 = Math.abs(x * edgeToWidth - old_PeooleX2);
-                        var dy2 = Math.abs(y * edgeToHeight - old_PeooleY2);
                         // console.log(dx,dy,ssi);
-                        if(player == 1){
-                            if (dx < stepSpeed && dy < stepSpeed) {
-                                gameEndingCode = value;
-                                onChanged = false;
-                                onChanging = false;
-                                //updateCanvas();
-                                socket.emit("update", 4);
-                                break;
-                            }
-                            
-                        }else if(player == 2){
-                                if (dx2 < stepSpeed && dy2 < stepSpeed) {
-                                    console.log("sss");
-                                    gameEndingCode = value;
-                                    onChanged = false;
-                                    onChanging = false;
-                                    //updateCanvas();
-                                    socket.emit("update", 4);
-                                    break;
-                                }
+                        if (dx < stepSpeed && dy < stepSpeed) {
+                            gameEndingCode = value;
+                            onChanged = false;
+                            onChanging = false;
+                            updateCanvas();
+                            break;
                         }
                     }
-                    break; //撞壁直接跳出
                 }
                 else if (value == 3 || value == 6 || value == 7) {
-                    console.log("gg");
+                    // console.log("gg");
                     pipleLineSpeed = 0
                     gameEndingCode = value;
                     // action_now = action_code.length;
@@ -844,7 +780,7 @@ function draw() {
 
                 else {
                     alert("'E'還未處理,", value);
-                    console.log("'E'還未處理,", value);
+                    // console.log("'E'還未處理,", value);
                 }
                 ++action_now;
             }
@@ -856,33 +792,14 @@ function draw() {
                 ++action_now;
             }
             else if (type == "M") {
-                if(!(ActionLen > action_now + 1 && action_code[action_now+1].type == "E" && action_code[action_now+1].value != 2)){
-                
                 var value = tempAction.value;
                 if (!onChanging) {
                     for (var i = 0; i < value.length; ++i) {
                         var nowValue = value[i];
                         if (nowValue.obj == -1) {
-                            if(player == 1){
-                               // console.log("old:",old_PeooleX,old_PeooleY,old_PeooleEESW);
-                                old_PeooleX = old_PeooleX + nowValue.value[0] * edgeToWidth;
-                                old_PeooleY = old_PeooleY + nowValue.value[1] * edgeToHeight;
-                                old_PeooleEESW = old_PeooleEESW - nowValue.value[2] * 90;
-                                p1_x = p1_x + nowValue.value[0];
-                                p1_y = p1_y + nowValue.value[1];
-                                p1_z = (p1_z + nowValue.value[2] + 4) % 4;
-                                console.log("P1 xyz: ",p1_x,p1_y,p1_z);
-                               // console.log("now:",old_PeooleX,old_PeooleY,old_PeooleEESW);
-                            }else if(player == 2){
-                                old_PeooleX2 = old_PeooleX2 + nowValue.value[0] * edgeToWidth;
-                                old_PeooleY2 = old_PeooleY2 + nowValue.value[1] * edgeToHeight;
-                                old_PeooleEESW2 = old_PeooleEESW2 - nowValue.value[2] * 90;
-                                p2_x = p2_x + nowValue.value[0];
-                                p2_y = p2_y + nowValue.value[1];
-                                p2_z = (p2_z + nowValue.value[2] + 4) % 4;
-                                console.log("P2 xyz: ",p2_x,p2_y,p2_z);
-                            }
-                            endgame();
+                            old_PeooleX = old_PeooleX + nowValue.value[0] * edgeToWidth;
+                            old_PeooleY = old_PeooleY + nowValue.value[1] * edgeToHeight;
+                            old_PeooleEESW = old_PeooleEESW - nowValue.value[2] * 90;
                         }
                         else {
                             var dx = mapObject[nowValue.obj].postion[0];
@@ -895,78 +812,42 @@ function draw() {
                     onChanging = true;
                 }
                 else {
-                    
                     for (var i = 0; i < value.length; ++i) {
                         var nowValue = value[i];
                         if (nowValue.obj == -1) {  //人
                             if (nowValue.value[0] + nowValue.value[1] + nowValue.value[2] == -3) {
                                 //-1,-1,-1 丟到世界外
-                                if(player == 1){
-                                    now_PeooleX = mapSize * edgeToWidth;
-                                    now_PeooleY = mapSize * edgeToHeight;
-                                    old_PeooleX = mapSize * edgeToWidth;
-                                    old_PeooleY = mapSize * edgeToHeight;
-                                }else if(player == 2){
-                                    now_PeooleX2 = mapSize * edgeToWidth;
-                                    now_PeooleY2 = mapSize * edgeToHeight;
-                                    old_PeooleX2 = mapSize * edgeToWidth;
-                                    old_PeooleY2 = mapSize * edgeToHeight;
-                                }
+                                now_PeooleX = mapSize * edgeToWidth;
+                                now_PeooleY = mapSize * edgeToHeight;
+                                old_PeooleX = mapSize * edgeToWidth;
+                                old_PeooleY = mapSize * edgeToHeight;
                                 onChanging = false;
                             }
-                            else { 
+                            else {
                                 if (pipleLineSpeed == 0) {
-                                    if(player == 1){
-                                        now_PeooleX = now_PeooleX + (stepSpeed * nowValue.value[0]);
-                                        now_PeooleY = now_PeooleY + (stepSpeed * nowValue.value[1]);
-                                        now_PeooleEESW = now_PeooleEESW - (turnSpeed * nowValue.value[2]);
-                                        
-                                        
-                                        var difX = Math.abs(now_PeooleX - old_PeooleX)
-                                        var difY = Math.abs(now_PeooleY - old_PeooleY)
-                                        var difE = Math.abs(now_PeooleEESW - old_PeooleEESW)
-                                        var dif = difX + difY + difE;
-                                        
-                                        if (complementStep) {
-                                            complementStep = false;
-                                            now_PeooleX = old_PeooleX;
-                                            now_PeooleY = old_PeooleY;
-                                            now_PeooleEESW = old_PeooleEESW;
-
-                                            onChanging = false;
-                                        }
-                                        else if (dif <= stepSpeed) {
-                                            complementStep = true;
-                                        }
-                                        /*
-
-                                        */
-                                    }else if(player == 2){
-                                        now_PeooleX2 = now_PeooleX2 + (stepSpeed * nowValue.value[0]);
-                                        now_PeooleY2 = now_PeooleY2 + (stepSpeed * nowValue.value[1]);
-                                        now_PeooleEESW2 = now_PeooleEESW2 - (turnSpeed * nowValue.value[2]);
-                                        var difX2 = Math.abs(now_PeooleX2 - old_PeooleX2)
-                                        var difY2 = Math.abs(now_PeooleY2 - old_PeooleY2)
-                                        var difE2 = Math.abs(now_PeooleEESW2 - old_PeooleEESW2)
-                                        var dif2 = difX2 + difY2 + difE2;
-
-                                        if (complementStep) {
-                                            complementStep = false;
-                                            now_PeooleX2 = old_PeooleX2;
-                                            now_PeooleY2 = old_PeooleY2;
-                                            now_PeooleEESW2 = old_PeooleEESW2;
-
-
-                                            onChanging = false;
-                                        }
-                                        else if (dif2 <= stepSpeed) {
-                                            complementStep = true;
-                                        }
+                                    now_PeooleX = now_PeooleX + (stepSpeed * nowValue.value[0]);
+                                    now_PeooleY = now_PeooleY + (stepSpeed * nowValue.value[1]);
+                                    now_PeooleEESW = now_PeooleEESW - (turnSpeed * nowValue.value[2]);
+                                    var difX = Math.abs(now_PeooleX - old_PeooleX)
+                                    var difY = Math.abs(now_PeooleY - old_PeooleY)
+                                    var difE = Math.abs(now_PeooleEESW - old_PeooleEESW)
+                                    var dif = difX + difY + difE;
+                                    if (complementStep) {
+                                        complementStep = false;
+                                        now_PeooleX = old_PeooleX;
+                                        now_PeooleY = old_PeooleY;
+                                        now_PeooleEESW = old_PeooleEESW;
+                                        onChanging = false;
                                     }
+                                    else if (dif <= stepSpeed) {
+                                        complementStep = true;
+                                    }
+                                    /*
+
+                                    */
                                 }
                             }
-                            //updatePeopleGraph();
-                            socket.emit("update", 3);
+                            updatePeopleGraph();
                             break;
                         }
                         else {      //物件的
@@ -999,18 +880,15 @@ function draw() {
                             // else {
                             //     onChanging = false;
                             // }
-                            //updateObjectGraph();
-                            socket.emit("update", 2);
+                            updateObjectGraph();
                             break;
                         }
                     }
 
                 }
-                }
                 if (onChanging == false) {
                     ++action_now;
                 }
-                
             }
             else if (type == "C") {
                 if (onChanging == false) {
@@ -1019,11 +897,7 @@ function draw() {
                         var o = -1;
                         var nowValue = value[i];
                         if (nowValue.obj == -1) {
-                            if(player == 1){
-                                people_init["type"] = nowValue.type;
-                            }else if (player == 2){
-                                people_init2["type"] = nowValue.type;
-                            }
+                            people_init["type"] = nowValue.type;
                         }
                         else {
                             if (nowValue.x > -1 && nowValue.y > -1) {
@@ -1062,8 +936,7 @@ function draw() {
                     onChanging = false;
                     ++action_now;
                 }
-                //updateObjectGraph();
-                socket.emit("update", 2);
+                updateObjectGraph();
             }
             else if (type == "D") {
                 var value = tempAction.value;
@@ -1088,14 +961,14 @@ function draw() {
                         // if(nowValue.obj<=lock2DelObjpos+nowValue.forgetDel){
                         //     o = nowValue.obj+nowValue.forgetDel;
                         // }
-                        console.log(nowValue.obj, nowValue.forgetDel, lock2DelObjpos);
+                        // console.log(nowValue.obj, nowValue.forgetDel, lock2DelObjpos);
 
                         if (nowValue.obj + nowValue.forgetDel < lock2DelObjpos) {
                             o = nowValue.obj + nowValue.forgetDel;
                         }
                         else {
                             o = nowValue.obj;
-                            console.log("123");
+                            // console.log("123");
 
                         }
                     }
@@ -1105,8 +978,7 @@ function draw() {
                     mapObject.splice(o, 1);
                 }
                 // console.log(mapObject);
-                //updateObjectGraph();
-                socket.emit("update", 2);
+                updateObjectGraph();
                 ++action_now;
             }
             else if (type == "A") {
@@ -1147,15 +1019,14 @@ function draw() {
                             mapObject.push(obj);
                         }
                         if (mapObject.length - 1 != nowValue.obj && (nowValue.obj != -1)) {
-                            console.log("error:", mapObject.length - 1, " ", nowValue.obj);
+                            // console.log("error:", mapObject.length - 1, " ", nowValue.obj);
                         }
                         if (nowValue.type == "boon_hit") {
                             delayFlag = true;
                         }
                     }
                     // delayResSpeed *= 2;
-                    //updateObjectGraph();
-                    socket.emit("update", 2);
+                    updateObjectGraph();
                     if (delayFlag) {
                         onChanging = true;
                     }
@@ -1178,14 +1049,13 @@ function draw() {
         }
         // sleep(50);
         if (mapObjectChange == true) {
-            //updateCanvas();
-            socket.emit("update", 4);
+            updateCanvas();
         }
         ////old///
-        /*if (pipleLineSpeed == 0 && (!onChanged || action_code.length - action_now == 0)) {
+        if (pipleLineSpeed == 0 && (!onChanged || action_code.length - action_now == 0)) {
             endgame();
 
-        }*/
+        }
     }
 
 }
@@ -1231,7 +1101,7 @@ function updateBackgroundGraph() {
                 backgroundGraph.image(imgSea, x * edgeToWidth, y * edgeToHeight, edgeToWidth, edgeToHeight);
             }
             else {
-                console.log(map[i]);
+                // console.log(map[i]);
             }
         }
     }
@@ -1255,7 +1125,6 @@ function updateBackgroundGraph() {
     }
     var img = imgObject[parseInt(imgDic["start"])];
     backgroundGraph.image(img, people_init["postion"][0] * edgeToWidth, people_init["postion"][1] * edgeToHeight, edgeToWidth, edgeToHeight);
-    backgroundGraph.image(img, people_init2["postion"][0] * edgeToWidth, people_init2["postion"][1] * edgeToHeight, edgeToWidth, edgeToHeight);
 }
 
 function updateObjectGraph() {
@@ -1319,7 +1188,6 @@ function updatePeopleGraph() {
         pg.clear();
         pg.push();
         var dx = now_PeooleX, dy = now_PeooleY, drotate = now_PeooleEESW;
-        //console.log("test ",dx," aa ",dy);
         var img = imgObject[parseInt(imgDic[people_init["type"]])];
         pg.translate(pg.width / 2, pg.height / 2);
         pg.rotate(PI / 180 * drotate);
@@ -1327,41 +1195,8 @@ function updatePeopleGraph() {
         peopleGraph.image(pg, dx, dy, edgeToWidth, edgeToHeight);
 
         pg.pop();
-
-
     }
-    /*if (people_init2) {
-        // peopleGraph = createGraphics(width, height);
-        peopleGraph2.clear();
-        // var pg = createGraphics(edgeToWidth, edgeToHeight);
-        pg.push();
-        var dx2 = now_PeooleX2, dy2 = now_PeooleY2, drotate2 = now_PeooleEESW2;
-        var img2 = imgObject[parseInt(imgDic[people_init2["type"]])];
-        pg.translate(pg.width / 2, pg.height / 2);
-        pg.rotate(PI / 180 * drotate2);
-        pg.image(img2, -edgeToWidth / 2, -edgeToHeight / 2, edgeToWidth, edgeToHeight);
-        peopleGraph2.image(pg, dx2, dy2, edgeToWidth, edgeToHeight);
 
-        pg.pop();
-    }*/
-
-}
-function updatePeopleGraph2() {
-    if (people_init2) {
-        // peopleGraph = createGraphics(width, height);
-        peopleGraph2.clear();
-        // var pg = createGraphics(edgeToWidth, edgeToHeight);
-        pg.clear();
-        pg.push();
-        var dx2 = now_PeooleX2, dy2 = now_PeooleY2, drotate2 = now_PeooleEESW2;
-        var img2 = imgObject[parseInt(imgDic[people_init2["type"]])];
-        pg.translate(pg.width / 2, pg.height / 2);
-        pg.rotate(PI / 180 * drotate2);
-        pg.image(img2, -edgeToWidth / 2, -edgeToHeight / 2, edgeToWidth, edgeToHeight);
-        peopleGraph2.image(pg, dx2, dy2, edgeToWidth, edgeToHeight);
-
-        pg.pop();
-    }
 }
 
 function updateCanvas() {
@@ -1372,17 +1207,13 @@ function updateCanvas() {
         var peopleFoggyImg = imgObject[parseInt(imgDic["peopleFoggy"])];
 
         var dx = now_PeooleX - edgeToWidth, dy = now_PeooleY - edgeToHeight;
-        var dx2 = now_PeooleX2 - edgeToWidth, dy2 = now_PeooleY2 - edgeToHeight;
-        
+
         var dWidth = edgeToWidth * 3, dHight = edgeToHeight * 3;
         // console.log(dWidth, dHight);
         image(img, 0, 0, width, height);
         image(backgroundGraph, dx, dy, dWidth, dHight, dx, dy, dWidth, dHight);
         image(objectGraph, dx, dy, dWidth, dHight, dx, dy, dWidth, dHight);
         image(peopleGraph, dx, dy, dWidth, dHight, dx, dy, dWidth, dHight);
-        image(backgroundGraph, dx2, dy2, dWidth, dHight, dx2, dy2, dWidth, dHight);
-        image(objectGraph, dx2, dy2, dWidth, dHight, dx2, dy2, dWidth, dHight);
-        image(peopleGraph2, dx2, dy2, dWidth, dHight, dx2, dy2, dWidth, dHight);
 
         for (let HPi = 0; HPi < HPObject.length; HPi++) {
             var obj = HPObject[HPi];
@@ -1393,7 +1224,7 @@ function updateCanvas() {
             if (obj["type"] == "HPandArmor") {
                 armor = obj["armor"];
                 // console.log(dx, dy, )
-                console.log(" hp:", hp, " armor:", armor);
+                // console.log(" hp:", hp, " armor:", armor);
                 // fill(0);
                 // text(hp, dx+0.35*edgeToWidth, dy);
                 // text(armor, dx+0.85*edgeToWidth, dy);
@@ -1468,7 +1299,6 @@ function updateCanvas() {
         image(backgroundGraph, 0, 0, width, height);
         image(objectGraph, 0, 0, width, height);
         image(peopleGraph, 0, 0, width, height);
-        image(peopleGraph2, 0, 0, width, height);
         for (let HPi = 0; HPi < HPObject.length; HPi++) {
             var obj = HPObject[HPi];
             var img = imgObject[parseInt(imgDic[obj["type"]])];
@@ -1478,7 +1308,7 @@ function updateCanvas() {
             if (obj["type"] == "HPandArmor") {
                 armor = obj["armor"];
                 // console.log(dx, dy, )
-                console.log(" hp:", hp, " armor:", armor);
+                // console.log(" hp:", hp, " armor:", armor);
                 // fill(0);
                 // text(hp, dx+0.35*edgeToWidth, dy);
                 // text(armor, dx+0.85*edgeToWidth, dy);
@@ -1549,8 +1379,9 @@ function updateCanvas() {
 }
 
 function codeToCompiler(stringCode) {
+
     //輸出字串處理
-    //challengeGameAgain();
+    // challengeGameAgain();
     createLoadingView();
     textarea_0 = document.getElementById('textarea_0');
     computeEndCode = textarea_0.value;
@@ -1575,29 +1406,16 @@ function codeToCompiler(stringCode) {
     tempBefore = addfun + tempStr;
     var mapStr = map;
     // console.log("map為:",mapStr);
-
-    /*var peopleAtk = equipmentData.weaponLevel[user.weaponLevel].attack;
+    var peopleAtk = equipmentData.weaponLevel[user.weaponLevel].attack;
     var peopleArmor = equipmentData.armorLevel[user.armorLevel].attack;
-    console.log(peopleAtk, peopleArmor);*/
-    /*var peopleStr = people_init["postion"][0].toString() + " " + people_init["postion"][1].toString() + " " + people_init["postion"][2].toString();*/
-    if(user.name == "CCE"){
-        var peopleStr = p1_x.toString() + " " + p1_y.toString() + " " + p1_z.toString();
-        console.log("P1:", peopleStr);
-    }else if(user.name == "CC"){
-        var peopleStr = p2_x.toString() + " " + p2_y.toString() + " " + p2_z.toString();
-        console.log("P2:", peopleStr);
-    }
-
-
-    /*var peopleStr2 = people_init2["postion"][0].toString() + " " + people_init2["postion"][1].toString() + " " + people_init2["postion"][2].toString();*/
-
+    // console.log(peopleAtk, peopleArmor);
+    var peopleStr = people_init["postion"][0].toString() + " " + people_init["postion"][1].toString() + " " + people_init["postion"][2].toString();
     // if (people_init["hp"]) {
     //     peopleStr = peopleStr + " " + people_init["hp"] + " " + people_init["armor"] + " " + people_init["atk"];
     // }
     // else {
     //     peopleStr = peopleStr + " 5  80  20";
     // }
-
     peopleStr = peopleStr + " 5  " + peopleArmor.toString() + " " + peopleAtk.toString();
     if (people_init["type"] == "car") {
         peopleStr = peopleStr + " 0";
@@ -1607,16 +1425,6 @@ function codeToCompiler(stringCode) {
     else if (people_init["type"] == "bot") {
         peopleStr = peopleStr + " 2";
     }
-
-    /*peopleStr2 = peopleStr2 + " 5  " + peopleArmor.toString() + " " + peopleAtk.toString();
-    if (people_init2["type"] == "car") {
-        peopleStr2 = peopleStr2 + " 0";
-    } else if (people_init2["type"] == "tank") {
-        peopleStr2 = peopleStr2 + " 1";
-    }
-    else if (people_init2["type"] == "bot") {
-        peopleStr2 = peopleStr2 + " 2";
-    }*/
 
     // console.log("people初始位置:",peopleStr);
     var endlineStr = end_init.length.toString();
@@ -1658,10 +1466,11 @@ function codeToCompiler(stringCode) {
         inputStr = inputStr + data.input;
     }
 
-    // console.log("tempBefore:",tempBefore);
-    // console.log("inputStr:",inputStr);
+    // console.log(tempBefore);
+    // console.log(inputStr);
     // console.log(tempBefore);
     var runInput = inputStr;
+
 
     call_JDOODLE_api(tempBefore, runInput);
     // if (decodeMod == 0) {
@@ -1750,7 +1559,7 @@ function codeOutputTranstionAction() {
             var conditionD = true;
             var loopCount = 0;
             while (conditionD) {
-                console.log(spaceT);
+                // console.log(spaceT);
                 for (var di = 1; di < spaceT.length; di = di + 2) {
                     var o = parseInt(spaceT[di]) - forgetDel;
                     var o = parseInt(spaceT[di]) - forgetDel;
@@ -1869,8 +1678,8 @@ function codeOutputTranstionAction() {
                 //
 
                 var ansList = mapObject[o].ans.split(' ');
-                console.log("ans:", ansList);
-                console.log("input:", inputList);
+                // console.log("ans:", ansList);
+                // console.log("input:", inputList);
                 // console.log(inputList,ansList);
                 for (let ansI = 0; ansI < ansList.length; ansI++) {
                     if (ansList[ansI].length < 1) {
@@ -1905,8 +1714,8 @@ function codeOutputTranstionAction() {
                     }
                 }
 
-                console.log("ans:", ansList);
-                console.log("input:", inputList);
+                // console.log("ans:", ansList);
+                // console.log("input:", inputList);
                 if (inputList.length > 0) {
                     conditionAns = false;
                 }
@@ -2031,7 +1840,7 @@ function codeOutputTranstionAction() {
             temp.push(spaceTranstion);
         }
         else {
-            console.log("error Type: ", spaceT);
+            // console.log("error Type: ", spaceT);
         }
 
 
@@ -2044,8 +1853,7 @@ function codeOutputTranstionAction() {
         action_code = temp;
         gameEndingCode = 0;
         action_now = 0;
-        //endgame();
-        console.log("指令動作:", action_code);
+        // console.log("指令動作:", action_code);
     }
     else {
         action_code = [];
@@ -2053,7 +1861,7 @@ function codeOutputTranstionAction() {
         onChanged = false;
         onChanging = false;
         textarea_1.value = "";
-        //endgame();
+        endgame();
     }
 
 }
@@ -2075,7 +1883,7 @@ function call_codesheet_Api(url, apiKey, code) {
             console.error('Error:', error);
             iscodesheetTeseLive = false;
             decodeMod = 1;
-            console.log("test_codesheet Api is dead  切換為 JDOODLE_Api _fail");
+            // console.log("test_codesheet Api is dead  切換為 JDOODLE_Api _fail");
             // console.log("test output " + code);
             call_JDOODLE_api(code, inputStr);
         })
@@ -2090,10 +1898,10 @@ function decode_codesheet_api(resp) {
             if (test_codesheet > -1) {
                 decodeMod = 0;
                 iscodesheetTeseLive = true;
-                console.log("test_codesheet Api is live_sucess");
+                // console.log("test_codesheet Api is live_sucess");
             }
             else {
-                console.log("test_codesheet Api is dead  切換為 JDOODLE_Api _fail");
+                // console.log("test_codesheet Api is dead  切換為 JDOODLE_Api _fail");
                 decodeMod = 1;
             }
         }
@@ -2102,11 +1910,11 @@ function decode_codesheet_api(resp) {
         }
         // alert("Output = \n"+resp.stdout)
     } else if (resp.status === 'Failed' || resp.status === 'BadRequest' || resp.message === 'Forbidden') {
-        console.log('Run response', resp);
+        // console.log('Run response', resp);
         // runOutput.value = `Failed: ${resp.error}${resp.stdout}` // stdout for php which puts error in stdout
         resp.stdout = "compiler error";
         if (iscodesheetTeseLive == false) {
-            console.log("test_codesheet Api is dead  切換為 JDOODLE_Api _fail");
+            // console.log("test_codesheet Api is dead  切換為 JDOODLE_Api _fail");
             decodeMod = 1;
         } else {
             if (reap.status === "Failed" && reap.stderr === "" && reap.stdout === "compiler error") {
@@ -2116,7 +1924,7 @@ function decode_codesheet_api(resp) {
             else {
                 textarea_1.value = "";
                 gameEndingCode = 5;
-                console.log("Error =  compiler error");
+                // console.log("Error =  compiler error");
                 endgame();
             }
         }
@@ -2133,69 +1941,33 @@ function call_JDOODLE_api(scriptData, inputData) {
         id: "001"
     }
     // console.log(scriptData);
+    
     socket.emit('script', scriptData);
-    //sendScriptToApi(scriptData.script, scriptData.input, scriptData.language);
-
-    //   output.innerHTML = "編譯中....\n";
-    /*socket.on('answer', function (obj) {
-        console.log("編譯結果", obj);
-        if (obj.body.cpuTime != null && obj.body.memory != null) {
-            //   output.innerHTML = "輸出:\n" + obj.body.output;
-            decode_JDOODLE_api(obj.body.output)
-        }
-        else {
-            gameEndingCode = 5;
-            if (obj.body.output != null) {
-                if (obj.body.output.indexOf("JDoodle - output Limit reached.") > -1) {
-                    gameEndingCode = 8;
-                }
-                else {
-                    // var str=obj.body.output
-                    errMessage = "錯誤原因:\n" + obj.body.output.substr(1)
-
-
-
-                }
-            }
-
-            closeLoadingView();
-            console.log("Error =  compiler error");
-            endgame();
-        }
-
-    });*/
+    
 }
-
 function decode_JDOODLE_api(str) {
     // console.log(str);
-    var userNum;
-    if (user.name == "CCE"){
-        userNum = 1;
-    }else if(user.name == "CC"){
-        userNum = 2;
-    }
-    console.log("userNum", userNum);
-    socket.emit("move", str, userNum);
-    /*socket.on("go", function(s, u){
-       decodeOutput = s;
-       player = u;
-       console.log("player :",player);
-       codeOutputTranstionAction();
-    });*/
-    //decodeOutput = str;
-    //codeOutputTranstionAction();
+    decodeOutput = str;
+    codeOutputTranstionAction();
 }
 
 function challengeGameAgain() {
+    //以下宜靜
+    startTime = new Date(); //取得 開始闖關時間
+    $(document).ready(function() {
+        SpendTime = {
+        "username": user.username,
+        "name":user.name,
+        "email":user.email,
+        }
+    })
+    //以上宜靜
+
     data = JSON.parse(JSON.stringify(Res_data));
     // loadData();
     var dx = people_init["postion"][0] * edgeToWidth, dy = people_init["postion"][1] * edgeToHeight, drotate = 360 - people_init["postion"][2] * 90;
     old_PeooleX = dx, old_PeooleY = dy, old_PeooleEESW = drotate;
     now_PeooleX = dx, now_PeooleY = dy, now_PeooleEESW = drotate;
-    var dx2 = people_init2["postion"][0] * edgeToWidth, dy2 = people_init2["postion"][1] * edgeToHeight, drotate2 = 360 - people_init2["postion"][2] * 90;
-    old_PeooleX2 = dx2, old_PeooleY2 = dy2, old_PeooleEESW2 = drotate2;
-    now_PeooleX2 = dx2, now_PeooleY2 = dy2, now_PeooleEESW2 = drotate2;
-
     edgeToWidth = width / mapSize;
     edgeToHeight = height / mapSize;
     iscreatecanvas = 1;
@@ -2211,7 +1983,6 @@ function challengeGameAgain() {
     map = mapNumber['mapValue'];
     mapSize = Math.sqrt(mapNumber['mapSize']);
     people_init = mapNumber['people_init'];
-    people_init2 = mapNumber['people_init2'];
     end_init = mapNumber['end_init'];
     mapObject = null;
     mapObject = mapNumber['obj'];
@@ -2223,29 +1994,19 @@ function challengeGameAgain() {
     // backgroundGraph = createGraphics(width, height);
     // pg = createGraphics(edgeToWidth, edgeToHeight);
     peopleGraph.clear();
-    peopleGraph2.clear();
     objectGraph.clear();
     backgroundGraph.clear();
     pg.clear();
-    /*updateBackgroundGraph();
+    updateBackgroundGraph();
     updateObjectGraph();
     updatePeopleGraph();
-    updateCanvas();*/
-    socket.emit("update", 1);
-    socket.emit("update", 2);
-    socket.emit("update", 3);
-    socket.emit("update", 4);
+    //
+    updateCanvas();
     gameEndingCode = 0;
     decodeOutput = "";
     action_code = [];
     action_now = 0;
     finishCoin = true;
-    p1_x = people_init["postion"][0];
-    p1_y = people_init["postion"][1];
-    p1_z = people_init["postion"][2];
-    p2_x = people_init2["postion"][0];
-    p2_y = people_init2["postion"][1];
-    p2_z = people_init2["postion"][2];
 }
 
 var colleges = ['01', '02', '03', '04', '05',
@@ -2260,7 +2021,7 @@ var colleges = ['01', '02', '03', '04', '05',
     '45', '46', '47', '48', '49', '50', 'test', 'T2', 'T1'];
 
 function changeCollege(index) {
-    console.log(index);
+    // console.log(index);
 
     action_code = [];
     onChanged = false;
@@ -2276,8 +2037,7 @@ function changeCollege(index) {
 
             for (var timeC = 0; timeC < 10; ++timeC) {
                 loadData();
-                //updateCanvas();
-                socket.emit("update", 4);
+                updateCanvas();
             }
         }
     };

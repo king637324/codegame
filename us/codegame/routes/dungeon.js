@@ -122,7 +122,7 @@ router.post('/loadThisGameRoomLevelGameMapMap', function(req, res, next) {
   console.log('-------------------------------');
   console.log(req.body, level);
   var start = 0,
-      end = 50;
+      end = 5;
   MutiplayerMap.getMap(function(err, mapData) {
     // res.json(mapData);
     if (err)
@@ -132,13 +132,14 @@ router.post('/loadThisGameRoomLevelGameMapMap', function(req, res, next) {
       if (element.level != level) {
         continue;
       }
+
       for (let entry = 0; entry < element.data.length; entry++) {
         var entryItem = element.data[entry];
-        // console.log(entryItem);
         if (entryItem.versionID == element.versionID) {
           return res.json(entryItem.map);
         }
       }
+
     }
   })
 

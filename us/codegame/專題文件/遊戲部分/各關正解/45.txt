@@ -2,6 +2,7 @@
    2星:22個動作包含22個動作以內20個動作以上  
    1星:滿足過關條件即可*/ 
 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

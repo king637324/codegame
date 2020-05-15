@@ -8,9 +8,9 @@
       width: 200px;
     }
 
-    input{
-      width:216px;
-      font-size:100px
+    input {
+      width: 216px;
+      font-size: 100px
     }
   </style>
 </head>
@@ -18,13 +18,10 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
 <body>
-    <button id="createMutiPlayerMap"><img src=img/CreateMutiMap.png> </button>
-    <button id="createMapDb"><img src=img/CreateMap.png></button>
-    <button id="createDictDb"><img src=img/CreateDinctionary.png></button>
-    <button id="createEquipDb"><img src=img/CreateEquipment.png> </button>
-    <br>
+  <button id="createMutiPlayerMap"><img src=img/CreateMutiMap.png> </button> <button id="createMapDb"><img src=img/CreateMap.png> </button> <button id="createDictDb"><img src=img/CreateDinctionary.png> </button> <button id="createEquipDb"><img
+      src=img/CreateEquipment.png> </button> <br>
     <input type="button" id="delMutiPlayerMap" value="刪除多人遊戲地圖">
-    <input type="button" id="delMapDb"  value="刪掉地圖資料庫">
+    <input type="button" id="delMapDb" value="刪掉地圖資料庫">
     <input type="button" id="delDictDb" value="刪掉字典資料庫">
     <input type="button" id="delEquipDb" value="刪掉裝備資料庫">
 </body>
@@ -33,6 +30,7 @@
 
 <script>
   $("#createMutiPlayerMap").click(function() {
+
     if (confirm("確定要創建多人遊戲地圖資料庫?")) {
       $.ajax({
         url: location.href, // 要傳送的頁面
@@ -41,9 +39,11 @@
         data: {
           type: "createMutiPlayerMap"
         }, // 將表單資料用打包起來送出去
-        success: function(res) {}
+        success: function(res) {
+          alert("succcess");
+        }
       })
-      alert("succcess");
+
     }
   });
 
@@ -115,10 +115,6 @@
 
 
 
-
-
-
-
   $("#delMapDb").click(function() {
     if (confirm("確定要刪除地圖資料庫?")) {
       $.ajax({
@@ -134,7 +130,7 @@
     }
   });
   $("#delDictDb").click(function() {
-    if (confirm("確定要刪除地圖資料庫?")) {
+    if (confirm("確定要刪除字典資料庫?")) {
       $.ajax({
         url: location.href, // 要傳送的頁面
         method: 'POST', // 使用 POST 方法傳送請求
@@ -148,7 +144,7 @@
     }
   });
   $("#delEquipDb").click(function() {
-    if (confirm("確定要刪除地圖資料庫?")) {
+    if (confirm("確定要刪除裝備資料庫?")) {
       $.ajax({
         url: location.href, // 要傳送的頁面
         method: 'POST', // 使用 POST 方法傳送請求
@@ -161,5 +157,4 @@
       alert("succcess");
     }
   });
-
 </script>

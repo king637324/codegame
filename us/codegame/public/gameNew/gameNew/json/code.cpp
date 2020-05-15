@@ -8,8 +8,8 @@ int system_map[20][20][2] = {0}; // ex: x,y=5,3 system_map[5][3][0]  [1]為元�
 int systObjMax = 0, systemObj[2048] = {0}, systObjNowL = 0;
 int system_mapsize;
 int arrowNum = 0, coinNum = 0;
-vector<int> arrowLockX, arrowLockY, treasureX, treasureY, triggerX, triggerY; //x,y
-vector<string> treasureString, triggerString;
+vector<int> arrowLockX, arrowLockY, treasureX, treasureY; //x,y
+vector<string> treasureString;
 int peopleAdr[7] = {}; // 0 1 2 xyz  hp armor atk  car0tank1bot2
 bool peopleFire = false;
 int enemyN = 0, enemy[20][5] = {};								  // 0 1 2 xyz  hp  atk
@@ -17,7 +17,6 @@ int stepValue[5][2] = {{1, 0}, {0, -1}, {-1, 0}, {0, 1}, {0, 0}}; // x,y
 
 string treasureStr;
 char hint = 'X';
-string testStr;
 void systD(int temp)
 {
 	cout << "$D,," << systemObj[temp] << " ";
@@ -361,35 +360,12 @@ void actionJudgeNowAdr()
 	int x = peopleAdr[0], y = peopleAdr[1];
 	int var = system_map[y][x][0] % 100;
 	hint = 'X';
-    testStr = "space";
-    /*if (!triggerFlag) {
-        for (int i=0; i<4; ++i) {
-            int tx = x + stepValue[i][0], ty = y + stepValue[i][1];
-            int varT = system_map[ty][tx] % 100;
-            if (varT == 21) {
-                for (int j = 0; j < triggerX.size(); j++) {
-                    if (triggerX[j] == tx && triggerY[j] == ty) {
-                        testStr = triggerString[j];
-                    }
-                }
-            }
-        }
-    }*/
-    if (var == 21)
-    {
-        for (int i = 0; i < triggerX.size(); i++) {
-            if (triggerX[i] == x && triggerY[i] == y) {
-                testStr = triggerString[i];
-            }
-        }
-    }
-  
 
 	if (x < 0 || y < 0 || x >= system_mapsize || x >= system_mapsize)
 	{
 		cout << "$E,,3"; //駛出地圖
 	}
-	else if (var == 1 || var == 2 || var == 5 || var == 6 || var == 16 || (var >= 17 && var <=20))
+	else if (var == 1 || var == 2 || var == 5 || var == 6 || var == 16)
 	{
 		cout << "$E,,4"; //撞到障礙物
 	}
@@ -474,24 +450,10 @@ void actionJudgeNowAdr()
 		systD(sdtemp);
 		system_map[sdY][sdX][0] -= 2;
 	}
-  
 	bulletHit();
 }
 void actionJudgeNextAdr(int x, int y)
 {
-    /*if (!triggerFlag) {
-        for (int i=0; i<4; ++i) {
-            int tx = x + stepValue[i][0], ty = y + stepValue[i][1];
-            int varT = system_map[ty][tx] % 100;
-            if (varT == 21) {
-                for (int j = 0; j < triggerX.size(); j++) {
-                    if (triggerX[j] == tx && triggerY[j] == ty) {
-                        testStr = triggerString[j];
-                    }
-                }
-            }
-        }
-    }*/
 	int nx = x + stepValue[peopleAdr[2]][0], ny = y + stepValue[peopleAdr[2]][1];
 	int varS = system_map[ny][nx][0] % 100;
 	if (varS == 16)
@@ -521,14 +483,6 @@ void actionJudgeNextAdr(int x, int y)
 			cout << "$I,," << x + stepValue[i][0] << "," << y + stepValue[i][1] << ",,";
 			break;
 		}
-        else if (var >= 17 && var <=20)
-        {
-            int temp = system_map[y + stepValue[i][1]][x + stepValue[i][0]][1];
-            var = var - 16;
-			cout << "$S,," << var;
-			break;
-        }
-       
 	}
 }
 void moveForward()
@@ -615,7 +569,7 @@ void becameShip()
 	int dx = peopleAdr[0], dy = peopleAdr[1];
 	actionJudgeNextAdr(dx, dy);
 }
-void fire()
+void launchMissile()
 {
 	peopleFire = true;
 	bulletHit();
@@ -670,7 +624,7 @@ void input_init()
 	{
 		cin >> temp;
 		cin >> x >> y;
-		if (temp == "tree" || temp == "stone" || temp == "unmoveble" || temp == "statue")
+		if (temp == "tree" || temp == "stone")
 		{
 			system_map[y][x][0] += 1; //1 為障礙物
 			system_map[y][x][1] = i;
@@ -735,27 +689,11 @@ void input_init()
 			system_map[y][x][0] += 16; //16 寶箱
 			system_map[y][x][1] = i;
 		}
-        else if (temp == "rune_table")
-        {
-            cin >> r;
-            system_map[y][x][0] += 17 + r; // 17 18 19 20  
-			system_map[y][x][1] = i;
-        }
-        else if (temp == "trigger")
-        {
-            cin >> temp;
-            triggerString.push_back(temp);
-            triggerX.push_back(x);
-            triggerY.push_back(y);
-            system_map[y][x][0] += 21; 
-			system_map[y][x][1] = i;
-        }
 	}
 	if (coinNum > 0)
 	{
 		cout << "$E,,9"; //金幣未完成
 	}
-    actionJudgeNextAdr(peopleAdr[0], peopleAdr[1]);
 	//	//test//
 	// for (int i = 0; i < 7; ++i)
 	// {

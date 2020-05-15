@@ -186,7 +186,8 @@ function initHome() {
   levelUpLevel = user.levelUpLevel;
   swordLevel = user.weaponLevel;
   shieldLevel = user.armorLevel;
-  if (user.isadmin) {
+
+  if(user.username == "NKUSTCCEA"||user.username == "teacher"){
     // console.log(document.getElementById("gameModifyBtn"));
     document.getElementById("gameModifyBtn").style.display = "";
   }
@@ -885,12 +886,13 @@ function clearButton(thisTextarea) {
 }
 /*重新開始*/
 function restartButton(thisTextarea) {
-  challengeGameAgain();
+  // challengeGameAgain(); //宜靜 2020.05.12
   myFunction();
 }
 /*重新開始*/
 function restartGame(thisDiv, thisDiv2) {
   clossFunc(thisDiv, thisDiv2);
+  challengeGameAgain(); //宜靜 2020.05.12
 }
 /*轉換程式碼*/
 function transformButton() {
@@ -1296,8 +1298,8 @@ function blocklyUsable(thisClassID, thisValue) {
     case "turnLeft":
       blockType = "block_turn_left";
       break;
-    case "fire":
-      blockType = "block_fire";
+    case "launchMissile":
+      blockType = "block_launchMissile";
       break;
     case "printf":
       blockType = "block_printf";
@@ -1483,6 +1485,7 @@ function createEndView(starNum, gameResult, instructionNum, code, errMessage) {
     b.setAttribute("id", "successRestartGameBtn");
     b.setAttribute("value", "重新挑戰");
     b.setAttribute("onclick", "clossFunc(\"createEndView\",\"createEndBkView\")");
+    b.setAttribute("onclick", "restartGame(\"createEndView\",\"createEndBkView\")"); //宜靜 2020.05.12
     divTag.appendChild(b);
     b = document.createElement("input");
     b.setAttribute("type", "button");
@@ -1954,7 +1957,7 @@ function loadDict() {
                 "value": "turnLeft"
               },
               {
-                "value": "fire"
+                "value": "launchMissile"
               },
               {
                 "value": "printf"
@@ -1999,7 +2002,7 @@ function loadDict() {
                 "value": "turnLeft"
               },
               {
-                "value": "fire"
+                "value": "launchMissile"
               },
               {
                 "value": "printf"
@@ -2044,7 +2047,7 @@ function loadDict() {
                 "value": "turnLeft"
               },
               {
-                "value": "fire"
+                "value": "launchMissile"
               },
               {
                 "value": "printf"
@@ -2096,7 +2099,7 @@ function loadDict() {
                 "value": "turnLeft"
               },
               {
-                "value": "fire"
+                "value": "launchMissile"
               },
               {
                 "value": "printf"
@@ -2148,7 +2151,7 @@ function loadDict() {
                 "value": "turnLeft"
               },
               {
-                "value": "fire"
+                "value": "launchMissile"
               },
               {
                 "value": "printf"
@@ -2200,7 +2203,7 @@ function loadDict() {
                 "value": "turnLeft"
               },
               {
-                "value": "fire"
+                "value": "launchMissile"
               },
               {
                 "value": "printf"
@@ -2252,7 +2255,7 @@ function loadDict() {
                 "value": "turnLeft"
               },
               {
-                "value": "fire"
+                "value": "launchMissile"
               },
               {
                 "value": "printf"
@@ -2304,7 +2307,7 @@ function loadDict() {
                 "value": "turnLeft"
               },
               {
-                "value": "fire"
+                "value": "launchMissile"
               },
               {
                 "value": "printf"
@@ -2356,7 +2359,7 @@ function loadDict() {
                 "value": "turnLeft"
               },
               {
-                "value": "fire"
+                "value": "launchMissile"
               },
               {
                 "value": "printf"
@@ -2408,7 +2411,7 @@ function loadDict() {
                 "value": "turnLeft"
               },
               {
-                "value": "fire"
+                "value": "launchMissile"
               },
               {
                 "value": "printf"

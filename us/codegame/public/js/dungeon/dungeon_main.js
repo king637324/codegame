@@ -1,9 +1,12 @@
 var gameRoomId;
+var LevelMap;
 var app2 = {
-    game: function(roomId) {
-        gameRoomId = roomId;
-    }
+  game: function(roomId, mapName) {
+    gameRoomId = roomId;
+    LevelMap = mapName;
+  }
 };
+
 let lang = 'cpp',
   inputStr = "",
   codeStr = "";
@@ -28,20 +31,11 @@ var stepSpeed = 2,
   delayResSpeed = 5,
   pipleLineSpeed = 0,
   pipleLineO = 0,
-  tempAction, ActionLen; //
-var stepValue = [
-  [1, 0],
-  [0, -1],
-  [-1, 0],
-  [0, 1]
-];
+  tempAction, ActionLen;
 var now_PeooleEESW, old_PeooleEESW, now_PeooleEESW2, old_PeooleEESW2, now_PeooleEESW3, old_PeooleEESW3, now_PeooleEESW4, old_PeooleEESW4;
 var now_PeooleX, old_PeooleX, now_PeooleX2, old_PeooleX2, now_PeooleX3, old_PeooleX3, now_PeooleX4, old_PeooleX4;
 var now_PeooleY, old_PeooleY, now_PeooleY2, old_PeooleY2, now_PeooleY3, old_PeooleY3, now_PeooleY4, old_PeooleY4;
-var finishCoin = true,
-  gameEndingCode = 0; //0 未完成 1完成 2經過終點線 3駛出地圖_失敗 4撞到障礙物_失敗  5編譯失敗    10
-var gameEndingCodeDic = new Array(); //0 未完成 1完成 2經過終點線 3駛出地圖_失敗 4撞到障礙物_失敗  5編譯失敗 8不必要的指令過多
-var decodeMod = 1; //0 api 編譯  1 自行編譯     //測試 先佔為1
+var gameEndingCode = 0; //0 未完成 1完成 2經過終點線 3駛出地圖_失敗 4撞到障礙物_失敗  5編譯失敗    10
 var decodeOutput = "";
 var textarea_0 = document.getElementById('textarea_0');
 var textarea_1 = document.getElementById('textarea_1');
@@ -60,13 +54,19 @@ var player;
 var players = [];
 var p1_x, p1_y, p1_z, p2_x, p2_y, p2_z, p3_x, p3_y, p3_z, p4_x, p4_y, p4_z;
 //var ip1_x, ip1_y, ip2_x, ip2_y, ip3_x, ip3_y, ip4_x, ip4_y;
-var ip_x = [], ip_y = [];
-var ip1Flag = false, ip2Flag = false, ip3Flag = false, ip4Flag = false;
+var ip_x = [],
+  ip_y = [];
+var initFlag = false;
+var ip1Flag = false,
+  ip2Flag = false,
+  ip3Flag = false,
+  ip4Flag = false;
 var delFlag = false;
 var triggerFlag = false;
 var inputFlag = false;
 var inputNum;
 var userNum = 0;
+var loopNum = 0;
 // var peopleAtk = equipmentData.weaponLevel[user.weaponLevel].attack;
 // var peopleArmor = equipmentData.armorLevel[user.armorLevel].attack;
 // console.log(peopleAtk, peopleArmor);
@@ -77,7 +77,7 @@ xmlhttp.onreadystatechange = function() {
     codeValue = this.responseText;
   }
 };
-xmlhttp.open("GET", "/gameNew/gameNew/json/code.cpp", true);
+xmlhttp.open("GET", "/gameNew/gameNew/json/dungeon_code.cpp", true);
 xmlhttp.send();
 
 
@@ -135,36 +135,17 @@ int main(int argc, char *argv[])
 $('#textarea_0').text(initCode);
 
 
-function setup(){
-  /*var path = ["stone", "tree", "tank", "bot", "start",
-    "car", "car2", "endline", "questionMark", "F",
-    "L", "R", "coin", "boon",
-    "arrow", "lock", "lock2", "bullet",
-    "boon_hit", "questionstone", "arrowWite", "enemyTank",
-    "unlock", "unlock2", "unlockfail2", "foggy", "peopleFoggy", "treasure",
-    "HPandArmor", "HP", "enemyDead", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
-    "desret", "lawn", "sea",
-  ]*/
-  var path = ["start","car","car2", "car3", "car4","dungeon","endline",
-              "stone","statue","door","door_open","rune_table","trap","unmoveble",
-              "trigger","loop_flame","loop_done","loop_door"
-      ]
+function setup() {
+  var path = ["start", "car", "car2", "car3", "car4", "dungeon", "endline", "bullet", "boon_hit",
+    "stone", "statue", "door", "door_open", "rune_table", "trap", "unmoveble",
+    "trigger", "loop_flame", "loop_done", "loop_door", "array_table", "box_closed", "box_open"
+  ]
   for (var i = 0; i < path.length; ++i) {
     // var imgpath = "gameNew/gameNew/image/" + path[i] + ".png";
     var imgpath = "/GameImage/Dungeon/" + path[i] + ".png";
     var img = loadImage(imgpath);
     imgObject.push(img), imgDic[path[i]] = i.toString();
   }
-  gameEndingCodeDic['0'] = "未完成";
-  gameEndingCodeDic['1'] = "完成";
-  gameEndingCodeDic['2'] = "經過終點線了,差一點好可惜";
-  gameEndingCodeDic['3'] = "駛出地圖_失敗";
-  gameEndingCodeDic['4'] = "撞到障礙物_失敗";
-  gameEndingCodeDic['5'] = "編譯失敗";
-  gameEndingCodeDic['6'] = "被炸彈炸死或撞到敵人爆炸身亡";
-  gameEndingCodeDic['7'] = "被打死了";
-  gameEndingCodeDic['8'] = "不必要的指令過多";
-  // if(windowWidth * 0.4>=560&&windowHeight * 0.565.8)
 
   var divcanvas = document.getElementById('divcanvas');
   var winW = divcanvas.offsetWidth;
@@ -187,14 +168,17 @@ function setup(){
 }
 
 function init_setup() {
-  // changeCollege(10) ;
 
   let nowurl = new URL(window.location.href);
   let params = nowurl.searchParams;
 
 
-  mapNum = params.get('level'); // 第幾關
-  mapNum = 0
+
+
+  var map_level = LevelMap.split("p"); //從map的p切開
+  mapNum = map_level[1]-1;//第幾關，減一是因為從0開始
+
+
 
   $.ajax({
     url: "/loadThisGameRoomLevelGameMapMap", // 要傳送的頁面
@@ -244,10 +228,10 @@ function init_setup() {
       }
     }
   })
-  var href=document.location.href;
-  href+="/loadThisGameRoomPlayer";
-    
-  setTimeout(function(){ 
+  var href = document.location.href;
+  href += "/loadThisGameRoomPlayer";
+
+  setTimeout(function() {
     $.ajax({
       url: href, // 要傳送的頁面
       method: 'POST', // 使用 POST 方法傳送請求
@@ -255,7 +239,7 @@ function init_setup() {
       success: function(res) {
         players = res;
         players.forEach((item, i) => {
-          console.log("player"+ (i+1) +":"+item.userId);
+          console.log("player" + (i + 1) + ":" + item.userId);
         });
       }
     })
@@ -352,10 +336,10 @@ function loadData() {
   /*socket.emit("update", 1);
   socket.emit("update", 2);
   socket.emit("update", 3);*/
-  setTimeout(function(){ 
+  setTimeout(function() {
     codeToCompiler();
   }, 250);
-    
+
 }
 
 
@@ -369,23 +353,13 @@ function endgame() {
   updateCanvas();
   //socket.emit("update", 4);
   for (var i = 0; i < end_init.length; ++i) {
-    var dx = end_init[i]["postion"][0] * edgeToWidth,
-      dy = end_init[i]["postion"][1] * edgeToHeight,
-      drotate = (360 - end_init[i]["postion"][2] * 90) % 180;
-    var ddx = Math.abs(dx - old_PeooleX);
-    var ddy = Math.abs(dy - old_PeooleY);
-    var ex = end_init[i]["postion"][0],
-      ey = end_init[i]["postion"][1];
-    var ddx2 = Math.abs(dx - old_PeooleX2);
-    var ddy2 = Math.abs(dy - old_PeooleY2);
-    var ddx3 = Math.abs(dx - old_PeooleX3);
-    var ddy3 = Math.abs(dy - old_PeooleY3);
-    var ddx4 = Math.abs(dx - old_PeooleX4);
-    var ddy4 = Math.abs(dy - old_PeooleY4);
+    var dx = end_init[i]["postion"][0],
+      dy = end_init[i]["postion"][1];
+
     //console.log("test:", dx, " test ", old_PeooleX);
     // console.log(ddx, " ", ddy);
     //if (ddx < stepSpeed * 2 && ddy < stepSpeed * 2) {
-    if (p1_x == ex && p1_y == ey && p2_x == ex && p2_y == ey && p3_x == ex && p3_y == ey && p4_x == ex && p4_y == ey) {
+    if (dx == p1_x && dy == p1_y /*&& dx == p2_x && dy == p2_y && dx == p3_x && dy == p3_y && dx == p4_x && dy == p4_y*/ ) {
       //if (drotate == (((old_PeooleEESW + 360) % 180) + 90) % 180) {
       gameEndingCode = 1;
     } else {
@@ -401,13 +375,6 @@ function endgame() {
          gameEndingCode = 2;
      }*/
   }
-  if (!finishCoin) {
-    gameEndingCode = 0;
-  }
-
-
-
-
 
 
   var str = computeEndCode,
@@ -479,7 +446,6 @@ function endgame() {
   var systemCall = ["moveForward", "moveForward(", "moveForward()", "moveForward();", ";moveForward();",
     "turnRight", "turnRight(", "turnRight()", "turnRight();", ";turnRight();",
     "turnLeft", "turnLeft(", "turnLeft()", "turnLeft();", ";turnLeft();",
-    "fire", "fire(", "fire()", "fire();", ";fire();",
     "printf", "printf(", "scanf", "scanf("
   ];
   for (var i = 0; i < funname.length; ++i) {
@@ -530,10 +496,10 @@ function endgame() {
 
 
   }
-  
+
   var result = "";
   var tc = counter - funname.length;
-    
+
   if (gameEndingCode == 1) {
     console.log("counter:", counter);
     console.log("funname:", funname);
@@ -552,12 +518,6 @@ function endgame() {
       createEndView(1, result, tc, computeEndCode);
     }
   }
-  /*else {
-      result = gameEndingCodeDic[gameEndingCode];
-      console.log(gameEndingCodeDic[gameEndingCode]);
-      createEndView(0, result, tc, computeEndCode, errMessage);
-      // alert(gameEndingCodeDic[gameEndingCode]);
-  }*/
 
 
   // alert(result);
@@ -672,316 +632,267 @@ function draw() {
         var value = tempAction.value; // 3駛出地圖 4 碰壁 6被炸死  9金幣未完成 10金幣完成  7沒血了
         if (value == 2) {
           gameEndingCode = value;
-        } else if (value == 4) {
-          /*for (let ssi = 0; ssi < mapObject.length; ssi++) {
-            const x = mapObject[ssi].postion[0];
-            const y = mapObject[ssi].postion[1];
-            var dx = Math.abs(x * edgeToWidth - old_PeooleX);
-            var dy = Math.abs(y * edgeToHeight - old_PeooleY);
-            var dx2 = Math.abs(x * edgeToWidth - old_PeooleX2);
-            var dy2 = Math.abs(y * edgeToHeight - old_PeooleY2);
-            // console.log(dx,dy,ssi);
-            if (player == 1) {
-              if (dx < stepSpeed && dy < stepSpeed) {
-                gameEndingCode = value;
-                onChanged = false;
-                onChanging = false;
-                //updateCanvas();
-                socket.emit("update", 4);
-                break;
-              }
-            } else if (player == 2) {
-              if (dx2 < stepSpeed && dy2 < stepSpeed) {
-                gameEndingCode = value;
-                onChanged = false;
-                onChanging = false;
-                //updateCanvas();
-                socket.emit("update", 4);
-                break;
-              }
-            }
-          }*/
+        } else if (value == 3 || value == 4) {
           break; //撞壁直接跳出
-        } else if (value == 3 || value == 6 || value == 7) {
-          console.log("gg");
-          pipleLineSpeed = 0
-          gameEndingCode = value;
-          // action_now = action_code.length;
-          // action_code = [];
-          onChanged = false;
-          onChanging = false;
-          // updateCanvas();
-          // break;
-        } else if (value == 9) {
-          finishCoin = false;
-        } else if (value == 10) {
-          finishCoin = true;
         } else {
           alert("'E'還未處理,", value);
           console.log("'E'還未處理,", value);
         }
         ++action_now;
-      } else if (type == "W") {
-        // console.log("123");
-        pipleLineSpeed = 20;
-        ++action_now;
-        pipleLineO = action_now + 1;
-        ++action_now;
       } else if (type == "M") {
-        if(!(ActionLen > action_now + 1 && action_code[action_now+1].type == "E" && action_code[action_now+1].value != 2)){
-            
-        var value = tempAction.value;
-        if (!onChanging) {
-          for (var i = 0; i < value.length; ++i) {
-            var nowValue = value[i];
-            if (nowValue.obj == -1) {
-              if (player == 1) {
-                // console.log("old:",old_PeooleX,old_PeooleY,old_PeooleEESW);
-                old_PeooleX = old_PeooleX + nowValue.value[0] * edgeToWidth;
-                old_PeooleY = old_PeooleY + nowValue.value[1] * edgeToHeight;
-                old_PeooleEESW = old_PeooleEESW - nowValue.value[2] * 90;
-                p1_x = p1_x + nowValue.value[0];
-                p1_y = p1_y + nowValue.value[1];
-                p1_z = (p1_z + nowValue.value[2] + 4) % 4;
-                console.log("P1 xyz: ", p1_x, p1_y, p1_z);
-                // console.log("now:",old_PeooleX,old_PeooleY,old_PeooleEESW);
-              } else if (player == 2) {
-                old_PeooleX2 = old_PeooleX2 + nowValue.value[0] * edgeToWidth;
-                old_PeooleY2 = old_PeooleY2 + nowValue.value[1] * edgeToHeight;
-                old_PeooleEESW2 = old_PeooleEESW2 - nowValue.value[2] * 90;
-                p2_x = p2_x + nowValue.value[0];
-                p2_y = p2_y + nowValue.value[1];
-                p2_z = (p2_z + nowValue.value[2] + 4) % 4;
-                console.log("P2 xyz: ", p2_x, p2_y, p2_z);
-              } else if (player == 3) {
-                old_PeooleX3 = old_PeooleX3 + nowValue.value[0] * edgeToWidth;
-                old_PeooleY3 = old_PeooleY3 + nowValue.value[1] * edgeToHeight;
-                old_PeooleEESW3 = old_PeooleEESW3 - nowValue.value[2] * 90;
-                p3_x = p3_x + nowValue.value[0];
-                p3_y = p3_y + nowValue.value[1];
-                p3_z = (p3_z + nowValue.value[2] + 4) % 4;
-                console.log("P3 xyz: ", p3_x, p3_y, p3_z);
-              } else if (player == 4) {
-                old_PeooleX4 = old_PeooleX4 + nowValue.value[0] * edgeToWidth;
-                old_PeooleY4 = old_PeooleY4 + nowValue.value[1] * edgeToHeight;
-                old_PeooleEESW4 = old_PeooleEESW4 - nowValue.value[2] * 90;
-                p4_x = p4_x + nowValue.value[0];
-                p4_y = p4_y + nowValue.value[1];
-                p4_z = (p4_z + nowValue.value[2] + 4) % 4;
-                console.log("P4 xyz: ", p4_x, p4_y, p4_z);
-              }
-              endgame();
-            } else {
-              var dx = mapObject[nowValue.obj].postion[0];
-              var dy = mapObject[nowValue.obj].postion[1];
-              mapObject[nowValue.obj].oldX = dx + nowValue.value[0] * edgeToWidth;
-              mapObject[nowValue.obj].oldY = dy + nowValue.value[1] * edgeToHeight;
-              // console.log(mapObject[nowValue.obj]);
-            }
-          }
-          onChanging = true;
-        } else {
-          for (var i = 0; i < value.length; ++i) {
-            var nowValue = value[i];
-            if (nowValue.obj == -1) { //人
-              if (nowValue.value[0] + nowValue.value[1] + nowValue.value[2] == -3) {
-                //-1,-1,-1 丟到世界外
+        if (!(ActionLen > action_now + 1 && action_code[action_now + 1].type == "E" && action_code[action_now + 1].value != 2)) {
+
+          var value = tempAction.value;
+          if (!onChanging) {
+            for (var i = 0; i < value.length; ++i) {
+              var nowValue = value[i];
+              if (nowValue.obj == -1) {
                 if (player == 1) {
-                  now_PeooleX = mapSize * edgeToWidth;
-                  now_PeooleY = mapSize * edgeToHeight;
-                  old_PeooleX = mapSize * edgeToWidth;
-                  old_PeooleY = mapSize * edgeToHeight;
+                  // console.log("old:",old_PeooleX,old_PeooleY,old_PeooleEESW);
+                  old_PeooleX = old_PeooleX + nowValue.value[0] * edgeToWidth;
+                  old_PeooleY = old_PeooleY + nowValue.value[1] * edgeToHeight;
+                  old_PeooleEESW = old_PeooleEESW - nowValue.value[2] * 90;
+                  p1_x = p1_x + nowValue.value[0];
+                  p1_y = p1_y + nowValue.value[1];
+                  p1_z = (p1_z + nowValue.value[2] + 4) % 4;
+                  console.log("P1 xyz: ", p1_x, p1_y, p1_z);
+                  // console.log("now:",old_PeooleX,old_PeooleY,old_PeooleEESW);
                 } else if (player == 2) {
-                  now_PeooleX2 = mapSize * edgeToWidth;
-                  now_PeooleY2 = mapSize * edgeToHeight;
-                  old_PeooleX2 = mapSize * edgeToWidth;
-                  old_PeooleY2 = mapSize * edgeToHeight;
+                  old_PeooleX2 = old_PeooleX2 + nowValue.value[0] * edgeToWidth;
+                  old_PeooleY2 = old_PeooleY2 + nowValue.value[1] * edgeToHeight;
+                  old_PeooleEESW2 = old_PeooleEESW2 - nowValue.value[2] * 90;
+                  p2_x = p2_x + nowValue.value[0];
+                  p2_y = p2_y + nowValue.value[1];
+                  p2_z = (p2_z + nowValue.value[2] + 4) % 4;
+                  console.log("P2 xyz: ", p2_x, p2_y, p2_z);
                 } else if (player == 3) {
-                  now_PeooleX3 = mapSize * edgeToWidth;
-                  now_PeooleY3 = mapSize * edgeToHeight;
-                  old_PeooleX3 = mapSize * edgeToWidth;
-                  old_PeooleY3 = mapSize * edgeToHeight;
+                  old_PeooleX3 = old_PeooleX3 + nowValue.value[0] * edgeToWidth;
+                  old_PeooleY3 = old_PeooleY3 + nowValue.value[1] * edgeToHeight;
+                  old_PeooleEESW3 = old_PeooleEESW3 - nowValue.value[2] * 90;
+                  p3_x = p3_x + nowValue.value[0];
+                  p3_y = p3_y + nowValue.value[1];
+                  p3_z = (p3_z + nowValue.value[2] + 4) % 4;
+                  console.log("P3 xyz: ", p3_x, p3_y, p3_z);
                 } else if (player == 4) {
-                  now_PeooleX4 = mapSize * edgeToWidth;
-                  now_PeooleY4 = mapSize * edgeToHeight;
-                  old_PeooleX4 = mapSize * edgeToWidth;
-                  old_PeooleY4 = mapSize * edgeToHeight;
+                  old_PeooleX4 = old_PeooleX4 + nowValue.value[0] * edgeToWidth;
+                  old_PeooleY4 = old_PeooleY4 + nowValue.value[1] * edgeToHeight;
+                  old_PeooleEESW4 = old_PeooleEESW4 - nowValue.value[2] * 90;
+                  p4_x = p4_x + nowValue.value[0];
+                  p4_y = p4_y + nowValue.value[1];
+                  p4_z = (p4_z + nowValue.value[2] + 4) % 4;
+                  console.log("P4 xyz: ", p4_x, p4_y, p4_z);
                 }
-                onChanging = false;
+                endgame();
               } else {
-                if (pipleLineSpeed == 0) {
+                var dx = mapObject[nowValue.obj].postion[0];
+                var dy = mapObject[nowValue.obj].postion[1];
+                mapObject[nowValue.obj].oldX = dx + nowValue.value[0] * edgeToWidth;
+                mapObject[nowValue.obj].oldY = dy + nowValue.value[1] * edgeToHeight;
+                // console.log(mapObject[nowValue.obj]);
+              }
+            }
+            onChanging = true;
+          } else {
+            for (var i = 0; i < value.length; ++i) {
+              var nowValue = value[i];
+              if (nowValue.obj == -1) { //人
+                if (nowValue.value[0] + nowValue.value[1] + nowValue.value[2] == -3) {
+                  //-1,-1,-1 丟到世界外
                   if (player == 1) {
-                    now_PeooleX = now_PeooleX + (stepSpeed * nowValue.value[0]);
-                    now_PeooleY = now_PeooleY + (stepSpeed * nowValue.value[1]);
-                    now_PeooleEESW = now_PeooleEESW - (turnSpeed * nowValue.value[2]);
-                    var difX = Math.abs(now_PeooleX - old_PeooleX)
-                    var difY = Math.abs(now_PeooleY - old_PeooleY)
-                    var difE = Math.abs(now_PeooleEESW - old_PeooleEESW)
-                    var dif = difX + difY + difE;
-
-                    if (complementStep) {
-                      complementStep = false;
-                      now_PeooleX = old_PeooleX;
-                      now_PeooleY = old_PeooleY;
-                      now_PeooleEESW = old_PeooleEESW;
-
-
-                      onChanging = false;
-                    } else if (dif <= stepSpeed) {
-                      complementStep = true;
-                    }
-                    /*
-
-                    */
+                    now_PeooleX = mapSize * edgeToWidth;
+                    now_PeooleY = mapSize * edgeToHeight;
+                    old_PeooleX = mapSize * edgeToWidth;
+                    old_PeooleY = mapSize * edgeToHeight;
                   } else if (player == 2) {
-                    now_PeooleX2 = now_PeooleX2 + (stepSpeed * nowValue.value[0]);
-                    now_PeooleY2 = now_PeooleY2 + (stepSpeed * nowValue.value[1]);
-                    now_PeooleEESW2 = now_PeooleEESW2 - (turnSpeed * nowValue.value[2]);
-                    var difX2 = Math.abs(now_PeooleX2 - old_PeooleX2)
-                    var difY2 = Math.abs(now_PeooleY2 - old_PeooleY2)
-                    var difE2 = Math.abs(now_PeooleEESW2 - old_PeooleEESW2)
-                    var dif2 = difX2 + difY2 + difE2;
-
-                    if (complementStep) {
-                      complementStep = false;
-                      now_PeooleX2 = old_PeooleX2;
-                      now_PeooleY2 = old_PeooleY2;
-                      now_PeooleEESW2 = old_PeooleEESW2;
-
-
-                      onChanging = false;
-                    } else if (dif2 <= stepSpeed) {
-                      complementStep = true;
-                    }
+                    now_PeooleX2 = mapSize * edgeToWidth;
+                    now_PeooleY2 = mapSize * edgeToHeight;
+                    old_PeooleX2 = mapSize * edgeToWidth;
+                    old_PeooleY2 = mapSize * edgeToHeight;
                   } else if (player == 3) {
-                    now_PeooleX3 = now_PeooleX3 + (stepSpeed * nowValue.value[0]);
-                    now_PeooleY3 = now_PeooleY3 + (stepSpeed * nowValue.value[1]);
-                    now_PeooleEESW3 = now_PeooleEESW3 - (turnSpeed * nowValue.value[2]);
-                    var difX3 = Math.abs(now_PeooleX3 - old_PeooleX3)
-                    var difY3 = Math.abs(now_PeooleY3 - old_PeooleY3)
-                    var difE3 = Math.abs(now_PeooleEESW3 - old_PeooleEESW3)
-                    var dif3 = difX3 + difY3 + difE3;
-
-                    if (complementStep) {
-                      complementStep = false;
-                      now_PeooleX3 = old_PeooleX3;
-                      now_PeooleY3 = old_PeooleY3;
-                      now_PeooleEESW3 = old_PeooleEESW3;
-
-
-                      onChanging = false;
-                    } else if (dif3 <= stepSpeed) {
-                      complementStep = true;
-                    }
+                    now_PeooleX3 = mapSize * edgeToWidth;
+                    now_PeooleY3 = mapSize * edgeToHeight;
+                    old_PeooleX3 = mapSize * edgeToWidth;
+                    old_PeooleY3 = mapSize * edgeToHeight;
                   } else if (player == 4) {
-                    now_PeooleX4 = now_PeooleX4 + (stepSpeed * nowValue.value[0]);
-                    now_PeooleY4 = now_PeooleY4 + (stepSpeed * nowValue.value[1]);
-                    now_PeooleEESW4 = now_PeooleEESW4 - (turnSpeed * nowValue.value[2]);
-                    var difX4 = Math.abs(now_PeooleX4 - old_PeooleX4)
-                    var difY4 = Math.abs(now_PeooleY4 - old_PeooleY4)
-                    var difE4 = Math.abs(now_PeooleEESW4 - old_PeooleEESW4)
-                    var dif4 = difX4 + difY4 + difE4;
+                    now_PeooleX4 = mapSize * edgeToWidth;
+                    now_PeooleY4 = mapSize * edgeToHeight;
+                    old_PeooleX4 = mapSize * edgeToWidth;
+                    old_PeooleY4 = mapSize * edgeToHeight;
+                  }
+                  onChanging = false;
+                } else {
+                  if (pipleLineSpeed == 0) {
+                    if (player == 1) {
+                      now_PeooleX = now_PeooleX + (stepSpeed * nowValue.value[0]);
+                      now_PeooleY = now_PeooleY + (stepSpeed * nowValue.value[1]);
+                      now_PeooleEESW = now_PeooleEESW - (turnSpeed * nowValue.value[2]);
+                      var difX = Math.abs(now_PeooleX - old_PeooleX)
+                      var difY = Math.abs(now_PeooleY - old_PeooleY)
+                      var difE = Math.abs(now_PeooleEESW - old_PeooleEESW)
+                      var dif = difX + difY + difE;
 
-                    if (complementStep) {
-                      complementStep = false;
-                      now_PeooleX4 = old_PeooleX4;
-                      now_PeooleY4 = old_PeooleY4;
-                      now_PeooleEESW4 = old_PeooleEESW4;
+                      if (complementStep) {
+                        complementStep = false;
+                        now_PeooleX = old_PeooleX;
+                        now_PeooleY = old_PeooleY;
+                        now_PeooleEESW = old_PeooleEESW;
 
 
-                      onChanging = false;
-                    } else if (dif4 <= stepSpeed) {
-                      complementStep = true;
+                        onChanging = false;
+                      } else if (dif <= stepSpeed) {
+                        complementStep = true;
+                      }
+                      /*
+
+                      */
+                    } else if (player == 2) {
+                      now_PeooleX2 = now_PeooleX2 + (stepSpeed * nowValue.value[0]);
+                      now_PeooleY2 = now_PeooleY2 + (stepSpeed * nowValue.value[1]);
+                      now_PeooleEESW2 = now_PeooleEESW2 - (turnSpeed * nowValue.value[2]);
+                      var difX2 = Math.abs(now_PeooleX2 - old_PeooleX2)
+                      var difY2 = Math.abs(now_PeooleY2 - old_PeooleY2)
+                      var difE2 = Math.abs(now_PeooleEESW2 - old_PeooleEESW2)
+                      var dif2 = difX2 + difY2 + difE2;
+
+                      if (complementStep) {
+                        complementStep = false;
+                        now_PeooleX2 = old_PeooleX2;
+                        now_PeooleY2 = old_PeooleY2;
+                        now_PeooleEESW2 = old_PeooleEESW2;
+
+
+                        onChanging = false;
+                      } else if (dif2 <= stepSpeed) {
+                        complementStep = true;
+                      }
+                    } else if (player == 3) {
+                      now_PeooleX3 = now_PeooleX3 + (stepSpeed * nowValue.value[0]);
+                      now_PeooleY3 = now_PeooleY3 + (stepSpeed * nowValue.value[1]);
+                      now_PeooleEESW3 = now_PeooleEESW3 - (turnSpeed * nowValue.value[2]);
+                      var difX3 = Math.abs(now_PeooleX3 - old_PeooleX3)
+                      var difY3 = Math.abs(now_PeooleY3 - old_PeooleY3)
+                      var difE3 = Math.abs(now_PeooleEESW3 - old_PeooleEESW3)
+                      var dif3 = difX3 + difY3 + difE3;
+
+                      if (complementStep) {
+                        complementStep = false;
+                        now_PeooleX3 = old_PeooleX3;
+                        now_PeooleY3 = old_PeooleY3;
+                        now_PeooleEESW3 = old_PeooleEESW3;
+
+
+                        onChanging = false;
+                      } else if (dif3 <= stepSpeed) {
+                        complementStep = true;
+                      }
+                    } else if (player == 4) {
+                      now_PeooleX4 = now_PeooleX4 + (stepSpeed * nowValue.value[0]);
+                      now_PeooleY4 = now_PeooleY4 + (stepSpeed * nowValue.value[1]);
+                      now_PeooleEESW4 = now_PeooleEESW4 - (turnSpeed * nowValue.value[2]);
+                      var difX4 = Math.abs(now_PeooleX4 - old_PeooleX4)
+                      var difY4 = Math.abs(now_PeooleY4 - old_PeooleY4)
+                      var difE4 = Math.abs(now_PeooleEESW4 - old_PeooleEESW4)
+                      var dif4 = difX4 + difY4 + difE4;
+
+                      if (complementStep) {
+                        complementStep = false;
+                        now_PeooleX4 = old_PeooleX4;
+                        now_PeooleY4 = old_PeooleY4;
+                        now_PeooleEESW4 = old_PeooleEESW4;
+
+
+                        onChanging = false;
+                      } else if (dif4 <= stepSpeed) {
+                        complementStep = true;
+                      }
                     }
                   }
                 }
-              }
-              updatePeopleGraph();
-              updatePeopleGraph2();
-              updatePeopleGraph3();
-              updatePeopleGraph4();
-              //socket.emit("update", 3);
-              break;
-            } else { //物件的
-              var difX = Math.abs(mapObject[nowValue.obj].postion[0] - mapObject[nowValue.obj].oldX);
-              var difY = Math.abs(mapObject[nowValue.obj].postion[1] - mapObject[nowValue.obj].oldY);
-              var dif = difX + difY;
-              // console.log(dif);
-              if (dif > stepSpeed) {
-                for (var ssi = 0; ssi < 2; ++ssi) {
-                  if (Math.abs(nowValue.value[ssi]) > 0.1) {
-                    if (nowValue.value[ssi] > 0) {
-                      mapObject[nowValue.obj].postion[ssi] += stepSpeed;
-                    } else {
-                      mapObject[nowValue.obj].postion[ssi] -= stepSpeed;
+                updatePeopleGraph();
+                updatePeopleGraph2();
+                updatePeopleGraph3();
+                updatePeopleGraph4();
+                //socket.emit("update", 3);
+                break;
+              } else { //物件的
+                var difX = Math.abs(mapObject[nowValue.obj].postion[0] - mapObject[nowValue.obj].oldX);
+                var difY = Math.abs(mapObject[nowValue.obj].postion[1] - mapObject[nowValue.obj].oldY);
+                var dif = difX + difY;
+                // console.log(dif);
+                if (dif > stepSpeed) {
+                  for (var ssi = 0; ssi < 2; ++ssi) {
+                    if (Math.abs(nowValue.value[ssi]) > 0.1) {
+                      if (nowValue.value[ssi] > 0) {
+                        mapObject[nowValue.obj].postion[ssi] += stepSpeed;
+                      } else {
+                        mapObject[nowValue.obj].postion[ssi] -= stepSpeed;
+                      }
                     }
                   }
+                  onChanging = true;
+                } else if (complementStep) {
+                  complementStep = false;
+                  mapObject[nowValue.obj].postion[0] = mapObject[nowValue.obj].oldX;
+                  mapObject[nowValue.obj].postion[1] = mapObject[nowValue.obj].oldY;
+                  onChanging = false;
+                } else {
+                  complementStep = true;
                 }
-                onChanging = true;
-              } else if (complementStep) {
-                complementStep = false;
-                mapObject[nowValue.obj].postion[0] = mapObject[nowValue.obj].oldX;
-                mapObject[nowValue.obj].postion[1] = mapObject[nowValue.obj].oldY;
-                onChanging = false;
-              } else {
-                complementStep = true;
+                // else {
+                //     onChanging = false;
+                // }
+                updateObjectGraph();
+                //socket.emit("update", 2);
+                break;
               }
-              // else {
-              //     onChanging = false;
-              // }
-              updateObjectGraph();
-              //socket.emit("update", 2);
-              break;
             }
           }
-        }
         }
         if (onChanging == false) {
           ++action_now;
         }
-        for(let k = 0; k < 4; k++){
-            if(p1_x == ip_x[k] && p1_y == ip_y[k]){
-                ip1Flag = true;
-            }
-            else if(p2_x == ip_x[k] && p2_y == ip_y[k]){
-                ip2Flag = true;
-            }
-            else if(p3_x == ip_x[k] && p3_y == ip_y[k]){
-                ip3Flag = true;
-            }
-            else if(p4_x == ip_x[k] && p4_y == ip_y[k]){
-                ip4Flag = true;
+        if (triggerFlag) {
+          for (let k = 0; k < 4; k++) {
+            if (p1_x == ip_x[k] && p1_y == ip_y[k]) {
+              ip1Flag = true;
+            } else if (p2_x == ip_x[k] && p2_y == ip_y[k]) {
+              ip2Flag = true;
+            } else if (p3_x == ip_x[k] && p3_y == ip_y[k]) {
+              ip3Flag = true;
+            } else if (p4_x == ip_x[k] && p4_y == ip_y[k]) {
+              ip4Flag = true;
             }
             /*if ( (p1_x == ip_x[k] && p1_y == ip_y[k]) && (p2_x == ip_x[(k+1)%4] && p2_y == ip_y[(k+1)%4]) && (p3_x == ip_x[(k+2)%4] && p3_y == ip_y[(k+2)%4]) && (p4_x == ip_x[(k+3)%4] && p4_y == ip_y[(k+3)%4]) ) {
                 break;
             } else if ( (p1_x == ip_x[k] && p1_y == ip_y[k]) && (p2_x == ip_x[(k+2)%4] && p2_y == ip_y[(k+2)%4]) && (p3_x == ip_x[(k+1)%4] && p3_y == ip_y[(k+1)%4]) && (p4_x == ip_x[(k+3)%4] && p4_y == ip_y[(k+3)%4]) ) {
                 break;
             }*/
-        }
-        if (!delFlag && ip1Flag && ip2Flag && ip3Flag && ip4Flag){
+          }
+          if (!delFlag && ip1Flag /* && ip2Flag && ip3Flag && ip4Flag*/ ) {
             delFlag = true;
-            for(let d=0; d<mapObject.length; d++){
-                if(mapObject[d].type == "unmoveble"){
-                    mapObject.splice(d, 1);
-                    d--;
-                    console.log("del count");
-                }
+            for (let d = 0; d < mapObject.length; d++) {
+              if (mapObject[d].type == "unmoveble") {
+                mapObject.splice(d, 1);
+                d--;
+                console.log("del count");
+              }
             }
             updateObjectGraph();
-            
-        }else{
+
+          } else {
             ip1Flag = false;
             ip2Flag = false;
             ip3Flag = false;
             ip4Flag = false;
+          }
         }
-            
-          
+
+
       } else if (type == "C") {
         if (onChanging == false) {
           var value = tempAction.value;
           for (var i = 0; i < value.length; ++i) {
-            var o = -1;
+            //var o = -1;
             var nowValue = value[i];
             if (nowValue.obj == -1) {
               if (player == 1) {
@@ -994,7 +905,8 @@ function draw() {
                 people_init4["type"] = nowValue.type;
               }
             } else {
-              if (nowValue.x > -1 && nowValue.y > -1) {
+              mapObject[nowValue.obj].type = nowValue.type;
+              /*if (nowValue.x > -1 && nowValue.y > -1) {
                 for (let ssi = 0; ssi < mapObject.length && o < 0; ssi++) {
                   // console.log(mapObject[ssi].type);
                   //if (mapObject[ssi].type == "lock2" || mapObject[ssi].type == "unlockfail2") {
@@ -1013,13 +925,13 @@ function draw() {
                 // console.log(nowValue.type);
                 // console.log(o,mapObject[o]);
                 mapObject[o].type = nowValue.type;
-              }
+              }*/
             }
           }
         }
         var delayAnimn = tempAction.value[0].type;
         //if (delayAnimn == "unlock" || delayAnimn == "unlock2" || delayAnimn == "unlockfail2" || delayAnimn == "enemyDead") {
-        if (delayAnimn == "unlock" || delayAnimn == "door_open" || delayAnimn == "unlockfail2" || delayAnimn == "enemyDead") {
+        if (delayAnimn == "door_open") {
           onChanging = true;
           --delayResSpeed;
           if (delayResSpeed < 0) {
@@ -1072,81 +984,6 @@ function draw() {
         updateObjectGraph();
         //socket.emit("update", 2);
         ++action_now;
-      } else if (type == "A") {
-        var value = tempAction.value;
-        var delayFlag = false
-        if (onChanging == false) {
-          for (var i = 0; i < value.length; ++i) {
-            var nowValue = value[i];
-            var nowList = [nowValue.value[0], nowValue.value[1], nowValue.value[2]]
-            if (nowValue.type == "bullet") {
-              nowList[0] = nowList[0] * edgeToWidth;
-              nowList[1] = nowList[1] * edgeToHeight;
-              var obj = {
-                "type": "bullet",
-                "postion": nowList
-              };
-              mapObject.push(obj);
-            } else if (nowValue.type == "HP") {
-              onChanging = true;
-              if (nowValue.obj == -1) {
-                var hp = 5,
-                  armor = 0;
-                if (nowValue.value[2] >= 5) {
-                  hp = 5;
-                  armor = nowValue.value[2] - hp;
-                } else {
-                  hp = nowValue.value[2];
-                  armor = 0;
-                }
-                var obj = {
-                  "type": "HPandArmor",
-                  "postion": nowList,
-                  "hp": hp,
-                  "armor": armor
-                };
-                mapObject.push(obj);
-              } else {
-                var obj = {
-                  "type": "HP",
-                  "postion": nowList,
-                  "hp": nowValue.value[2]
-                };
-                mapObject.push(obj);
-              }
-            } else {
-              var obj = {
-                "type": nowValue.type,
-                "postion": nowList
-              };
-              mapObject.push(obj);
-            }
-            if (mapObject.length - 1 != nowValue.obj && (nowValue.obj != -1)) {
-              console.log("error:", mapObject.length - 1, " ", nowValue.obj);
-            }
-            if (nowValue.type == "boon_hit") {
-              delayFlag = true;
-            }
-          }
-          // delayResSpeed *= 2;
-          updateObjectGraph();
-          //socket.emit("update", 2);
-          if (delayFlag) {
-            onChanging = true;
-          }
-        } else {
-          mapObjectChange = false;
-          --delayResSpeed;
-          if (delayResSpeed < 0) {
-            onChanging = false;
-          }
-        }
-
-        if (!onChanging) {
-          onChanging = false;
-          // console.log(mapObject);
-          ++action_now;
-        }
       }
       break;
     }
@@ -1168,11 +1005,8 @@ function updateBackgroundGraph() {
   // backgroundGraph = createGraphics(width, height);
   backgroundGraph.clear();
   backgroundGraph.noStroke();
-  var imgDesret = imgObject[parseInt(imgDic["desret"])];
-  var imgLawn = imgObject[parseInt(imgDic["lawn"])];
-  var imgSea = imgObject[parseInt(imgDic["sea"])];
   var imgDungeon = imgObject[parseInt(imgDic["dungeon"])];
-  
+
   for (var y = 0; y < mapSize; ++y) {
     for (var x = 0; x < mapSize; ++x) {
       var i = y * mapSize + x;
@@ -1180,16 +1014,12 @@ function updateBackgroundGraph() {
       if (map[i] == '0') {
         // backgroundGraph.fill('#bafba7');
         backgroundGraph.image(imgDungeon, x * edgeToWidth, y * edgeToHeight, edgeToWidth, edgeToHeight);
-      } else if (map[i] == '1') {
-        backgroundGraph.image(imgDesret, x * edgeToWidth, y * edgeToHeight, edgeToWidth, edgeToHeight);
-      } else if (map[i] == '2') {
-        backgroundGraph.image(imgSea, x * edgeToWidth, y * edgeToHeight, edgeToWidth, edgeToHeight);
       } else {
-        console.log(map[i]);
+        console.log("mapValue err:", map[i]);
       }
     }
   }
- 
+
 
   for (var i = 0; i < end_init.length; ++i) {
     // var pg = createGraphics(edgeToWidth, edgeToHeight);
@@ -1223,17 +1053,7 @@ function updateObjectGraph() {
     var dx = obj["postion"][0] * edgeToWidth,
       dy = obj["postion"][1] * edgeToHeight;
     var img = imgObject[parseInt(imgDic[obj["type"]])];
-    if (obj["type"] == "arrow" || obj["type"] == "arrowWite" || obj["type"] == "enemyTank") {
-      var drotate = 360 - obj["postion"][2] * 90;
-      // var pg = createGraphics(edgeToWidth, edgeToHeight);
-      pg.clear();
-      pg.push(); //   pg.pop();
-      pg.translate(pg.width / 2, pg.height / 2);
-      pg.rotate(PI / 180 * drotate);
-      pg.image(img, -edgeToWidth / 2, -edgeToHeight / 2, edgeToWidth, edgeToHeight);
-      objectGraph.image(pg, dx, dy, edgeToWidth, edgeToHeight);
-      pg.pop();
-    } else if (obj["type"] == "bullet") {
+    if (obj["type"] == "bullet") {
       dx = obj["postion"][0], dy = obj["postion"][1];
       // var drotate = obj["postion"][2] * 90 + 90;
 
@@ -1247,13 +1067,7 @@ function updateObjectGraph() {
       pg.image(img, -edgeToWidth / 2, -edgeToHeight / 2, edgeToWidth, edgeToHeight);
       objectGraph.image(pg, dx, dy, edgeToWidth, edgeToHeight);
       pg.pop();
-    //} else if (obj["type"] == "unlock2" || obj["type"] == "unlockfail2") {
-    } else if (obj["type"] == "door_open" || obj["type"] == "unlockfail2") {
-      //dx = obj["postion"][0] * edgeToWidth;
-      //dy = (obj["postion"][1] - 0.5) * edgeToHeight;
 
-      //objectGraph.image(img, dx, dy, edgeToWidth * 1.5, edgeToHeight * 1.5);
-      objectGraph.image(img, dx, dy, edgeToWidth, edgeToHeight);
     } else if (obj["type"] == "HPandArmor" || obj["type"] == "HP") {
       HPObject.push(obj);
     } else {
@@ -1368,15 +1182,15 @@ function updateCanvas() {
     image(backgroundGraph, dx, dy, dWidth, dHight, dx, dy, dWidth, dHight);
     image(objectGraph, dx, dy, dWidth, dHight, dx, dy, dWidth, dHight);
     image(peopleGraph, dx, dy, dWidth, dHight, dx, dy, dWidth, dHight);
-    
+
     image(backgroundGraph, dx2, dy2, dWidth, dHight, dx2, dy2, dWidth, dHight);
     image(objectGraph, dx2, dy2, dWidth, dHight, dx2, dy2, dWidth, dHight);
     image(peopleGraph2, dx2, dy2, dWidth, dHight, dx2, dy2, dWidth, dHight);
-      
+
     image(backgroundGraph, dx3, dy3, dWidth, dHight, dx3, dy3, dWidth, dHight);
     image(objectGraph, dx3, dy3, dWidth, dHight, dx3, dy3, dWidth, dHight);
     image(peopleGraph3, dx3, dy3, dWidth, dHight, dx3, dy3, dWidth, dHight);
-    
+
     image(backgroundGraph, dx4, dy4, dWidth, dHight, dx4, dy4, dWidth, dHight);
     image(objectGraph, dx4, dy4, dWidth, dHight, dx4, dy4, dWidth, dHight);
     image(peopleGraph4, dx4, dy4, dWidth, dHight, dx4, dy4, dWidth, dHight);
@@ -1564,20 +1378,20 @@ function codeToCompiler(stringCode) {
   var peopleArmor = equipmentData.armorLevel[user.armorLevel].attack;
   console.log(peopleAtk, peopleArmor);*/
   /*var peopleStr = people_init["postion"][0].toString() + " " + people_init["postion"][1].toString() + " " + people_init["postion"][2].toString();*/
-    
+
   //console.log("test:",user._id);
   //console.log("test2:",players[0].userId);
-  if(!userNum){
-      if (user._id == players[0].userId) {
-        userNum = 1;
-      } else if (user._id == players[1].userId) {
-        userNum = 2;
-      } else if (user._id == players[2].userId) {
-        userNum = 3;
-      } else if (user._id == players[3].userId) {
-        userNum = 4;
-      }
-      console.log("userNum_init");
+  if (!userNum) {
+    if (user._id == players[0].userId) {
+      userNum = 1;
+    } else if (user._id == players[1].userId) {
+      userNum = 2;
+    } else if (user._id == players[2].userId) {
+      userNum = 3;
+    } else if (user._id == players[3].userId) {
+      userNum = 4;
+    }
+    console.log("userNum_init");
   }
   if (userNum == 1) { //user._id == players[0].userId
     var peopleStr = p1_x.toString() + " " + p1_y.toString() + " " + p1_z.toString();
@@ -1605,14 +1419,6 @@ function codeToCompiler(stringCode) {
   //peopleStr = peopleStr + " 5  " + peopleArmor.toString() + " " + peopleAtk.toString();
   peopleStr = peopleStr + " 5  " + "20" + " " + "20" + " 0";
 
-  //玩家型態
-  /*if (people_init["type"] == "car") {
-    peopleStr = peopleStr + " 0";
-  } else if (people_init["type"] == "tank") {
-    peopleStr = peopleStr + " 1";
-  } else if (people_init["type"] == "bot") {
-    peopleStr = peopleStr + " 2";
-  }*/
 
 
   // console.log("people初始位置:",peopleStr);
@@ -1623,53 +1429,61 @@ function codeToCompiler(stringCode) {
   // console.log("endline數量 [初始位置]:",endlineStr);
   var mpaobjStr = mapObject.length.toString();
   for (var i = 0; i < mapObject.length; ++i) {
-    if (mapObject[i]['type'] == 'arrow') { //有方向性的 ex:箭頭
-      mpaobjStr = mpaobjStr + " " + mapObject[i]["type"] + " " + mapObject[i]["postion"][0] + " " + mapObject[i]["postion"][1] + " " + mapObject[i]["postion"][2];
-    } else if (mapObject[i]['type'] == 'questionMark') { //問號 要有  n種 隨機 n=2 左右 n=3 f前
-      var rand = Math.floor(Math.random() * mapObject[i]['chooseNum'].length);
-      mpaobjStr = mpaobjStr + " " + mapObject[i]["type"] + " " + mapObject[i]["postion"][0] + " " + mapObject[i]["postion"][1] + " " + mapObject[i]['chooseNum'][rand];
-    //} else if (mapObject[i]['type'] == 'lock' || mapObject[i]['type'] == 'lock2') { //鎖頭 要分  箭頭解鎖 or　輸出解鎖
-    } else if (mapObject[i]['type'] == 'lock' || mapObject[i]['type'] == 'door') {
-      mpaobjStr = mpaobjStr + " " + mapObject[i]["unlock"] + " " + mapObject[i]["postion"][0] + " " + mapObject[i]["postion"][1];
-    } else if (mapObject[i]['type'] == 'enemyTank') { //敵人
-      mpaobjStr = mpaobjStr + " " + mapObject[i]["type"] + " " + mapObject[i]["postion"][0] + " " + mapObject[i]["postion"][1];
-      mpaobjStr = mpaobjStr + " " + mapObject[i]["postion"][2] + " " + mapObject[i]["hp"] + " " + mapObject[i]["atk"];
-    } else if (mapObject[i]['type'] == 'treasure') { //寶箱
-      mpaobjStr = mpaobjStr + " " + mapObject[i]["type"] + " " + mapObject[i]["postion"][0] + " " + mapObject[i]["postion"][1];
-      mpaobjStr = mpaobjStr + " " + mapObject[i]["string"];
-    } else if (mapObject[i]['type'] == 'rune_table') {
-      mpaobjStr = mpaobjStr + " " + mapObject[i]["type"] + " " + mapObject[i]["postion"][0] + " " + mapObject[i]["postion"][1] + " " + mapObject[i]['Num']; 
+    if (mapObject[i]['type'] == 'rune_table') {
+      mpaobjStr = mpaobjStr + " " + mapObject[i]["type"] + " " + mapObject[i]["postion"][0] + " " + mapObject[i]["postion"][1] + " " + mapObject[i]['Num'];
     } else if (mapObject[i]['type'] == 'trigger') {
       mpaobjStr = mpaobjStr + " " + mapObject[i]["type"] + " " + mapObject[i]["postion"][0] + " " + mapObject[i]["postion"][1] + " " + mapObject[i]['ans'];
-      if(!triggerFlag){
-          if (mapObject[i]['ans'] == data.input1) {
-              ip_x.push(mapObject[i]["postion"][0]);
-              ip_y.push(mapObject[i]["postion"][1]);
-              //ip1_x = mapObject[i]["postion"][0];
-              //ip1_y = mapObject[i]["postion"][1];
-          } else if (mapObject[i]['ans'] == data.input2) {
-              ip_x.push(mapObject[i]["postion"][0]);
-              ip_y.push(mapObject[i]["postion"][1]);
-              //ip2_x = mapObject[i]["postion"][0];
-              //ip2_y = mapObject[i]["postion"][1];
-          } else if (mapObject[i]['ans'] == data.input3) {
-              ip_x.push(mapObject[i]["postion"][0]);
-              ip_y.push(mapObject[i]["postion"][1]);
-              //ip3_x = mapObject[i]["postion"][0];
-              //ip3_y = mapObject[i]["postion"][1];
-          } else if (mapObject[i]['ans'] == data.input4) {
-              ip_x.push(mapObject[i]["postion"][0]);
-              ip_y.push(mapObject[i]["postion"][1]);
-              //ip4_x = mapObject[i]["postion"][0];
-              //ip4_y = mapObject[i]["postion"][1];
-          }
+      if (!initFlag) {
+        triggerFlag = true;
+        console.log("triggerFlag to true");
+        if (mapObject[i]['ans'] == data.input1) {
+          ip_x.push(mapObject[i]["postion"][0]);
+          ip_y.push(mapObject[i]["postion"][1]);
+          //ip1_x = mapObject[i]["postion"][0];
+          //ip1_y = mapObject[i]["postion"][1];
+        } else if (mapObject[i]['ans'] == data.input2) {
+          ip_x.push(mapObject[i]["postion"][0]);
+          ip_y.push(mapObject[i]["postion"][1]);
+          //ip2_x = mapObject[i]["postion"][0];
+          //ip2_y = mapObject[i]["postion"][1];
+        } else if (mapObject[i]['ans'] == data.input3) {
+          ip_x.push(mapObject[i]["postion"][0]);
+          ip_y.push(mapObject[i]["postion"][1]);
+          //ip3_x = mapObject[i]["postion"][0];
+          //ip3_y = mapObject[i]["postion"][1];
+        } else if (mapObject[i]['ans'] == data.input4) {
+          ip_x.push(mapObject[i]["postion"][0]);
+          ip_y.push(mapObject[i]["postion"][1]);
+          //ip4_x = mapObject[i]["postion"][0];
+          //ip4_y = mapObject[i]["postion"][1];
+        }
+      }
+    } else if (mapObject[i]['type'] == 'array_table') {
+      mpaobjStr = mpaobjStr + " " + mapObject[i]["type"] + " " + mapObject[i]["postion"][0] + " " + mapObject[i]["postion"][1];
+      mpaobjStr = mpaobjStr + " " + mapObject[i]["arr"][0] + " " + mapObject[i]["arr"][1] + " " + mapObject[i]["arr"][2] + " " + mapObject[i]["arr"][3];
+    } else if (mapObject[i]['type'] == 'box_closed') {
+      mpaobjStr = mpaobjStr + " " + mapObject[i]["type"] + " " + mapObject[i]["postion"][0] + " " + mapObject[i]["postion"][1];
+      mpaobjStr = mpaobjStr + " " + mapObject[i]["ans"][0] + " " + mapObject[i]["ans"][1] + " " + mapObject[i]["ans"][2] + " " + mapObject[i]["ans"][3];
+      if (mapObject[i]["num"] == 1) {
+        mpaobjStr = mpaobjStr + " " + data.input1;
+      } else if (mapObject[i]["num"] == 2) {
+        mpaobjStr = mpaobjStr + " " + data.input2;
+      } else if (mapObject[i]["num"] == 3) {
+        mpaobjStr = mpaobjStr + " " + data.input3;
+      } else if (mapObject[i]["num"] == 4) {
+        mpaobjStr = mpaobjStr + " " + data.input4;
+      }
+
+    } else if (mapObject[i]['type'] == 'loop_flame') {
+      mpaobjStr = mpaobjStr + " " + mapObject[i]["type"] + " " + mapObject[i]["postion"][0] + " " + mapObject[i]["postion"][1];
+      if (!initFlag) {
+        loopNum++;
       }
     } else {
       mpaobjStr = mpaobjStr + " " + mapObject[i]["type"] + " " + mapObject[i]["postion"][0] + " " + mapObject[i]["postion"][1];
     }
   }
-  triggerFlag = true;
-  console.log("triggerFlag to true");
+  
   console.log("Now ip_x: ", ip_x, ",ip_y: ", ip_y);
 
   // console.log("mpaobjStr 數量 [初始位置]:",mpaobjStr);
@@ -1680,27 +1494,28 @@ function codeToCompiler(stringCode) {
   } else {
     inputStr = inputStr + data.input;
   }*/
-  if(inputFlag){
-      if (inputNum == 1) {
-          inputStr = inputStr + data.input1;
-      } else if (inputNum == 2) {
-          inputStr = inputStr + data.input2;
-      } else if (inputNum == 3) {
-          inputStr = inputStr + data.input3;
-      } else if (inputNum == 4) {
-          inputStr = inputStr + data.input4;
-      }
-      inputFlag = false;
-      console.log("inputFlag to flase");
+  if (inputFlag) {
+    if (inputNum == 1) {
+      inputStr = inputStr + data.input1;
+    } else if (inputNum == 2) {
+      inputStr = inputStr + data.input2;
+    } else if (inputNum == 3) {
+      inputStr = inputStr + data.input3;
+    } else if (inputNum == 4) {
+      inputStr = inputStr + data.input4;
+    }
+    inputFlag = false;
+    console.log("inputFlag to flase");
   }
 
   // console.log("tempBefore:",tempBefore);
   // console.log("inputStr:",inputStr);
   // console.log(tempBefore);
   var runInput = inputStr;
+  initFlag = true;
 
   call_JDOODLE_api(tempBefore, runInput);
-  
+
 }
 
 function clearcodeAndInit() {
@@ -1841,7 +1656,7 @@ function codeOutputTranstionAction() {
       for (let ssi = 0; ssi < mapObject.length && o < 0; ssi++) {
         // console.log(mapObject[ssi].type);
         //if (mapObject[ssi].type == "lock2") {
-        if (mapObject[ssi].type == "door") {
+        if (mapObject[ssi].type == "door" || mapObject[ssi].type == "loop_flame") {
           tlx = parseInt(tempList[0]);
           tly = parseInt(tempList[1]);
           // console.log(tlx, tly);
@@ -1895,8 +1710,8 @@ function codeOutputTranstionAction() {
         //
 
         var ansList = mapObject[o].ans.split(' ');
-        console.log("ans:", ansList);
-        console.log("input:", inputList);
+        //console.log("ans:", ansList);
+        //console.log("input:", inputList);
         // console.log(inputList,ansList);
         for (let ansI = 0; ansI < ansList.length; ansI++) {
           if (ansList[ansI].length < 1) {
@@ -1931,83 +1746,65 @@ function codeOutputTranstionAction() {
           }
         }
 
-        console.log("ans:", ansList);
-        console.log("input:", inputList);
+        //console.log("ans:", ansList);
+        //console.log("input:", inputList);
         if (inputList.length > 0) {
           conditionAns = false;
         }
         if (conditionAns) {
-          var listTranstion = {
-            obj: o,
-            //type: "unlock2",
-            type: "door_open",
-            x: tlx,
-            y: tly
-          }
-          var spaceTranstion = {
-            type: "C",
-            value: [listTranstion]
-          }
-          temp.push(spaceTranstion);
-          /*listTranstion = {
-            obj: o,
-            x: tlx,
-            y: tly,
-          }
-          spaceTranstion = {
-            type: "D",
-            value: [listTranstion]
-          }
-          temp.push(spaceTranstion);
-          ++forgetDel;*/
-                                    /*刪除物件*/  
-        }/* else {
-          var listTranstion = {
-            obj: o,
-            x: tlx,
-            y: tly,
-            type: "unlockfail2"
-          }
-          var spaceTranstion = {
-            type: "C",
-            value: [listTranstion]
-          }
-          temp.push(spaceTranstion);
-          var listTranstion = {
-            obj: o,
-            x: tlx,
-            y: tly,
-            //type: "lock2"
-            type: "door"
-          }
-          var spaceTranstion = {
-            type: "C",
-            value: [listTranstion]
-          }
-          temp.push(spaceTranstion);
-        }*/
+          if (mapObject[o].type == "door") {
+            var listTranstion = {
+              obj: o,
+              //type: "unlock2",
+              type: "door_open",
+              x: tlx,
+              y: tly
+            }
+            var spaceTranstion = {
+              type: "C",
+              value: [listTranstion]
+            }
+            temp.push(spaceTranstion);
+          } else if (mapObject[o].type == "loop_flame") {
+            var listTranstion = {
+              obj: o,
+              //type: "unlock2",
+              type: "loop_done",
+              x: tlx,
+              y: tly
+            }
+            var spaceTranstion = {
+              type: "C",
+              value: [listTranstion]
+            }
+            temp.push(spaceTranstion);
 
-      }
+            loopNum--;
+            console.log("loopNum: ", loopNum);
+            if (loopNum == 0) {
+              for (let k = 0; k < mapObject.length; k++) {
+                if (mapObject[k].type == "loop_door") {
+                  var listTranstion = {
+                    obj: k,
+                    //type: "unlock2",
+                    type: "door_open",
+                    x: mapObject[k].postion[0],
+                    y: mapObject[k].postion[1]
+                  }
+                  var spaceTranstion = {
+                    type: "C",
+                    value: [listTranstion]
+                  }
+                  temp.push(spaceTranstion);
+                  break;
+                }
+              }
+            }
+          }
 
-    } else if (spaceT[0] == 'A') {
-      var spaceList = [];
-      for (var di = 1; di < spaceT.length; di = di + 2) {
-        var tempList = spaceT[di + 1].split(',');
-        var x = parseInt(tempList[0]);
-        var y = parseInt(tempList[1]);
-        var z = parseInt(tempList[2]);
-        var listTranstion = {
-          obj: parseInt(spaceT[di]) - forgetDel,
-          value: [x, y, z],
-          type: tempList[3]
         }
-        spaceList.push(listTranstion);
       }
-      var spaceTranstion = {
-        type: "A",
-        value: spaceList
-      }
-      temp.push(spaceTranstion);
+
     } else if (spaceT[0] == 'D') {
       var spaceList = [];
       var conditionD = true;
@@ -2040,11 +1837,6 @@ function codeOutputTranstionAction() {
         value: spaceList
       }
       temp.push(spaceTranstion);
-    } else if (spaceT[0] == 'W') {
-      var spaceTranstion = {
-        type: "W",
-      }
-      temp.push(spaceTranstion);
     } else if (spaceT[0] == 'E') {
       var spaceTranstion = {
         type: "E",
@@ -2052,12 +1844,12 @@ function codeOutputTranstionAction() {
       }
       temp.push(spaceTranstion);
     } else if (spaceT[0] == 'S') {
-        if(player == userNum){
-            inputNum = parseInt(spaceT[1]);
-            console.log("inputNum: ",inputNum);
-            inputFlag = true;
-            console.log("inputFlag to true");
-        }
+      if (player == userNum) {
+        inputNum = parseInt(spaceT[1]);
+        console.log("inputNum: ", inputNum);
+        inputFlag = true;
+        console.log("inputFlag to true");
+      }
     } else {
       console.log("error Type: ", spaceT);
     }
@@ -2096,34 +1888,6 @@ function call_JDOODLE_api(scriptData, inputData) {
   // console.log(scriptData);
   socket.emit('script', scriptData);
 
-  //   output.innerHTML = "編譯中....\n";
-  /*socket.on('answer', function (obj) {
-      console.log("編譯結果", obj);
-      if (obj.body.cpuTime != null && obj.body.memory != null) {
-          //   output.innerHTML = "輸出:\n" + obj.body.output;
-          decode_JDOODLE_api(obj.body.output)
-      }
-      else {
-          gameEndingCode = 5;
-          if (obj.body.output != null) {
-              if (obj.body.output.indexOf("JDoodle - output Limit reached.") > -1) {
-                  gameEndingCode = 8;
-              }
-              else {
-                  // var str=obj.body.output
-                  errMessage = "錯誤原因:\n" + obj.body.output.substr(1)
-
-
-
-              }
-          }
-
-          closeLoadingView();
-          console.log("Error =  compiler error");
-          endgame();
-      }
-
-  });*/
 }
 
 function decode_JDOODLE_api(str) {
@@ -2218,7 +1982,6 @@ function challengeGameAgain() {
   decodeOutput = "";
   action_code = [];
   action_now = 0;
-  finishCoin = true;
   p1_x = people_init["postion"][0];
   p1_y = people_init["postion"][1];
   p1_z = people_init["postion"][2];
@@ -2231,49 +1994,4 @@ function challengeGameAgain() {
   p4_x = people_init4["postion"][0];
   p4_y = people_init4["postion"][1];
   p4_z = people_init4["postion"][2];
-}
-
-var colleges = ['01', '02', '03', '04', '05',
-  '06', '07', '08', '09', '10',
-  '11', '12', '13', '14', '15',
-  '16', '17', '18', '19', '20',
-  '21', '22', '23', '24', '25',
-  '26', '27', '28', '29',
-  '30', '31', '32', '33', '34',
-  '35', '36', '37', '38', '39',
-  '40', '41', '42', '43', '44',
-  '45', '46', '47', '48', '49', '50', 'test', 'T2', 'T1'
-];
-
-function changeCollege(index) {
-  console.log(index);
-
-  action_code = [];
-  onChanged = false;
-
-  mapNum = colleges[index];
-
-  var xmlhttp = new XMLHttpRequest();
-  xmlhttp.onreadystatechange = function() {
-    if (this.readyState == 4 && this.status == 200) {
-      data = JSON.parse(this.responseText);
-      Res_data = JSON.parse(JSON.stringify(data));
-      // console.log(data);
-
-      for (var timeC = 0; timeC < 10; ++timeC) {
-        loadData();
-        updateCanvas();
-        //socket.emit("update", 4);
-      }
-    }
-  };
-  var url = "/gameNew/gameNew/json/map/map" + mapNum + ".json";
-  // console.log(url);
-  xmlhttp.open("GET", url, true);
-  xmlhttp.send();
-
-
-  // // loadData();
-
-  return 0;
 }

@@ -38,7 +38,7 @@
         <div id="roomMain">
           <div class="container clearfix">
             <div class="chat">
-              <div class="chat-header clearfix">
+              <!-- <div class="chat-header clearfix">
                 <img src="/img/chatUser.jpg">
                 <div class="chat-about">
                   <div class="chat-room"><%= room.title %></div>
@@ -47,20 +47,32 @@
                 <i class="fa fa-users" style="margin:1%"></i>
               </div> <!-- end chat-header -->
 
-              <div class="chat-history">
-                <ul>
-                </ul>
-              </div> <!-- end chat-history -->
 
-              <div class="chat-message clearfix">
-                <textarea name="message" placeholder="Type your message"></textarea>
-                <button type="submit">Send</button>
-              </div> <!-- end chat-message -->
-            </div> <!-- end chat -->
+              <div class="map-background">
+                <img class="Room-map-picture" src="/img/地圖照片/<%= room.CurrentMap %>.png">
+              </div>
 
+              <div class="chat-background">
+                <div class="chat-history">
+                  <ul>
+                  </ul>
+                </div> <!-- end chat-history -->
+
+                <div class="chat-message">
+                  <textarea name="message" placeholder="Type your message"></textarea>
+                  <div class="chat-btn">Send</div>
+                </div> <!-- end chat-message -->
+              </div> <!-- end chat -->
+            </div>
             <div class="controls">
-              <button class="rooms-btn">地圖</button>
-              <button class="game-btn">開始</button>
+              <div class="rooms-btn">地圖</div>
+              <div class="game-btn">開始</div>
+              <div class="hinge hinge0"></div>
+              <div class="hinge hinge1"></div>
+              <div class="hinge hinge2"></div>
+              <div class="hinge hinge3"></div>
+
+
               <!-- onclick="location.href='/lobby/<%= room.id %>/dungeon'" -->
             </div>
 

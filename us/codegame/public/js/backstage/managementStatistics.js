@@ -1,18 +1,18 @@
 var playerData, playerData_All, playerData_OneDay, playerData_SevenDay, playerData_OneMonth, playerData_SixMonth, playerData_OneYear, playerData_Var;
-var playNumberFirst = false, successRateFirst = false, averageFailureRateFirst = false,collectedstarsFirst = false;
-var playNumberVar, successRateVar, averageFailureRateVar,collectedstarsVar;
+var playNumberFirst = false, successRateFirst = false, averageFailureRateFirst = false;
+var playNumberVar, successRateVar, averageFailureRateVar;
+var collectedstarsFirst = false,collectedstarsVar,collectedstarsCanvas; //宜靜
 //登出函式
 function logout() {
   var href = "/logout";
   window.location.replace(href);
 }
-var selectChartVar, jsonData, playNumberCanvas, successRateCanvas, averageFailureRateCanvas , collectedstarsCanvas;
+var selectChartVar, jsonData, playNumberCanvas, successRateCanvas, averageFailureRateCanvas;
 //頁面載入後會執行的函式
 window.onload = function () {
   selectChartVar = "playNumber"; //將selechChartVar設為playNumber
   selectChart(selectChartVar); //將selectChartVar傳到selectChart函式
 }
-//Chart.js用來畫圖表的
 //此函式用來決定顯示的圖表
 function selectChart(thisSelect) {
   switch (thisSelect) {
@@ -31,16 +31,19 @@ function selectChart(thisSelect) {
       //取得失敗率之JSON格式資料
       getAverageFailureRateJson(thisSelect);
       break;
+    //以下宜靜
     case "collectedstars":
       //取得收集星星之JSON格式資料
       getcollectedstarsJson(thisSelect);
       break;
+    //以上宜靜
   }
 }
 //根據傳入的值創造Chart圖表
 function createselectChart(thisSelect) {
   //datasetsData用來存放要顯示的資料；chartType存放圖表樣式"line"為折線圖...剩下的參考chart.js官網
-  var datasetsData = [0], chartType;
+  var datasetsData = [0],
+    chartType;
   switch (thisSelect) {
     case "playNumber":
       chartType = "line";
@@ -66,7 +69,7 @@ function createselectChart(thisSelect) {
                 labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50'],
                 datasets: [{
                   //設定每一個點上的資訊為「遊玩人數:datasetsData」
-                  label: '遊玩人數',
+                  label: '遊玩人數：',
                   //設定背景顏色
                   backgroundColor: 'rgba(254, 254, 254, 0)',
                   //設定線條顏色
@@ -128,25 +131,20 @@ function createselectChart(thisSelect) {
                     max: 10,
                     min: 0.5
                   }
-                },
-                elements: {
-                  line: {
-                    tension: 0 // 禁用貝塞爾曲線
-                  }
                 }
               }
             });
-            //自己的設為顯示，另外兩個隱藏
+            //自己的設為顯示，另外三個隱藏
             document.getElementById('playNumberChart').style.display = "block";
             document.getElementById('successRateChart').style.display = "none";
             document.getElementById('averageFailureRateChart').style.display = "none";
-            document.getElementById('collectedstarsChart').style.display = "none";
-          } else { //如果不是第一次則執行updata()來更新圖表，並將另外兩個圖表隱藏
+            document.getElementById('collectedstarsChart').style.display = "none"; //宜靜
+          } else { //如果不是第一次則執行updata()來更新圖表，並將另外三個圖表隱藏
             playNumberCanvas.update();
             document.getElementById('playNumberChart').style.display = "block";
             document.getElementById('successRateChart').style.display = "none";
             document.getElementById('averageFailureRateChart').style.display = "none";
-            document.getElementById('collectedstarsChart').style.display = "none";
+            document.getElementById('collectedstarsChart').style.display = "none";  //宜靜
           }
         }
       }, 500);
@@ -334,13 +332,13 @@ function createselectChart(thisSelect) {
             document.getElementById('playNumberChart').style.display = "none";
             document.getElementById('successRateChart').style.display = "block";
             document.getElementById('averageFailureRateChart').style.display = "none";
-            document.getElementById('collectedstarsChart').style.display = "none";
+            document.getElementById('collectedstarsChart').style.display = "none"; //宜靜
           } else {
             successRateCanvas.update();
             document.getElementById('playNumberChart').style.display = "none";
             document.getElementById('successRateChart').style.display = "block";
             document.getElementById('averageFailureRateChart').style.display = "none";
-            document.getElementById('collectedstarsChart').style.display = "none";
+            document.getElementById('collectedstarsChart').style.display = "none"; //宜靜
           }
         }
       }, 500);
@@ -522,17 +520,18 @@ function createselectChart(thisSelect) {
             document.getElementById('playNumberChart').style.display = "none";
             document.getElementById('successRateChart').style.display = "none";
             document.getElementById('averageFailureRateChart').style.display = "block";
-            document.getElementById('collectedstarsChart').style.display = "none";
+            document.getElementById('collectedstarsChart').style.display = "none"; //宜靜
           } else {
             averageFailureRateCanvas.update();
             document.getElementById('playNumberChart').style.display = "none";
             document.getElementById('successRateChart').style.display = "none";
             document.getElementById('averageFailureRateChart').style.display = "block";
-            document.getElementById('collectedstarsChart').style.display = "none";
+            document.getElementById('collectedstarsChart').style.display = "none"; //宜靜
           }
         }
       }, 500);
       break;
+      // 以下宜靜
       case "collectedstars":
       chartType = "line";  //radar 雷達圖
       setTimeout(function () {
@@ -642,14 +641,15 @@ function createselectChart(thisSelect) {
       }, 500);
       playerData = playerData_All;
       break;
-      
+      //以上宜靜
   }
-  Chart.defaults.global.defaultFontFamily = "Microsoft JhengHei"; //將字體設定為 微軟正黑體
+  Chart.defaults.global.defaultFontFamily = "Microsoft JhengHei";
 }
 
-var href = window.location.href; //window.location.href 返回當前頁面的href（URL）
-var readAllPlayFlag = false
-var PlayNumber, SuccessRate, AverageFailureRate, AlluserData, Collectedstars
+var href = window.location.href;
+var readAllPlayFlag = false;
+var PlayNumber, SuccessRate, AverageFailureRate, AlluserData;
+var Collectedstars;  //宜靜
 
 //以下為豐銘在用的
 function getPlayNumberJson(thisSelect) {
@@ -668,11 +668,10 @@ function getPlayNumberJson(thisSelect) {
       success: function (res) {
         AlluserData = res;
         prosessUserData();
-         // jsonData = PlayNumber.slice(0);
+        // jsonData = PlayNumber.slice(0);
         jsonData = JSON.parse(JSON.stringify(PlayNumber));
         createselectChart(thisSelect);
         readAllPlayFlag = true
-        //console.log(res);
       }
     })
   }
@@ -693,7 +692,6 @@ function getSuccessRateJson(thisSelect) {
       dataType: 'json', // 回傳資料會是 json 格式
       data: scriptData, // 將表單資料用打包起來送出去
       success: function (res) {
-        
         AlluserData = res;
         prosessUserData();
         // jsonData = SuccessRate.slice(0);
@@ -701,7 +699,6 @@ function getSuccessRateJson(thisSelect) {
         createselectChart(thisSelect);
         readAllPlayFlag = true
       }
-      
     })
   }
 }
@@ -711,7 +708,6 @@ function getAverageFailureRateJson(thisSelect) {
     // jsonData = AverageFailureRate.slice(0);
     jsonData = JSON.parse(JSON.stringify(AverageFailureRate));
     createselectChart(thisSelect);
-    
   } else {
     var scriptData = {
       type: "readAllPlay",
@@ -724,7 +720,7 @@ function getAverageFailureRateJson(thisSelect) {
       success: function (res) {
         AlluserData = res;
         prosessUserData();
-        console.log(res);
+
         // jsonData = AverageFailureRate.slice(0);
 
         jsonData = JSON.parse(JSON.stringify(AverageFailureRate));
@@ -734,6 +730,8 @@ function getAverageFailureRateJson(thisSelect) {
     })
   }
 }
+
+//以下宜靜
 function getcollectedstarsJson(thisSelect) {
   if (readAllPlayFlag) { //有資料了
     jsonData = JSON.parse(JSON.stringify(Collectedstars));
@@ -759,30 +757,28 @@ function getcollectedstarsJson(thisSelect) {
     })
   }
 }
+//以上宜靜
 
 // 抓取使用者的數據
 function prosessUserData() {
-//console.log(AlluserData);
+  // console.log(AlluserData);
   var mapNumber = new Array(50);
   mapNumber[50] = {
     mapcount: 0,
     mapSuccessCountDel: 0,
     mapFailureCount: 0,
-    mapStarcount : 0
+    mapStarcount : 0 //宜靜
   }
-  //console.log(mapNumber);
   for (let index = 0; index < AlluserData.length; index++) {
     var obj = AlluserData[index];
-     //console.log(obj);
     for (let indexFail = 0; indexFail < obj.EasyEmpire.codeLevel.length; indexFail++) {
       var thisLevelRecord = obj.EasyEmpire.codeLevel[indexFail].challengeLog;
-      var thisStarRecord = obj.EasyEmpire.codeLevel[indexFail].HighestStarNum;
-      
-      var addF = false, playCountF = false,CounterStar = false;
+      var thisStarRecord = obj.EasyEmpire.codeLevel[indexFail].HighestStarNum; //宜靜
+      var addF = false,playCountF = false;
+      var CounterStar = false; //宜靜
       for (let indexLevel = 0; indexLevel < thisLevelRecord.length; indexLevel++) {
-        
         var thisRecordData = thisLevelRecord[indexLevel];
-        
+
         var failF = false;
         if (thisRecordData.srarNum == "0") {
           failF = true;
@@ -799,8 +795,8 @@ function prosessUserData() {
           if (playCountF == false) {
             playCountF = true
             mapNumber[indexFail].mapcount = mapNumber[indexFail].mapcount + 1;
-            //console.log(mapNumber[indexFail].mapcount);
           }
+          //以下宜靜
           if(CounterStar == false){
             CounterStar = true
             if(thisStarRecord == "1"){
@@ -813,14 +809,15 @@ function prosessUserData() {
               mapNumber[indexFail].mapStarcount = mapNumber[indexFail].mapStarcount + 3;
             }
           }
+          //以上宜靜
         } else {
           mapNumber[indexFail] = {
             mapcount: 0,
             mapSuccessCount: 0,
             mapFailureCount: 0,
-            mapStarcount : 0,
+            mapStarcount : 0, //宜靜
             failCount: 0,
-            playCount: 0,
+            playCount: 0
           }
           if (failF) {
             mapNumber[indexFail].failCount = mapNumber[indexFail].failCount + 1;
@@ -828,9 +825,10 @@ function prosessUserData() {
             addF = true;
             mapNumber[indexFail].mapSuccessCount = mapNumber[indexFail].mapSuccessCount + 1;
           }
-          playCountF = true;
+          playCountF = true
           mapNumber[indexFail].mapcount = mapNumber[indexFail].mapcount + 1;
           mapNumber[indexFail].playCount = mapNumber[indexFail].playCount + 1;
+          //以下宜靜
           CounterStar = true;
           if(thisStarRecord == "1"){
             mapNumber[indexFail].mapStarcount = mapNumber[indexFail].mapStarcount + 1;
@@ -841,16 +839,20 @@ function prosessUserData() {
           if(thisStarRecord == "3"){
             mapNumber[indexFail].mapStarcount = mapNumber[indexFail].mapStarcount + 3;
           }
+          //以上宜靜
         }
+
+
       }
     }
     for (let indexFail = 0; indexFail < obj.MediumEmpire.codeLevel.length; indexFail++) {
       var thisLevelRecord = obj.MediumEmpire.codeLevel[indexFail].challengeLog;
-      var thisStarRecord = obj.MediumEmpire.codeLevel[indexFail].HighestStarNum;
-
-      var addF = false,playCountF = false,CounterStar = false;
+      var thisStarRecord = obj.MediumEmpire.codeLevel[indexFail].HighestStarNum; //宜靜
+      var addF = false,playCountF = false;
+      var CounterStar = false; //宜靜
       for (let indexLevel = 0; indexLevel < thisLevelRecord.length; indexLevel++) {
         var thisRecordData = thisLevelRecord[indexLevel];
+
         var failF = false;
         if (thisRecordData.srarNum == "0") {
           failF = true;
@@ -868,6 +870,7 @@ function prosessUserData() {
             playCountF = true
             mapNumber[indexFail + 24].mapcount = mapNumber[indexFail + 24].mapcount + 1;
           }
+          //以下宜靜
           if(CounterStar == false){
             CounterStar = true
             if(thisStarRecord == "1"){
@@ -880,12 +883,13 @@ function prosessUserData() {
               mapNumber[indexFail + 24].mapStarcount = mapNumber[indexFail + 24].mapStarcount + 3;
             }
           }
+          //以上宜靜
         } else {
           mapNumber[indexFail + 24] = {
             mapcount: 0,
             mapSuccessCount: 0,
             mapFailureCount: 0,
-            mapStarcount : 0,
+            mapStarcount : 0, //宜靜
             failCount: 0,
             playCount: 0
           }
@@ -895,9 +899,10 @@ function prosessUserData() {
             addF = true;
             mapNumber[indexFail + 24].mapSuccessCount = mapNumber[indexFail + 24].mapSuccessCount + 1;
           }
-          playCountF = true;
+          playCountF = true
           mapNumber[indexFail + 24].mapcount = mapNumber[indexFail + 24].mapcount + 1;
           mapNumber[indexFail + 24].playCount = mapNumber[indexFail + 24].playCount + 1;
+          //以下宜靜
           CounterStar = true;
           if(thisStarRecord == "1"){
             mapNumber[indexFail + 24].mapStarcount = mapNumber[indexFail + 24].mapStarcount + 1;
@@ -908,25 +913,24 @@ function prosessUserData() {
           if(thisStarRecord == "3"){
             mapNumber[indexFail + 24].mapStarcount = mapNumber[indexFail + 24].mapStarcount + 3;
           }
+          //以上宜靜
         }
+
+
       }
     }
   }
-  
+
   var totPlayNumber = 0;
   var dataPlayNumber = new Array(50)
   var dataSuccessNumber = new Array(50)
   var dataFailureNumber = new Array(50)
-  var dataStarNumber = new Array(50)
-  //console.log(dataPlayNumber);
-  //console.log(dataStarNumber);
-
+  var dataStarNumber = new Array(50) //宜靜
   for (let index = 49; index > -1; index--) {
     var level = index + 1;
     var number = 0;
     if (mapNumber[index]) {
       number = mapNumber[index].mapcount
-      //console.log(number);
     } else {
       number = 0
     }
@@ -939,7 +943,6 @@ function prosessUserData() {
       num = mapNumber[index].mapSuccessCount / (mapNumber[index].mapcount)
       num = num.toFixed(2); // 输出结果为 2.45
       number = num
-      //console.log(number);
     } else {
       number = 0
     }
@@ -953,7 +956,6 @@ function prosessUserData() {
       if (mapNumber[index].playCount != 0) {
         // num=mapNumber[index].failCount/mapNumber[index].playCount
         num = mapNumber[index].failCount / (mapNumber[index].mapcount)
-        //console.log(num);
       }
       number = num
     } else {
@@ -963,7 +965,7 @@ function prosessUserData() {
       "level": level,
       "number": number
     };
-
+    //以下宜靜
     if(mapNumber[index]){
       var num = 0;
       console.log(mapNumber);
@@ -977,6 +979,7 @@ function prosessUserData() {
       "level": level,
       "number": number
     };
+    //以上宜靜
   }
   PlayNumber = {
     "playNumber": dataPlayNumber
@@ -987,9 +990,11 @@ function prosessUserData() {
   AverageFailureRate = {
     "averageFailureRate": dataFailureNumber
   }
+  //以下宜靜
   Collectedstars = {
     "collectedstars": dataStarNumber
   }
+  //以上宜靜
 }
 
 function resetzoom() {
@@ -1003,9 +1008,11 @@ function resetzoom() {
     case "averageFailureRate":
       averageFailureRateCanvas.resetZoom();
       break;
+    //以下宜靜
     case "collectedstars":
       collectedstarsCanvas.resetZoom();
       break;
+    //以上宜靜
   }
 }
 // 單純為了使用p5的存檔功能而創的
@@ -1048,7 +1055,7 @@ function saveSelfCSV(res, fileName) {
   for (let index = 0; index < res.length; index++) {
     var eleRecord= res[index];
     var temp =[];
-    temp.push(eleRecord.username);
+    temp.push(eleRecord.username.toString());
     temp.push(eleRecord.email);
     temp.push(eleRecord.startDate);
     temp.push(eleRecord.endDate);
@@ -1065,7 +1072,6 @@ function saveSelfCSV(res, fileName) {
   //   ["我是誰", "city1", "some other info"],
   //   ["" , "qwewe"]
   // ];
-
   var csvContent="";
   rows.forEach(function (rowArray) {
     let row = rowArray.join(",");
@@ -1125,10 +1131,12 @@ function changeTimeFunc(timeType) {
       averageFailureRateCanvas.data.datasets[0].data = showjson.data;
       averageFailureRateCanvas.update();
       break;
+    //以下宜靜
     case "collectedstars":
       collectedstarsCanvas.data.datasets[0].data = showjson.data;
       collectedstarsCanvas.update();
       break;
+    //以上宜靜
   }
 }
 
@@ -1164,10 +1172,12 @@ function setTimeFunc() {
         averageFailureRateCanvas.data.datasets[0].data = showjson.data;
         averageFailureRateCanvas.update();
         break;
+      //以下宜靜
       case "collectedstars":
         collectedstarsCanvas.data.datasets[0].data = showjson.data;
         collectedstarsCanvas.update();
         break;
+      //以上宜靜
     }
   }
 }
@@ -1332,7 +1342,7 @@ function UseTimeUpdateFunc(startTime, endTime) {
         playerData[index] = 0
       }
     }
-  } else if (levelSelectValue == "collectedstars") {
+  }else if (levelSelectValue == "collectedstars") { //此行以下宜靜
     for (let index = 49; index > -1; index--) {
       if (mapNumber[index]) {
         dataPlayNumber[index] = mapNumber[index].mapcount
@@ -1341,7 +1351,7 @@ function UseTimeUpdateFunc(startTime, endTime) {
         dataPlayNumber[index] = 0
         playerData[index] = 0
       }
-    }
+    }//以上宜靜
   }else {
     // console.log("error here");
 
@@ -1373,9 +1383,11 @@ function clrFunc() {
       playerData = playerData_All;
       averageFailureRateCanvas.update();
       break;
+    //以下宜靜
     case "collectedstars":
       collectedstarsCanvas.data.datasets[0].data = playerData_All;
       collectedstarsCanvas.update();
       break;
+    //以上宜靜
   }
 }

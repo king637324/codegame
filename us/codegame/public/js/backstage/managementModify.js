@@ -450,6 +450,7 @@ function modifyInstruction(modifyNumber) {
   for (var i = 0; i < subLength; i++) {
     divTag = document.getElementById("detailsInner" + trNumber + i);
     divTag.innerHTML = "";
+
     b = document.createElement("summary");
     b.setAttribute("id", "summaryInner" + trNumber + i);
     b.setAttribute("class", "summaryInner");
@@ -457,7 +458,8 @@ function modifyInstruction(modifyNumber) {
     document.getElementById("summaryInner" + trNumber + i).innerHTML = li[i].name;
 
     // var transformVal = "    " + li[i].value.replace(/&nbsp/g, " "),temp;
-    var transformVal = li[i].value.replace(/&nbsp/g, " "),temp;
+    var transformVal = li[i].value.replace(/&nbsp/g, " "),
+      temp;
     transformVal = transformVal.replace(/<br>/g, "\n");
     b = document.createElement("textarea");
     b.setAttribute("id", "item" + trNumber + i);

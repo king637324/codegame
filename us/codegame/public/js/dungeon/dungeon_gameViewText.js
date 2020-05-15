@@ -55,6 +55,22 @@ var swordLevel = 0,
   args, gameSpeed;
 var musicData, indentationTimes = 1;
 
+function back(){
+  var index = 0;
+  var href = window.location.href;
+  for (var i = href.length - 1; i > 0; --i) {
+    if (href[i] == '/' || href[i] == "\\") {
+      index = i;
+      break;
+    }
+  }
+  href = href.substr(0, index + 1);
+  let nowurl = new URL(window.location.href);
+  let params = nowurl.searchParams;
+
+  window.location.replace(href);
+  // console.log(href);
+}
 
 let params = new URL(window.location.href).searchParams;
 
@@ -924,16 +940,7 @@ function closeFunc(thisDiv, thisDiv2) {
   } catch (e) {}
   levelDivAlive = false;
 }
-/*清除指令*/
-function clearButton(thisTextarea) {
-  document.getElementById(thisTextarea.id).value = "";
-  clearcodeAndInit();
-  challengeGameAgain();
-}
-/*清除畫布動作*/
-function restartButton(thisTextarea) {
-  challengeGameAgain();
-}
+
 /*重新開始*/
 function restartGame(thisDiv, thisDiv2) {
   closeFunc(thisDiv, thisDiv2);
@@ -1600,7 +1607,7 @@ function createEndView(starNum, gameResult, instructionNum, code, errMessage) {
     document.getElementById("instructionH3").innerHTML = "(" + gameResult + "!)";
   }
   if (starNum != 0) {
-    b = document.createElement("button");
+    /*b = document.createElement("button");
     b.setAttribute("id", "restartGameBtn");
     b.setAttribute("value", "重新挑戰");
     b.setAttribute("onclick", "restartGame(\"createEndView\",\"createEndBkView\")");
@@ -1613,15 +1620,19 @@ function createEndView(starNum, gameResult, instructionNum, code, errMessage) {
     b = document.createElement("font");
     b.setAttribute("id", "restartFontImg");
     divTag.appendChild(b);
-    document.getElementById("restartFontImg").innerHTML = "重新開始";
-    divTag = document.getElementById("startDiv");
+    document.getElementById("restartFontImg").innerHTML = "重新開始";*/
+    //divTag = document.getElementById("startDiv");
+
     b = document.createElement("input");
     b.setAttribute("type", "button");
     b.setAttribute("id", "backToMapBtn");
-    b.setAttribute("value", "返回地圖");
+    b.setAttribute("value", "返回房間");
     b.setAttribute("onclick", "back()");
     divTag.appendChild(b);
-    b = document.createElement("input");
+
+
+
+    /*b = document.createElement("input");
     b.setAttribute("type", "button");
     b.setAttribute("id", "nextLevelBtn");
 
@@ -1633,7 +1644,7 @@ function createEndView(starNum, gameResult, instructionNum, code, errMessage) {
       b.setAttribute("value", "下一關");
       b.setAttribute("onclick", "location.href='gameView_text?level=" + (thisLevelNum + 1) + "'");
     }
-    divTag.appendChild(b);
+    divTag.appendChild(b);*/
   } else {
     if (gameResult == "編譯失敗") {
       document.getElementById("createEndView").className = "errView";
@@ -1652,7 +1663,7 @@ function createEndView(starNum, gameResult, instructionNum, code, errMessage) {
     b = document.createElement("input");
     b.setAttribute("type", "button");
     b.setAttribute("id", "successBackToMapBtn");
-    b.setAttribute("value", "返回地圖");
+    b.setAttribute("value", "返回房間");
     b.setAttribute("onclick", "back()");
     divTag.appendChild(b);
   }

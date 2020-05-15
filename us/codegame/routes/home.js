@@ -5,6 +5,7 @@ var router = express.Router();
 
 // var Equipment = require('../models/equipment')
 var User = require('../models/user')
+var UserSpendTime = require('../models/userspendtime') // 宜靜 2020.05.12
 var MapRecord = require('../models/map')
 var DictionaryRecord = require('../models/dictionary')
 var EquipmentRecord = require('../models/equipment')
@@ -439,7 +440,6 @@ router.get('/gameView_text', ensureAuthenticated, function (req, res, next) {
 router.post('/gameView_text', function (req, res, next) {
     // Parse Info
     var type = req.body.type
-
     console.log("home post--------gameView");
     console.log(req.body.type);
     console.log("--------------");
@@ -1431,6 +1431,493 @@ router.post('/managementUser', function (req, res, next) {
     }
 
 });
+// 以下宜靜 2020.05.12
+router.get('/managementRFMP', ensureAuthenticated, function (req, res, next) {
+    // console.log(req.user)
+    if (!(req.user.username == "NKUSTCCEA"||req.user.username == "teacher")) { //如有其他管理者 在這加
+        res.redirect('/login')
+    }
+    res.render('backstage/managementRFMP', {
+        user: req.user.username
+    });
+});
+
+router.post('/managementRFMP', function (req, res, next) {  
+    try {
+        var type = req.body.type;
+        var startTime = req.body.startTime;
+        var endTime = req.body.endTime;
+        console.log("type:",type);
+        console.log("startTime:",startTime);
+        console.log("endTime:",endTime);
+        if (type == "init") {
+            console.log("11111111111111111111111");
+            var id = req.user.id;
+            User.getUserById(id, function (err, user) {
+                if (err) throw err;
+                res.json(user);
+            })
+        }else if(type == "Calculate"){
+            console.log("Calculate   22222222222222222222222");
+            var UserRFMP = []; // 陣列裡中每一筆資料存 [玩家信箱,R數據,F數據,M數據,P數據,R評分,F評分,M評分,P評分,R值,F值,M值,P值,學習者類型]
+                                                   // [   0   ,  1  ,  2 ,  3  , 4  ,  5  ,  6  , 7  ,  8  , 9 , 10,11, 12,    13   ]
+            var RQ = [0,0,0,0],FQ = [0,0,0,0],MQ = [0,0,0,0], PQ = [0,0,0,0];
+            var Rave = 0,Fave = 0,Mave = 0,Pave = 0;
+            var Rday = endTime;
+            var RFtaskStack = [];
+            RFtaskStack.push(
+                new Promise((resolve, reject) => {
+                    User.getAllUser(function (err, userState){
+                        if (err) throw err;
+                        // console.log("玩家人數:",userState.length - 1);
+                        var userlen = 0;    // 判斷玩家人數，因要扣除管理者
+        
+                        // 初始化所有玩家RFMP陣列資料
+                        for(let index = 0;index < userState.length; index++){
+                            if( userState[index].email != "NKUSTCCEA@gmail.com" ){
+                                UserRFMP[userlen] = [userState[index].email,0,0,0,0,0,0,0,0,0,0,0,0,""];
+                                userlen = userlen + 1;
+                            }
+                        }// 結束初始化所有玩家RFMP陣列資料
+        
+                        // R & F數據計算
+                        for(let index = 0;index < userState.length; index++){
+                            var FIntervalLen = 0,FIntervalData=[];  // 紀錄 管理者所設定的時間內登入次數以及登入時間資料
+                            if(userState[index].Logintime.length){    // 如果userState[index]此玩家有登入資料
+                                for(let i=0; i < UserRFMP.length; i++){
+                                    if(userState[index].email == UserRFMP[i][0]){
+                                        var Login = userState[index].Logintime.length;
+                                        for(let j=0; j < Login; j++){   // 只抓存管理者所設定的時間內的資料
+                                            if((userState[index].Logintime[j] > startTime) && (userState[index].Logintime[j] < endTime)){
+                                                FIntervalLen = FIntervalLen + 1;
+                                                FIntervalData.push(userState[index].Logintime[j]);
+                                            }
+                                        }
+                                        if(FIntervalLen == 0){
+                                            UserRFMP[i][1] = 0;// UserRFMP[i][1] 存 Rdata
+                                            UserRFMP[i][2] = FIntervalLen;  // UserRFMP[i][2] 存 Fdata
+                                        }else{
+                                            var RInterval = FIntervalData[FIntervalLen-1].getTime();
+                                            var Rsub = (Rday - RInterval) / 1000 / 60 / 60 / 24;  //換算成天 
+                                            UserRFMP[i][1] = 1 / Rsub;// UserRFMP[i][1] 存 Rdata
+                                            UserRFMP[i][2] = FIntervalLen;  // UserRFMP[i][2] 存 Fdata
+                                        }
+                                    }
+                                }
+                            }
+                        } // 結束 R & F 數據計算
+        
+                        // R數據由大排到小
+                        let Rtime = UserRFMP.length;
+                        while(Rtime > 1){
+                            Rtime--;
+                            for(let i=0; i < UserRFMP.length-1;i++){
+                                var temp;
+                                if( UserRFMP[i][1] < UserRFMP[i+1][1] ){
+                                    temp = UserRFMP[i];
+                                    UserRFMP[i] = UserRFMP[i+1];
+                                    UserRFMP[i+1] = temp;
+                                }
+                            }
+                        } 
+                        
+                        // R數據的五分位數計算
+                        for(let i = 0; i < RQ.length; i++){
+                            if(i==3){   //取 80%  為 Q4
+                                var position = UserRFMP.length*0.2;
+                                if ((position % 1) == 0) {
+                                    RQ[i] = (UserRFMP[Math.floor(position)][1] + UserRFMP[Math.floor(position)+1][1])/2;
+                                }else{
+                                    RQ[i] = UserRFMP[Math.floor(position)][1]; //整數無條件進位
+                                }
+                            }
+                            if(i==2){   //取 60%  為 Q3
+                                var position = UserRFMP.length*0.4;
+                                if ((position % 1) == 0) {
+                                    RQ[i] = (UserRFMP[Math.floor(position)][1] + UserRFMP[Math.floor(position)+1][1])/2;
+                                }else{
+                                    RQ[i] = UserRFMP[Math.floor(position)][1]; //整數無條件進位
+                                }
+                            }
+                            if(i==1){   //取 40%  為 Q2
+                                var position = UserRFMP.length*0.6;
+                                if ((position % 1) == 0) {
+                                    RQ[i] = (UserRFMP[Math.floor(position)][1] + UserRFMP[Math.floor(position)+1][1])/2;
+                                }else{
+                                    RQ[i] = UserRFMP[Math.floor(position)][1]; //整數無條件進位
+                                }
+                            }
+                            if(i==0){   //取 20%  為 Q1
+                                var position = UserRFMP.length*0.8;
+                                if ((position % 1) == 0) {
+                                    RQ[i] = (UserRFMP[Math.floor(position)][1] + UserRFMP[Math.floor(position)+1][1])/2;
+                                }else{
+                                    RQ[i] = UserRFMP[Math.floor(position)][1]; //整數無條件進位
+                                }
+                            }
+                        }
+                        // console.log("RQ:",RQ);
+                        // 結束 R數據的五分位數計算
+        
+                        // 玩家R評分計算
+                        for(let index = 0; index < UserRFMP.length; index++){
+                            if(UserRFMP[index][1] >= RQ[3]){  // 如果大於等於RQ4，得5分
+                                UserRFMP[index][5] = 5;
+                            }else if((UserRFMP[index][1] < RQ[3]) && (UserRFMP[index][1] >= RQ[2])){  // 如果小於RQ4，且大於等於RQ3，得4分
+                                UserRFMP[index][5] = 4;
+                            }else if((UserRFMP[index][1] < RQ[2]) && (UserRFMP[index][1] >= RQ[1])){  // 如果小於RQ3，且大於等於RQ2，得3分
+                                UserRFMP[index][5] = 3;
+                            }else if((UserRFMP[index][1] < RQ[1]) && (UserRFMP[index][1] >= RQ[0])){  // 如果小於RQ2，且大於等於RQ1，得2分
+                                UserRFMP[index][5] = 2;
+                            }else{  // 如果小於等於MQ1，得1分
+                                UserRFMP[index][5] = 1;
+                            }
+                        } // 結束 玩家R評分計算
+        
+        
+                        for(let i=0;i < UserRFMP.length; i++){
+                            Rave = Rave + UserRFMP[i][5];
+                        }
+                        // console.log("R評分總分數:",Rave);
+                        Rave = Rave / UserRFMP.length;
+        
+                        // 更新使用者Rscore
+                        for(let i=0;i < UserRFMP.length; i++){
+                            //非同步
+                            User.updateRscore(UserRFMP[i][0], UserRFMP[i][5] ,function (err, record) {
+                                if (err) throw err;
+                            })
+                        }
+                        console.log("R評分平均:",Rave);
+        
+                        // F數據由大排到小
+                        let Ftime = UserRFMP.length;
+                        while(Ftime > 1){
+                            Ftime--;
+                            for(let i=0; i < UserRFMP.length-1;i++){
+                                var temp;
+                                if( UserRFMP[i][2] < UserRFMP[i+1][2] ){
+                                    temp = UserRFMP[i];
+                                    UserRFMP[i] = UserRFMP[i+1];
+                                    UserRFMP[i+1] = temp;
+                                }
+                            }
+                        }  
+        
+                        // F數據的五分位數計算
+                        for(let i = 0; i < FQ.length; i++){
+                            if(i==3){   //取 80%  為 Q4
+                                var position = UserRFMP.length*0.2;
+                                if ((position % 1) == 0) {
+                                    FQ[i] = (UserRFMP[Math.floor(position)][2] + UserRFMP[Math.floor(position)+1][2])/2;
+                                }else{
+                                    FQ[i] = UserRFMP[Math.floor(position)][2]; //整數無條件進位
+                                }
+                            }
+                            if(i==2){   //取 60%  為 Q3
+                                var position = UserRFMP.length*0.4;
+                                if ((position % 1) == 0) {
+                                    FQ[i] = (UserRFMP[Math.floor(position)][2] + UserRFMP[Math.floor(position)+1][2])/2;
+                                }else{
+                                    FQ[i] = UserRFMP[Math.floor(position)][2]; //整數無條件進位
+                                }
+                            }
+                            if(i==1){   //取 40%  為 Q2
+                                var position = UserRFMP.length*0.6;
+                                if ((position % 1) == 0) {
+                                    FQ[i] = (UserRFMP[Math.floor(position)][2] + UserRFMP[Math.floor(position)+1][2])/2;
+                                }else{
+                                    FQ[i] = UserRFMP[Math.floor(position)][2]; //整數無條件進位
+                                }
+                            }
+                            if(i==0){   //取 20%  為 Q1
+                                var position = UserRFMP.length*0.8;
+                                if ((position % 1) == 0) {
+                                    FQ[i] = (UserRFMP[Math.floor(position)][2] + UserRFMP[Math.floor(position)+1][2])/2;
+                                }else{
+                                    FQ[i] = UserRFMP[Math.floor(position)][2]; //整數無條件進位
+                                }
+                            }
+                        }
+                        // console.log("FQ:",FQ);
+                        // 結束 F數據的五分位數計算
+        
+                        // 玩家F評分計算
+                        for(let index = 0; index < UserRFMP.length; index++){
+                            if(UserRFMP[index][2] >= FQ[3]){  // 如果大於等於FQ4，得5分
+                                UserRFMP[index][6] = 5;
+                            }else if((UserRFMP[index][2] < FQ[3]) && (UserRFMP[index][2] >= FQ[2])){  // 如果小於FQ4，且大於等於FQ3，得4分
+                                UserRFMP[index][6] = 4;
+                            }else if((UserRFMP[index][2] < FQ[2]) && (UserRFMP[index][2] >= FQ[1])){  // 如果小於FQ3，且大於等於FQ2，得3分
+                                UserRFMP[index][6] = 3;
+                            }else if((UserRFMP[index][2] < FQ[1]) && (UserRFMP[index][2] >= FQ[0])){  // 如果小於FQ2，且大於等於FQ1，得2分
+                                UserRFMP[index][6] = 2;
+                            }else{  // 如果小於等於FQ1，得1分
+                                UserRFMP[index][6] = 1;
+                            }
+                        } // 結束 玩家F評分計算
+        
+                        for(let i=0;i < UserRFMP.length; i++){
+                            Fave = Fave + UserRFMP[i][6];
+                        }
+                        // console.log("F評分總分數:",Fave);
+                        Fave = Fave / UserRFMP.length;
+        
+                        // 更新使用者Fscore
+                        for(let i=0;i < UserRFMP.length; i++){
+                            User.updateFscore(UserRFMP[i][0], UserRFMP[i][6] ,function (err, record) {
+                                if (err) throw err;
+                            })
+                        }
+                        console.log("F評分平均:",Fave);
+                        
+                         // 以下做 M & P的計算
+                        UserSpendTime.getAllUserSpendTimeState(function (err, userSpendTimeState){
+                            if (err) throw err;
+        
+                            // M & P數據計算
+                            for(let index = 0;index < userSpendTimeState.length ;index++){
+                                const MP_process = userSpendTimeState[index];
+                                var MPIntervalLen = 0,MPIntervalData=[];  // 紀錄 管理者所設定的時間內登入次數以及登入時間資料
+                                if((MP_process.startplay.getTime() > startTime) && (MP_process.endplay.getTime() < endTime)){
+                                    var min = (MP_process.endplay.getTime() - MP_process.startplay.getTime()) / 1000 / 60;  //換算成分鐘
+                                    for(let index = 0;index < UserRFMP.length ; index++){
+                                        if(MP_process.email == UserRFMP[index][0]){
+                                            UserRFMP[index][3] = UserRFMP[index][3] + min;  // UserRFMP[index][3] 存 Mdata
+                                            UserRFMP[index][4] = UserRFMP[index][4] + MP_process.starNumber;  // UserRFMP[index][4] 存 Pdata
+                                        }
+                                    }
+                                }
+                            } // 結束M & P數據計算
+        
+                            // M數據由大排到小
+                            let Mtime = UserRFMP.length;
+                            while(Mtime > 1){
+                                Mtime--;
+                                for(let i=0; i < UserRFMP.length-1;i++){
+                                    var temp;
+                                    if( UserRFMP[i][3] < UserRFMP[i+1][3] ){
+                                        temp = UserRFMP[i];
+                                        UserRFMP[i] = UserRFMP[i+1];
+                                        UserRFMP[i+1] = temp;
+                                    }
+                                }
+                            }   
+                            
+                            // M數據的五分位數計算
+                            for(let i = 0; i < MQ.length; i++){
+                                if(i==3){   //取 80%  為 Q4
+                                    var position = UserRFMP.length*0.2;
+                                    if ((position % 1) == 0) {
+                                        MQ[i] = (UserRFMP[Math.floor(position)][3] + UserRFMP[Math.floor(position)+1][3])/2;
+                                    }else{
+                                        MQ[i] = UserRFMP[Math.floor(position)][3]; //整數無條件進位
+                                    }
+                                }
+                                if(i==2){   //取 60%  為 Q3
+                                    var position = UserRFMP.length*0.4;
+                                    if ((position % 1) == 0) {
+                                        MQ[i] = (UserRFMP[Math.floor(position)][3] + UserRFMP[Math.floor(position)+1][3])/2;
+                                    }else{
+                                        MQ[i] = UserRFMP[Math.floor(position)][3]; //整數無條件進位
+                                    }
+                                }
+                                if(i==1){   //取 40%  為 Q2
+                                    var position = UserRFMP.length*0.6;
+                                    if ((position % 1) == 0) {
+                                        MQ[i] = (UserRFMP[Math.floor(position)][3] + UserRFMP[Math.floor(position)+1][3])/2;
+                                    }else{
+                                        MQ[i] = UserRFMP[Math.floor(position)][3]; //整數無條件進位
+                                    }
+                                }
+                                if(i==0){   //取 20%  為 Q1
+                                    var position = UserRFMP.length*0.8;
+                                    if ((position % 1) == 0) {
+                                        MQ[i] = (UserRFMP[Math.floor(position)][3] + UserRFMP[Math.floor(position)+1][3])/2;
+                                    }else{
+                                        MQ[i] = UserRFMP[Math.floor(position)][3]; //整數無條件進位
+                                    }
+                                }
+                            }
+                            // console.log("MQ:",MQ);
+                            // 結束 M數據的五分位數計算
+                    
+                            // 玩家M評分計算
+                            for(let index = 0; index < UserRFMP.length; index++){
+                                if(UserRFMP[index][3] >= MQ[3]){  // 如果大於等於MQ4，得5分
+                                    UserRFMP[index][7] = 5;
+                                }else if((UserRFMP[index][3] < MQ[3]) && (UserRFMP[index][3] >= MQ[2])){  // 如果小於MQ4，且大於等於MQ3，得4分
+                                    UserRFMP[index][7] = 4;
+                                }else if((UserRFMP[index][3] < MQ[2]) && (UserRFMP[index][3] >= MQ[1])){  // 如果小於MQ3，且大於等於MQ2，得3分
+                                    UserRFMP[index][7] = 3;
+                                }else if((UserRFMP[index][3] < MQ[1]) && (UserRFMP[index][3] >= MQ[0])){  // 如果小於MQ2，且大於等於MQ1，得2分
+                                    UserRFMP[index][7] = 2;
+                                }else{  // 如果小於等於MQ1，得1分
+                                    UserRFMP[index][7] = 1;
+                                }
+                            } // 結束 玩家M評分計算
+                    
+                            for(let i=0;i < UserRFMP.length; i++){
+                                Mave = Mave + UserRFMP[i][7];
+                            }
+                            // console.log("M評分總分數:",Mave);
+                            Mave = Mave / UserRFMP.length;
+                    
+                            // 更新使用者Mscore
+                            for(let i=0;i < UserRFMP.length; i++){
+                                //非同步
+                                User.updateMscore(UserRFMP[i][0], UserRFMP[i][7] ,function (err, record) {
+                                    if (err) throw err;
+                                })
+                            }
+                            console.log("M評分平均:",Mave);
+                            
+                            // P數據由大排到小
+                            let Ptime = UserRFMP.length;
+                            while(Ptime > 1){
+                                Ptime--;
+                                for(let i=0; i < UserRFMP.length-1;i++){
+                                    var temp;
+                                    if( UserRFMP[i][4] < UserRFMP[i+1][4] ){
+                                        temp = UserRFMP[i];
+                                        UserRFMP[i] = UserRFMP[i+1];
+                                        UserRFMP[i+1] = temp;
+                                    }
+                                }
+                            }
+                    
+                            // P數據的五分位數計算
+                            for(let i = 0; i < PQ.length; i++){
+                                if(i==3){   //取 80%  為 Q4
+                                    var position = UserRFMP.length*0.2;
+                                    if ((position % 1) == 0) {
+                                        PQ[i] = (UserRFMP[Math.floor(position)][4] + UserRFMP[Math.floor(position)+1][4])/2;
+                                    }else{
+                                        PQ[i] = UserRFMP[Math.floor(position)][4]; //整數無條件進位
+                                    }
+                                }
+                                if(i==2){   //取 60%  為 Q3
+                                    var position = UserRFMP.length*0.4;
+                                    if ((position % 1) == 0) {
+                                        PQ[i] = (UserRFMP[Math.floor(position)][4] + UserRFMP[Math.floor(position)+1][4])/2;
+                                    }else{
+                                        PQ[i] = UserRFMP[Math.floor(position)][4]; //整數無條件進位
+                                    }
+                                }
+                                if(i==1){   //取 40%  為 Q2
+                                    var position = UserRFMP.length*0.6;
+                                    if ((position % 1) == 0) {
+                                        PQ[i] = (UserRFMP[Math.floor(position)][4] + UserRFMP[Math.floor(position)+1][4])/2;
+                                    }else{
+                                        PQ[i] = UserRFMP[Math.floor(position)][4]; //整數無條件進位
+                                    }
+                                }
+                                if(i==0){   //取 20%  為 Q1
+                                    var position = UserRFMP.length*0.8;
+                                    if ((position % 1) == 0) {
+                                        PQ[i] = (UserRFMP[Math.floor(position)][4] + UserRFMP[Math.floor(position)+1][4])/2;
+                                    }else{
+                                        PQ[i] = UserRFMP[Math.floor(position)][4]; //整數無條件進位
+                                    }
+                                }
+                            }
+                            // console.log("PQ:",PQ);
+                            // 結束 P數據的五分位數計算
+                            // 玩家P評分計算
+                            for(let index = 0; index < UserRFMP.length; index++){
+                                if(UserRFMP[index][4] >= PQ[3]){  // 如果大於等於PQ4，得5分
+                                    UserRFMP[index][8] = 5;
+                                }else if((UserRFMP[index][4] < PQ[3]) && (UserRFMP[index][4] >= PQ[2])){  // 如果小於PQ4，且大於等於PQ3，得4分
+                                    UserRFMP[index][8] = 4;
+                                }else if((UserRFMP[index][4] < PQ[2]) && (UserRFMP[index][4] >= PQ[1])){  // 如果小於PQ3，且大於等於PQ2，得3分
+                                    UserRFMP[index][8] = 3;
+                                }else if((UserRFMP[index][4] < PQ[1]) && (UserRFMP[index][4] >= PQ[0])){  // 如果小於PQ2，且大於等於PQ1，得2分
+                                    UserRFMP[index][8] = 2;
+                                }else{  // 如果小於等於PQ1，得1分
+                                    UserRFMP[index][8] = 1;
+                                }
+                            } // 結束 玩家P評分計算
+                    
+                            for(let i=0;i < UserRFMP.length; i++){
+                                Pave = Pave + UserRFMP[i][8];
+                            }
+                            // console.log("P評分總分數:",Pave);
+                            Pave = Pave / UserRFMP.length;
+                    
+                            // 更新使用者Pscore
+                            for(let i=0;i < UserRFMP.length; i++){
+                                //非同步
+                                User.updatePscore(UserRFMP[i][0], UserRFMP[i][8] ,function (err, record) {
+                                    if (err) throw err;
+                                })
+                            }
+                            console.log("P評分平均:",Pave);
+
+                            // 計算 RFMP值 以及 學習者類型判斷
+                            for(let i=0;i < UserRFMP.length; i++){
+                                if(UserRFMP[i][5] > Rave){  UserRFMP[i][9] = 1;     }   // UserRFMP[index][9] 存 R值
+                                if(UserRFMP[i][6] > Fave){  UserRFMP[i][10] = 1;    }   // UserRFMP[index][10] 存 F值
+                                if(UserRFMP[i][7] > Mave){  UserRFMP[i][11] = 1;    }   // UserRFMP[index][11] 存 M值
+                                if(UserRFMP[i][8] > Pave){  UserRFMP[i][12] = 1;    }   // UserRFMP[index][12] 存 P值
+
+                                if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "關懷型";   } // 1
+                                else if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "成就型";   } // 2
+                                else if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "關懷型";   } // 3
+                                else if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "一般型";   } // 4
+                                else if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "關懷型";   } // 5
+                                else if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "一般型";   } // 6
+                                else if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "扶持型";   } // 7
+                                else if(UserRFMP[i][9] == 0 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "成就型";   } // 8
+                                else if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "關懷型";   } // 9
+                                else if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "成就型";   } // 10
+                                else if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "扶持型";   } // 11
+                                else if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 0 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "傑出型";   } // 12
+                                else if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "扶持型";   } // 13
+                                else if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "傑出型";   } // 14
+                                else if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "扶持型";   } // 15
+                                else if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "傑出型";   } // 16
+
+                                // 更新使用者 學習者類型
+                                //非同步
+                                User.updateLearnerType(UserRFMP[i][0], UserRFMP[i][13] ,function (err, record) {
+                                    if (err) throw err;
+                                    
+                                })
+                                
+                            } // 結束計算 RFMP值 以及 學習者類型判斷
+                            
+                            resolve();
+                            // for(let i=0;i < UserRFMP.length; i++){
+                            //     console.log("UserRFMP[",i,"]:",UserRFMP[i]);
+                            // }
+                            
+        
+                        }) // 結束 UserSpendTime.getAllUserSpendTimeState
+                    }) // 結束 User.getAllUser
+                })
+            );
+
+            Promise.all(RFtaskStack).then(function () {
+                // res.json({"zzzz":"學妹(X)"}); //?
+                res.json(null);
+            });
+            
+            
+        }
+        else if (type == "LoadUser") {
+            console.log("LoadUser  33333333333333333333333");
+            User.getUser(req.user.id, function (err, users) {
+                if (err) throw err;
+                res.json(users);
+            })
+        }
+    } catch (error) {
+        console.log(error);
+    }  
+    
+});
+
+// 以上宜靜 2020.05.12
 
 router.get('/management', ensureAuthenticated, function (req, res, next) {
     // console.log(req.user)
@@ -1582,7 +2069,6 @@ router.get('/', ensureAuthenticated, function (req, res, next) {
 
         var openLokCastle = false;
         var codeLevel = -1;
-
         for (let index = 0; index < user.EasyEmpire.codeLevel.length; index++) {
             const element = user.EasyEmpire.codeLevel[index];
             if (parseInt(element.level) > codeLevel && element.HighestStarNum > 0) {
@@ -1610,7 +2096,6 @@ router.get('/', ensureAuthenticated, function (req, res, next) {
                 }
             }
         }
-
         var codeLevel = user.EasyEmpire.codeLevel.length;
         var blockLevel = user.EasyEmpire.blockLevel.length;
         var totalLevel = Math.max(codeLevel, blockLevel);
@@ -1838,7 +2323,6 @@ router.get('/home', ensureAuthenticated, function (req, res, next) {
 
     User.getUserById(req.user.id, function (err, user) {
         if (err) throw err;
-
         if (user.isadmin) {
             return res.redirect('/management');
         }
@@ -2179,6 +2663,7 @@ router.post('/loadThisLevelGameMapData', function (req, res, next) {
             }
         }
 
+        
         // console.log('returnData:'+returnData);
         returnData = returnData.sort(function (a, b) {
             return a.level > b.level ? 1 : -1;
@@ -2190,9 +2675,6 @@ router.post('/loadThisLevelGameMapData', function (req, res, next) {
 
 router.post('/loadThisLevelGameMapMap', function (req, res, next) {
     var level = req.body.level
-    console.log('-------------------------------');
-    console.log('POST:loadThisLevelGameMapMap');
-    console.log('-------------------------------');
     console.log(req.body,level);
     var start = 0, end = 50;
     GameMapRecord.getMap(function (err, mapData){
@@ -2215,8 +2697,6 @@ router.post('/loadThisLevelGameMapMap', function (req, res, next) {
     })
 
 });
-
-
 router.post('/changeUserCreateMapPermission', function (req, res, next) {
     var userId = req.body.userId
     var canCreateMapPermission = req.body.canCreateMapPermission

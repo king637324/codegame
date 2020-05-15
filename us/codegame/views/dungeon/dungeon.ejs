@@ -40,7 +40,7 @@
 				<div id="titleBar">
 					<div class="map-cap">地圖名稱</div>
 					<div class="room-cap">房名:<%= room.title%></div>
-					<div  class="chain-cap"></div>
+					<div class="chain-cap"></div>
 					<div class="hinge hinge0"></div>
 					<div class="hinge hinge1"></div>
 					<div class="hinge hinge2"></div>
@@ -90,8 +90,6 @@
 					<!-- 程式碼輸入處的按鈕-->
 					<div id="textButtonDiv">
 						<input type="button" title="開始" id="btn1" class="runButton" value="" onclick="codeToCompiler();">
-						<input type="button" title="重置地圖" class="clearButton" value="" onclick="restartButton()">
-						<input type="button" title="重置關卡" class="restartButton" value="" onclick="clearButton(textarea_0)">
 						<input type="button" title="設定" class="settingButton" value="" onclick="settingAllView(blocklyDiv)">
 					</div>
 
@@ -129,14 +127,14 @@
 	</div>
 	<script src="/gameNew/gameNew/js/p5.min.js"></script>
 	<script src="/gameNew/gameNew/js/p5.dom.js"></script>
-    <script src="/js/dungeon/dungeon.js"></script>
+	<script src="/js/dungeon/dungeon.js"></script>
 	<script src="/js/dungeon/dungeon_main.js"></script>
 	<script src="/js/dungeon/dungeon_gameViewText.js"></script>
 
 	<script>
 		$(function() {
 			app.game('<%= room._id%>');
-            app2.game('<%= room._id%>');
+			app2.game('<%= room._id%>','<%= room.CurrentMap%>');
 		});
 	</script>
 </body>

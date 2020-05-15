@@ -38,6 +38,7 @@ function initHome() {
 
 
 // -------------------------------------------------
+var CurrentMap="map1";//預設為第一張地圖
 var app = {
   rooms: function() {
     var socket = io('/lobby'
@@ -72,7 +73,7 @@ var app = {
           var inputEle = $("#roomnNameInput");
           var roomTitle = inputEle.val().trim();
           if (roomTitle !== '') {
-            socket.emit('createRoom', roomTitle);
+            socket.emit('createRoom', roomTitle,CurrentMap);
             inputEle.val('');
           }
         })
@@ -126,8 +127,8 @@ var app = {
       })
 
 
-      socket.on("changeRoomStatus", function(room,status) {
-        changeRoomStatus(room,status)
+      socket.on("changeRoomStatus", function(room, status) {
+        changeRoomStatus(room, status)
       })
 
     });
@@ -140,10 +141,10 @@ function updateRoomsList(room) {
   // }
   room.title = room.title.length > 25 ? room.title.substr(0, 25) + '...' : room.title; //避免房間名稱過長
 
-  if(room.roomStatus == 0){ // 房間狀態
-    TableRoomStatus ="準備中"
-  }else{
-    TableRoomStatus ="開局中"
+  if (room.roomStatus == 0) { // 房間狀態
+    TableRoomStatus = "準備中"
+  } else {
+    TableRoomStatus = "開局中"
   }
 
   var roomindex = $("#room-table tr").length //房間號碼no.
@@ -186,13 +187,13 @@ function removeRoom(roomId) {
   });
 }
 
-function changeRoomStatus(room,status) {
+function changeRoomStatus(room, status) {
 
-  if(status == 0){ // 房間狀態
-    TableRoomStatus ="準備中"
+  if (status == 0) { // 房間狀態
+    TableRoomStatus = "準備中"
     statusId = 'roomStatus0'
-  }else{
-    TableRoomStatus ="開局中"
+  } else {
+    TableRoomStatus = "開局中"
     statusId = 'roomStatus1'
   }
 
@@ -201,7 +202,7 @@ function changeRoomStatus(room,status) {
     a = $(this).attr("id");
     if (a == room._id) {
       $(this).next().text(TableRoomStatus);
-      $(this).next().attr('id',statusId);
+      $(this).next().attr('id', statusId);
     }
   });
 
@@ -220,14 +221,33 @@ function createRoomView() {
   var html = `<div id="userDataBkView"></div>
               <div id="roomView"></div>
               `
+
   $("#center").append(html);
   html = `<input type="button" title="關閉" id="closeDiv" value="X">
           <h3 id="roomNameTitle">創建房間</h3>
-          <div id="roomNameInnerDiv">房間名稱</div>
+          <div id="roomNameInnerDiv">房間名稱
           <input type="text" title="房間名稱" id="roomnNameInput">
+          </div>
           <div id="roomCreateMsg">&nbsp;&nbsp</div>
+          <div id="roomSelectMap">選擇地圖</div>
+          <select id="MapSelectBox">
+            <option value="map1">地圖一</option>
+            <option value="map2">地圖二</option>
+            <option value="map3">地圖三</option>
+            <option value="map4">地圖四</option>
+          </select>
+          <img class="map-picture" src="/img/地圖照片/map1.png">
+          <div id="mapText">關卡簡介：</div>
           <input type="button" id="changeRoomBtn" value="創建">`
   $("#roomView").append(html);
+
+  $('#MapSelectBox option[value=map1]').attr('selected', 'selected'); //讓下拉式選單預設為設定的地圖
+
+  $("#MapSelectBox").change(function() {
+    var mapName = $(this).val();
+    CurrentMap = mapName;
+    $('.map-picture').attr('src', `/img/地圖照片/${mapName}.png`)
+  })
 
   $("#closeDiv").click(function() {
     $("#userDataBkView").hide();
