@@ -44,6 +44,7 @@ if (JSON && JSON.stringify && JSON.parse) var Session = Session || (function() {
 })();
 
 
+
 var href = window.location.href;
 var user, directiveData, dictionaryData, thisLevelNum, mainDescription, levelDivAlive = true,
   nowTexrareaVar, isSelectFunc = false;
@@ -55,7 +56,7 @@ var swordLevel = 0,
   args, gameSpeed;
 var musicData, indentationTimes = 1;
 
-function back(){
+function back() {
   var index = 0;
   var href = window.location.href;
   for (var i = href.length - 1; i > 0; --i) {
@@ -65,18 +66,8 @@ function back(){
     }
   }
   href = href.substr(0, index + 1);
-  let nowurl = new URL(window.location.href);
-  let params = nowurl.searchParams;
-
   window.location.replace(href);
-  // console.log(href);
 }
-
-let params = new URL(window.location.href).searchParams;
-
-/*if (!params.has('level')) {
-  href = "";
-}*/
 
 createLoadingMainView("center");
 
@@ -107,90 +98,9 @@ selectFunc(1);
 var scriptData = {
   type: "init"
 }
-var maplevelId = params.get('level');
 
-/*$.ajax({
-  url: "loadThisLevelGameMapData", // 要傳送的頁面
-  method: 'POST', // 使用 POST 方法傳送請求
-  dataType: 'json', // 回傳資料會是 json 格式
-  async: false,
-  data: {
-    level: maplevelId,
-    gameMode: "code" // code or blocky
-  }, //
-  success: function(res) {
 
-    // console.log(res);
-    thisLevelNum = maplevelId;
-    mainDescription = {
-      oblivionObject: res
-    };
-    helper("blocklyDiv");
-  }
-})*/
 
-/*$.ajax({
-  url: href, // 要傳送的頁面
-  method: 'POST', // 使用 POST 方法傳送請求
-  dataType: 'json', // 回傳資料會是 json 格式
-  data: scriptData, // 將表單資料用打包起來送出去
-  async: false,
-  success: function(res) {
-    myVid = document.getElementById("bkMusic");
-    myVid.volume = 0;
-    // console.log(res);
-    user = res;
-    if (user.isadmin) {
-      forManagement();
-    }
-
-    let nowurl = new URL(window.location.href);
-    let params = nowurl.searchParams;
-    if (!params.has('level')) {
-      href = "";
-      window.location.replace(href);
-    }
-    var maplevelId = params.get('level');
-    // console.log(maplevelId);
-    // console.log(user.EasyEmpire.codeLevel.length);
-    if (maplevelId < 24) {
-      if (user.EasyEmpire.codeLevel.length < maplevelId) {
-        alert("不能越級過關喔");
-        href = "pruss";
-        window.location.replace(href);
-      }
-    } else {
-      if (user.MediumEmpire.codeLevel.length < maplevelId - 24) {
-        // console.log("Bye 實力不夠");
-        alert("不能越級過關喔");
-        href = "kuruma";
-        window.location.replace(href);
-      } else if (user.EasyEmpire.codeLevel.length < 24 || (user.EasyEmpire.codeLevel.length >= 23 && user.EasyEmpire.codeLevel[23].HighestStarNum < 1)) {
-        // console.log("Bye 實力不夠");
-        alert("不能越級過關喔");
-        href = "pruss";
-        window.location.replace(href);
-      }
-    }
-    //loadmusicData();
-    // console.log(user);
-    var scriptData = {
-      type: "loadEquip"
-    }
-    $.ajax({
-      url: href, // 要傳送的頁面
-      method: 'POST', // 使用 POST 方法傳送請求
-      dataType: 'json', // 回傳資料會是 json 格式
-      data: scriptData, // 將表單資料用打包起來送出去
-      async: false,
-      success: function(res) {
-        console.log(res);
-        equipmentData = res;
-
-      }
-    })
-  }
-})*/
 
 closeMainLoadingView();
 initHome();
@@ -1550,123 +1460,94 @@ function createEndView(starNum, gameResult, instructionNum, code, errMessage) {
     parentObj.removeChild(divTag);
   } catch (e) {}
   divTag = document.getElementById("center");
-  b = document.createElement("div");
-  b.setAttribute("id", "createEndBkView");
-  divTag.appendChild(b);
-  b = document.createElement("div");
-  b.setAttribute("id", "createEndView");
-  b.setAttribute("class", "successView");
-  divTag.appendChild(b);
-  divTag = document.getElementById("createEndView");
-  b = document.createElement("h1");
-  b.setAttribute("id", "endViewTitle");
-  divTag.appendChild(b);
+  html = `<div id="createEndBkView"></div>
+        <div id="createEndView" class="successView">
+        <h1 id="endViewTitle"></h1>
+        <div id="startDiv">
+        <br>
+        <h2 id="instructionH2"></h2>
+        <h3 id="instructionH3"></h3>
+        </div>
+
+
+        </div>`
+
+  $("#center").append(html);
+
+
+
   if (starNum != 0) {
-    document.getElementById("endViewTitle").innerHTML = "通關成功";
+    $("#endViewTitle").text("通關成功");
     updateEasyTextLevel(starNum);
   } else {
-    document.getElementById("endViewTitle").innerHTML = "通關失敗";
+    $("#endViewTitle").text("通關失敗");
   }
-  b = document.createElement("div");
-  b.setAttribute("id", "startDiv");
-  divTag.appendChild(b);
-  divTag = document.getElementById("startDiv");
+
+
   for (var i = 0; i < 3; i++) {
-    b = document.createElement("img");
-    b.setAttribute("id", "starImg" + i);
-    b.setAttribute("class", "unStarImg");
-    divTag.appendChild(b);
+    starImage = `<img id="starImg${i}" class="unStarImg">`
+    $("#startDiv").prepend(starImage);
   }
+
   if (starNum != 0) {
     for (var i = 0; i < starNum; i++) {
       document.getElementById("starImg" + i).className = "starImg";
     }
   }
-  b = document.createElement("br");
-  divTag.appendChild(b);
-  b = document.createElement("h2");
-  b.setAttribute("id", "instructionH2");
-  divTag.appendChild(b);
+
+
   document.getElementById("instructionH2").innerHTML = "指令：" + "&nbsp&nbsp&nbsp&nbsp" + instructionNum + "&nbsp&nbsp&nbsp&nbsp個";
-  b = document.createElement("h3");
-  b.setAttribute("id", "instructionH3");
-  divTag.appendChild(b);
+
+
+
   var highestStarNum;
   try {
     highestStarNum = user.EasyEmpire.codeLevel[thisLevelNum].HighestStarNum;
   } catch (e) {
     highestStarNum = 0;
   }
+
   if (starNum != 0) {
     if (highestStarNum < starNum) {
-      document.getElementById("instructionH3").innerHTML = "(達成新紀錄!)";
+      $("#instructionH3").text("(達成新紀錄!)");
     } else {
-      document.getElementById("instructionH3").innerHTML = "";
+      $("#instructionH3").text("");
     }
   } else {
-    document.getElementById("instructionH3").innerHTML = "(" + gameResult + "!)";
+    $("#instructionH3").text(`(${gameResult})`);
   }
+
   if (starNum != 0) {
-    /*b = document.createElement("button");
-    b.setAttribute("id", "restartGameBtn");
-    b.setAttribute("value", "重新挑戰");
-    b.setAttribute("onclick", "restartGame(\"createEndView\",\"createEndBkView\")");
-    divTag.appendChild(b);
-    divTag = document.getElementById("restartGameBtn");
-    b = document.createElement("img");
-    b.setAttribute("id", "restartImg");
-    b.setAttribute("src", "img/RestartButton2.png");
-    divTag.appendChild(b);
-    b = document.createElement("font");
-    b.setAttribute("id", "restartFontImg");
-    divTag.appendChild(b);
-    document.getElementById("restartFontImg").innerHTML = "重新開始";*/
-    //divTag = document.getElementById("startDiv");
-
-    b = document.createElement("input");
-    b.setAttribute("type", "button");
-    b.setAttribute("id", "backToMapBtn");
-    b.setAttribute("value", "返回房間");
-    b.setAttribute("onclick", "back()");
-    divTag.appendChild(b);
-
-
-
-    /*b = document.createElement("input");
-    b.setAttribute("type", "button");
-    b.setAttribute("id", "nextLevelBtn");
-
-    // console.log(thisLevelNum);
-    if ((thisLevelNum + 1) >= 50) {
-      b.setAttribute("value", "完成闖關");
-      b.setAttribute("onclick", "location.href='kuruma'");
-    } else {
-      b.setAttribute("value", "下一關");
-      b.setAttribute("onclick", "location.href='gameView_text?level=" + (thisLevelNum + 1) + "'");
-    }
-    divTag.appendChild(b);*/
+    b = `<input type="button" id="backToMapBtn" value="返回房間" onclick="back()">`
+    $("#startDiv").append(b);
   } else {
     if (gameResult == "編譯失敗") {
       document.getElementById("createEndView").className = "errView";
       b = document.createElement("textarea");
       b.setAttribute("id", "errTextarea");
       b.innerHTML = errMessage;
-      divTag.appendChild(b);
+      $("#startDiv").append(b);
     }
-
-    b = document.createElement("input");
-    b.setAttribute("type", "button");
-    b.setAttribute("id", "successRestartGameBtn");
-    b.setAttribute("value", "重新挑戰");
-    b.setAttribute("onclick", "closeFunc(\"createEndView\",\"createEndBkView\")");
-    divTag.appendChild(b);
-    b = document.createElement("input");
-    b.setAttribute("type", "button");
-    b.setAttribute("id", "successBackToMapBtn");
-    b.setAttribute("value", "返回房間");
-    b.setAttribute("onclick", "back()");
-    divTag.appendChild(b);
+    b = `<input type="button" id="successBackToMapBtn" value="返回房間" onclick="back()">`
+    $("#startDiv").append(b);
   }
+
+  deleteGameRoom();
+}
+
+
+function deleteGameRoom(){
+  alert("delete")
+  href = href+"/delete"
+  console.log(href);
+  $.ajax({
+    url: href, // 要傳送的頁面
+    method: 'POST', // 使用 POST 方法傳送請求
+    dataType: 'json', // 回傳資料會是 json 格式
+    success: function(res) {
+
+    }
+  })
 }
 
 /*loading*/

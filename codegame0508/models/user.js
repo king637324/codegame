@@ -86,14 +86,14 @@ var UserSchema = mongoose.Schema({
     type: Boolean,
     "default": false
   },
-  //以下宜靜 2020.05.12
+  //以下宜靜 2020.05.18
   Logintime: { type: Array, "default": [] },
   Rscore: { type: Number, "default": 0},
   Fscore: {type: Number, "default": 0},
   Mscore: { type: Number, "default": 0},
   Pscore: { type: Number, "default": 0},
   LearnerType: { type: String , "default": ""}
-  //以上宜靜 2020.05.12
+  //以上宜靜 2020.05.18
 })
 
 var User = module.exports = mongoose.model('User', UserSchema)
@@ -287,7 +287,7 @@ module.exports.updatefinishMapNumById = function(id, finishMapNum, callback) {
 
 }
 
-// 以下宜靜 2020.05.12
+// 以下宜靜 2020.05.18
 //updateUserLogintime 更新使用者登入次數
 module.exports.updateUserLogintime = function(id, Logintime, callback) {
   var query = {
@@ -362,4 +362,4 @@ module.exports.getAllUser = function (callback) {
   User.find(query, callback)
 }
 
-// 以上宜靜 2020.05.12
+// 以上宜靜 2020.05.18

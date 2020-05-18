@@ -136,18 +136,14 @@ module.exports.removeUser = function(socket, callback) {
 
 
 module.exports.removeRoom = function(data, callback) {
-  GameRoomSchemaModel.findRoomId(data, function(err, GameRoom) {
+  GameRoomSchemaModel.findRoom(data, function(err, GameRoom) {
     if (err) {
       return callback(err);
     }
-    if (GameRoom.connections.length == 0) {
       GameRoom.remove();
       console.log(GameRoom.title + "(遊戲房間)--->移除");
-      return callback(err, true)
-    } else {
-      console.log(GameRoom.title + "(遊戲房間)--->還有人");
-      return callback(err, false)
-    }
+      return callback(err)
+
 
   });
 }

@@ -5,7 +5,7 @@ var router = express.Router();
 
 // var Equipment = require('../models/equipment')
 var User = require('../models/user')
-var UserSpendTime = require('../models/userspendtime') // 宜靜 2020.05.12
+var UserSpendTime = require('../models/userspendtime') // 宜靜 2020.05.18
 var MapRecord = require('../models/map')
 var DictionaryRecord = require('../models/dictionary')
 var EquipmentRecord = require('../models/equipment')
@@ -1431,7 +1431,7 @@ router.post('/managementUser', function (req, res, next) {
     }
 
 });
-// 以下宜靜 2020.05.17
+// 以下宜靜 2020.05.18
 router.get('/managementRFMP', ensureAuthenticated, function (req, res, next) {
     // console.log(req.user)
     if (!(req.user.username == "NKUSTCCEA"||req.user.username == "teacher")) { //如有其他管理者 在這加
@@ -1947,7 +1947,7 @@ router.post('/managementRFMP', function (req, res, next) {
                                 else if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 0 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "傑出型";   } // 14
                                 else if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 0){    UserRFMP[i][13] = "扶持型";   } // 15
                                 else if(UserRFMP[i][9] == 1 && UserRFMP[i][10] == 1 && UserRFMP[i][11] == 1 && UserRFMP[i][12] == 1){    UserRFMP[i][13] = "傑出型";   } // 16
-                                else if(UserRFMP[i][9] == -1 && UserRFMP[i][10] == -1 && UserRFMP[i][11] == -1 && UserRFMP[i][12] == -1){    UserRFMP[i][13] = "none";   } // 不在所選區間內
+                                else if(UserRFMP[i][9] == -1 && UserRFMP[i][10] == -1 && UserRFMP[i][11] == -1 && UserRFMP[i][12] == -1){    UserRFMP[i][13] = "NaN";   } // 不在所選區間內
                                 // else if(UserRFMP[i][11] == -1 && UserRFMP[i][12] == -1){    UserRFMP[i][13] = "無闖關者";   }
 
                                 // 更新使用者 學習者類型
@@ -1991,7 +1991,7 @@ router.post('/managementRFMP', function (req, res, next) {
     
 });
 
-// 以上宜靜 2020.05.17
+// 以上宜靜 2020.05.18
 
 router.get('/management', ensureAuthenticated, function (req, res, next) {
     // console.log(req.user)

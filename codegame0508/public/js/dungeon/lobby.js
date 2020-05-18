@@ -151,7 +151,7 @@ function updateRoomsList(room) {
   var html = `<tr>
                       <td id="room-index">${roomindex}</td>
                       <td>${room.title}</td>
-                      <td></td>
+                      <td>${room.CurrentMap}</td>
                       <td id="${room._id}">${room.connections.length}/4</td>
                       <td id="roomStatus${room.roomStatus}"> ${TableRoomStatus}</td>
                       <td class="room-item"><a href="/lobby/${room._id}"><i class="fa fa-gamepad"></i></a></td>
@@ -224,21 +224,22 @@ function createRoomView() {
 
   $("#center").append(html);
   html = `<input type="button" title="關閉" id="closeDiv" value="X">
-          <h3 id="roomNameTitle">創建房間</h3>
+          <div id="roomNameTitle">創建房間</div>
           <div id="roomNameInnerDiv">房間名稱
           <input type="text" title="房間名稱" id="roomnNameInput">
           </div>
-          <div id="roomCreateMsg">&nbsp;&nbsp</div>
-          <div id="roomSelectMap">選擇地圖</div>
+          <div id="roomSelectMap">選擇地圖
           <select id="MapSelectBox">
             <option value="map1">地圖一</option>
             <option value="map2">地圖二</option>
             <option value="map3">地圖三</option>
             <option value="map4">地圖四</option>
           </select>
+          </div>
+          <div id="changeRoomBtn">創建</div>
           <img class="map-picture" src="/img/地圖照片/map1.png">
-          <div id="mapText">關卡簡介：</div>
-          <input type="button" id="changeRoomBtn" value="創建">`
+          <div id="mapText">地圖簡介</div>
+          `
   $("#roomView").append(html);
 
   $('#MapSelectBox option[value=map1]').attr('selected', 'selected'); //讓下拉式選單預設為設定的地圖

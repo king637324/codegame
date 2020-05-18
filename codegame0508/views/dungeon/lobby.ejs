@@ -55,7 +55,7 @@
 										<!-- 房間名稱-->
 										<td><%= (room.title.length > 25? room.title.substr(0, 25) + '...': room.title) %></td>
 										<!-- 地圖名稱-->
-										<td></td>
+										<td><%= room.CurrentMap %></td>
 										<!-- 房間人數-->
 										<td id="<%= room.id %>"><%= room.connections.length %>/4</td>
 										<!-- 房間狀態-->

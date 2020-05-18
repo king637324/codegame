@@ -142,10 +142,10 @@ module.exports.removeUser = function(socket, callback) {
       });
 
       if (!pass) {
-        // if (room.roomStatus == 0) { //如果房間狀態是0(未開始)
-        //   room.connections.id(room.connections[target]._id).remove();
-        // }
-        room.connections.id(room.connections[target]._id).remove();
+        if (room.roomStatus == 0) { //如果房間狀態是0(未開始)
+          room.connections.id(room.connections[target]._id).remove();
+        }
+        // room.connections.id(room.connections[target]._id).remove();
         room.save(function(err) {
           callback(err, room, userId, cunt);
         });
@@ -226,4 +226,17 @@ module.exports.removeRoom = function(data, callback) {
 
 
   });
+}
+
+
+module.exports.removeAllUser = function(data, callback) {
+  console.log("removeAllUser-------------------");
+  roomModel.findRoomId(data, function(err, rooms) {
+    console.log("removeAllUser-----------");
+    rooms.connections.forEach(function(conn, i) {
+      rooms.connections.id(rooms.connections[i]._id).remove();
+      rooms.save();
+    })
+  })
+
 }

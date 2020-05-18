@@ -274,23 +274,28 @@
 
 /* createRoom */
 #roomView {
+  color: white;
   z-index: 4;
   height: auto;
-  width: 35%;
+  width: 50%;
   position: absolute;
   top: 20;
   right: 0;
   bottom: 10;
   left: 0;
   margin: auto;
-  background-color: #FFC777;
+  background-color: #7C5A43;
   border-style: solid;
   border-color: white;
   border-width: 3px;
+  background-image: url("/img/code_palette_wood_background.png");
+  background-size: 110% 110%;
+  background-position: left -20px top 0px;
+  text-align: center;
 }
 
 #changeRoomBtn {
-  height: 6vh;
+  /* height: 6vh;
   width: 7vw;
   font-size: 1.5vw;
   font-family: "Microsoft JhengHei";
@@ -300,41 +305,47 @@
   border-color: black;
   border-radius: 15px;
   margin: 0% 50% 0% 39%;
-  cursor: pointer;
+  cursor: pointer; */
+  position: relative;
+  left: 40%;
+  background: 0;
+  background-image: url(/img/button-background-warning-active-border.png);
+  background-size: 100% 100%;
+  width: 20%;
+  height: 50px;
+  float: left;
+  text-align: center;
+  line-height: 50px;
+  cursor: grab;
+  color: black;
 }
 
 #roomNameTitle {
-  height: 5vh;
-  color: #7C5A43;
-  font-size: calc(10px + 2vw);
-  font-weight: 100;
-  font-family: "Microsoft JhengHei";
-  font-weight: bold;
-  border-style: solid;
-  border-color: #7C5A43;
-  border-width: 0px 0px 2px 0px;
-  margin-top: 5%;
+  height: 40px;
+  text-align: center;
+  line-height: 40px;
+  background-color: rgb(40, 25, 25);
+  text-align: center;
+  color: white;
 }
 
 #roomNameInnerDiv {
   font-family: "Microsoft JhengHei";
-  font-size: calc(0.5px + 2vw);
+  font-size: 20px;
   margin: 1% 1% 1% 1%;
-  float: left;
 }
 
 #roomSelectMap {
   font-family: "Microsoft JhengHei";
-  font-size: calc(0.5px + 2vw);
-  margin: 1% 1% 5% 1%;
-  float: left;
+  font-size: 20px;
+  margin: 1% 1% 2% 1%;
 }
 
 #roomnNameInput {
   width: 50%;
   font-family: "Microsoft JhengHei";
-  font-size: 1.5vw;
-  margin: 7% 0% 4% 0%;
+  font-size: 20px;
+  margin: 2% 0% 4% 0%;
 }
 
 .map-picture {
@@ -342,9 +353,10 @@
   /*圖片置中*/
   margin: auto;
   /*圖片置中*/
-  margin-bottom: 5%;
+  margin-bottom: 2%;
   height: 300;
-  width: 300
+  width: 300;
+  margin-top: 13%
 }
 
 #roomCreateMsg {
@@ -353,10 +365,18 @@
 }
 
 #mapText {
-  margin-bottom: 2%;
-  height:10%;
+  /* margin-bottom: 2%;
+  height: 10%;
   border-width: 3px;
   border-style: dashed;
   border-color: #FFAC55;
-  padding: 5px;
+  padding: 5px; */
+  color:black;
+  line-height: 50px;
+  height: 23%;
+  background-image: url(/img/code_editor_background.png);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 99% 100%;
+  background-position: top -10px right 0px;
 }

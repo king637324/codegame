@@ -1483,7 +1483,7 @@ function codeToCompiler(stringCode) {
       mpaobjStr = mpaobjStr + " " + mapObject[i]["type"] + " " + mapObject[i]["postion"][0] + " " + mapObject[i]["postion"][1];
     }
   }
-  
+
   console.log("Now ip_x: ", ip_x, ",ip_y: ", ip_y);
 
   // console.log("mpaobjStr 數量 [初始位置]:",mpaobjStr);

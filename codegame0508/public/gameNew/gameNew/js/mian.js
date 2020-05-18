@@ -656,7 +656,7 @@ function endgame() {
     }
     // alert(result);
 
-    //以下宜靜
+    //以下宜靜 2020.05.18
     SpendTime.level = mapNum; // 取得闖關的關卡
     SpendTime.endplay = new Date(); //取得 結束闖關時間
     SpendTime.startplay = startTime; // //取得 開始闖關時間
@@ -670,7 +670,7 @@ function endgame() {
         success: function (res) {
         }
       });
-    // 以上宜靜
+    // 以上宜靜 2020.05.18
 }
 
 
