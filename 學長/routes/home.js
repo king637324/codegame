@@ -1464,7 +1464,7 @@ router.post('/managementRFMP', function (req, res, next) {
                                                   // [   0   ,  1  ,  2 ,  3  , 4  ,  5  ,  6  , 7  ,  8  , 9 , 10,11, 12,    13   ]
             var Rhavedata = [],Fhavedata = [],Mhavedata = [],Phavedata = [];    // 只將有記錄的人的記錄丟進去 // 2020.05.17
             var Rscore = [],Fscore = [],Mscore = [],Pscore = [];    // 只將有記錄的人的評分丟進去 // 2020.05.17
-            var RQ = [0,0,0,0],FQ = [0,0,0,0],MQ = [0,0,0,0], PQ = [0,0,0,0];
+            var RQ = [0,0,0],FQ = [0,0,0],MQ = [0,0,0], PQ = [0,0,0];
             var Rave = 0,Fave = 0,Mave = 0,Pave = 0;
             var Rday = endTime;
             var RFtaskStack = [];
@@ -1525,34 +1525,26 @@ router.post('/managementRFMP', function (req, res, next) {
                         }
                         
                         
-                        // R數據的五分位數計算
+                        // R數據的四分位數計算
                         for(let i = 0; i < RQ.length; i++){
-                            if(i==3){   //取 80%  為 Q4
-                                var position = Rhavedata.length*0.2;
+                            if(i==2){   //取 75%  為 Q3
+                                var position = Rhavedata.length*0.25;
                                 if ((position % 1) == 0) {
                                     RQ[i] = (Rhavedata[Math.floor(position)] + Rhavedata[Math.floor(position)+1])/2;
                                 }else{
                                     RQ[i] = Rhavedata[Math.floor(position)]; //整數無條件進位
                                 }
                             }
-                            if(i==2){   //取 60%  為 Q3
-                                var position = Rhavedata.length*0.4;
+                            if(i==1){   //取 50%  為 Q2
+                                var position = Rhavedata.length*0.5;
                                 if ((position % 1) == 0) {
                                     RQ[i] = (Rhavedata[Math.floor(position)] + Rhavedata[Math.floor(position)+1])/2;
                                 }else{
                                     RQ[i] = Rhavedata[Math.floor(position)]; //整數無條件進位
                                 }
                             }
-                            if(i==1){   //取 40%  為 Q2
-                                var position = Rhavedata.length*0.6;
-                                if ((position % 1) == 0) {
-                                    RQ[i] = (Rhavedata[Math.floor(position)] + Rhavedata[Math.floor(position)+1])/2;
-                                }else{
-                                    RQ[i] = Rhavedata[Math.floor(position)]; //整數無條件進位
-                                }
-                            }
-                            if(i==0){   //取 20%  為 Q1
-                                var position = Rhavedata.length*0.8;
+                            if(i==0){   //取 25%  為 Q1
+                                var position = Rhavedata.length*0.75;
                                 if ((position % 1) == 0) {
                                     RQ[i] = (Rhavedata[Math.floor(position)] + Rhavedata[Math.floor(position)+1])/2;
                                 }else{
@@ -1561,14 +1553,11 @@ router.post('/managementRFMP', function (req, res, next) {
                             }
                         }
                         console.log("RQ:",RQ);
-                        // 結束 R數據的五分位數計算
+                        // 結束 R數據的四分位數計算
         
                         // 玩家R評分計算
                         for(let index = 0; index < UserRFMP.length; index++){
-                            if(UserRFMP[index][1] >= RQ[3]){  // 如果大於等於RQ4，得5分
-                                UserRFMP[index][5] = 5;
-                                Rscore.push(5);
-                            }else if((UserRFMP[index][1] < RQ[3]) && (UserRFMP[index][1] >= RQ[2])){  // 如果小於RQ4，且大於等於RQ3，得4分
+                            if(UserRFMP[index][1] >= RQ[2]){  // 大於等於RQ3，得4分
                                 UserRFMP[index][5] = 4;
                                 Rscore.push(4);
                             }else if((UserRFMP[index][1] < RQ[2]) && (UserRFMP[index][1] >= RQ[1])){  // 如果小於RQ3，且大於等於RQ2，得3分
@@ -1619,34 +1608,26 @@ router.post('/managementRFMP', function (req, res, next) {
                             }
                         }  
         
-                        // F數據的五分位數計算
+                        // F數據的四分位數計算
                         for(let i = 0; i < FQ.length; i++){
-                            if(i==3){   //取 80%  為 Q4
-                                var position = Fhavedata.length*0.2;
+                            if(i==2){   //取 75%  為 Q3
+                                var position = Fhavedata.length*0.25;
                                 if ((position % 1) == 0) {
                                     FQ[i] = (Fhavedata[Math.floor(position)] + Fhavedata[Math.floor(position)+1])/2;
                                 }else{
                                     FQ[i] = Fhavedata[Math.floor(position)]; //整數無條件進位
                                 }
                             }
-                            if(i==2){   //取 60%  為 Q3
-                                var position = Fhavedata.length*0.4;
+                            if(i==1){   //取 50%  為 Q2
+                                var position = Fhavedata.length*0.5;
                                 if ((position % 1) == 0) {
                                     FQ[i] = (Fhavedata[Math.floor(position)] + Fhavedata[Math.floor(position)+1])/2;
                                 }else{
                                     FQ[i] = Fhavedata[Math.floor(position)]; //整數無條件進位
                                 }
                             }
-                            if(i==1){   //取 40%  為 Q2
-                                var position = Fhavedata.length*0.6;
-                                if ((position % 1) == 0) {
-                                    FQ[i] = (Fhavedata[Math.floor(position)] + Fhavedata[Math.floor(position)+1])/2;
-                                }else{
-                                    FQ[i] = Fhavedata[Math.floor(position)]; //整數無條件進位
-                                }
-                            }
-                            if(i==0){   //取 20%  為 Q1
-                                var position = Fhavedata.length*0.8;
+                            if(i==0){   //取 25%  為 Q1
+                                var position = Fhavedata.length*0.75;
                                 if ((position % 1) == 0) {
                                     FQ[i] = (Fhavedata[Math.floor(position)] + Fhavedata[Math.floor(position)+1])/2;
                                 }else{
@@ -1659,10 +1640,7 @@ router.post('/managementRFMP', function (req, res, next) {
         
                         // 玩家F評分計算
                         for(let index = 0; index < UserRFMP.length; index++){
-                            if(UserRFMP[index][2] >= FQ[3]){  // 如果大於等於FQ4，得5分
-                                UserRFMP[index][6] = 5;
-                                Fscore.push(5);
-                            }else if((UserRFMP[index][2] < FQ[3]) && (UserRFMP[index][2] >= FQ[2])){  // 如果小於FQ4，且大於等於FQ3，得4分
+                            if(UserRFMP[index][2] >= FQ[2]){  // 大於等於FQ3，得4分
                                 UserRFMP[index][6] = 4;
                                 Fscore.push(4);
                             }else if((UserRFMP[index][2] < FQ[2]) && (UserRFMP[index][2] >= FQ[1])){  // 如果小於FQ3，且大於等於FQ2，得3分
@@ -1748,34 +1726,26 @@ router.post('/managementRFMP', function (req, res, next) {
                                 }
                             }   
                             
-                            // M數據的五分位數計算
+                            // M數據的四分位數計算
                             for(let i = 0; i < MQ.length; i++){
-                                if(i==3){   //取 80%  為 Q4
-                                    var position = Mhavedata.length*0.2;
+                                if(i==2){   //取 75%  為 Q3
+                                    var position = Mhavedata.length*0.25;
                                     if ((position % 1) == 0) {
                                         MQ[i] = (Mhavedata[Math.floor(position)] + Mhavedata[Math.floor(position)+1])/2;
                                     }else{
                                         MQ[i] = Mhavedata[Math.floor(position)]; //整數無條件進位
                                     }
                                 }
-                                if(i==2){   //取 60%  為 Q3
-                                    var position = Mhavedata.length*0.4;
+                                if(i==1){   //取 50%  為 Q2
+                                    var position = Mhavedata.length*0.5;
                                     if ((position % 1) == 0) {
                                         MQ[i] = (Mhavedata[Math.floor(position)] + Mhavedata[Math.floor(position)+1])/2;
                                     }else{
                                         MQ[i] = Mhavedata[Math.floor(position)]; //整數無條件進位
                                     }
                                 }
-                                if(i==1){   //取 40%  為 Q2
-                                    var position = Mhavedata.length*0.6;
-                                    if ((position % 1) == 0) {
-                                        MQ[i] = (Mhavedata[Math.floor(position)] + Mhavedata[Math.floor(position)+1])/2;
-                                    }else{
-                                        MQ[i] = Mhavedata[Math.floor(position)]; //整數無條件進位
-                                    }
-                                }
-                                if(i==0){   //取 20%  為 Q1
-                                    var position = Mhavedata.length*0.8;
+                                if(i==0){   //取 25%  為 Q1
+                                    var position = Mhavedata.length*0.75;
                                     if ((position % 1) == 0) {
                                         MQ[i] = (Mhavedata[Math.floor(position)] + Mhavedata[Math.floor(position)+1])/2;
                                     }else{
@@ -1784,14 +1754,11 @@ router.post('/managementRFMP', function (req, res, next) {
                                 }
                             }
                             // console.log("MQ:",MQ);
-                            // 結束 M數據的五分位數計算
+                            // 結束 M數據的四分位數計算
                     
                             // 玩家M評分計算
                             for(let index = 0; index < UserRFMP.length; index++){
-                                if(UserRFMP[index][3] >= MQ[3]){  // 如果大於等於MQ4，得5分
-                                    UserRFMP[index][7] = 5;
-                                    Mscore.push(5);
-                                }else if((UserRFMP[index][3] < MQ[3]) && (UserRFMP[index][3] >= MQ[2])){  // 如果小於MQ4，且大於等於MQ3，得4分
+                                if(UserRFMP[index][3] >= MQ[2]){  // 大於等於MQ3，得4分
                                     UserRFMP[index][7] = 4;
                                     Mscore.push(4);
                                 }else if((UserRFMP[index][3] < MQ[2]) && (UserRFMP[index][3] >= MQ[1])){  // 如果小於MQ3，且大於等於MQ2，得3分
@@ -1841,34 +1808,26 @@ router.post('/managementRFMP', function (req, res, next) {
                                 }
                             }
                     
-                            // P數據的五分位數計算
+                            // P數據的四分位數計算
                             for(let i = 0; i < PQ.length; i++){
-                                if(i==3){   //取 80%  為 Q4
-                                    var position = Phavedata.length*0.2;
+                                if(i==2){   //取 75%  為 Q3
+                                    var position = Phavedata.length*0.25;
                                     if ((position % 1) == 0) {
                                         PQ[i] = (Phavedata[Math.floor(position)] + Phavedata[Math.floor(position)+1])/2;
                                     }else{
                                         PQ[i] = Phavedata[Math.floor(position)]; //整數無條件進位
                                     }
                                 }
-                                if(i==2){   //取 60%  為 Q3
-                                    var position = Phavedata.length*0.4;
+                                if(i==1){   //取 50%  為 Q2
+                                    var position = Phavedata.length*0.5;
                                     if ((position % 1) == 0) {
                                         PQ[i] = (Phavedata[Math.floor(position)] + Phavedata[Math.floor(position)+1])/2;
                                     }else{
                                         PQ[i] = Phavedata[Math.floor(position)]; //整數無條件進位
                                     }
                                 }
-                                if(i==1){   //取 40%  為 Q2
-                                    var position = Phavedata.length*0.6;
-                                    if ((position % 1) == 0) {
-                                        PQ[i] = (Phavedata[Math.floor(position)] + Phavedata[Math.floor(position)+1])/2;
-                                    }else{
-                                        PQ[i] = Phavedata[Math.floor(position)]; //整數無條件進位
-                                    }
-                                }
-                                if(i==0){   //取 20%  為 Q1
-                                    var position = Phavedata.length*0.8;
+                                if(i==0){   //取 25%  為 Q1
+                                    var position = Phavedata.length*0.75;
                                     if ((position % 1) == 0) {
                                         PQ[i] = (Phavedata[Math.floor(position)] + Phavedata[Math.floor(position)+1])/2;
                                     }else{
@@ -1877,13 +1836,10 @@ router.post('/managementRFMP', function (req, res, next) {
                                 }
                             }
                             // console.log("PQ:",PQ);
-                            // 結束 P數據的五分位數計算
+                            // 結束 P數據的四分位數計算
                             // 玩家P評分計算
                             for(let index = 0; index < UserRFMP.length; index++){
-                                if(UserRFMP[index][4] >= PQ[3]){  // 如果大於等於PQ4，得5分
-                                    UserRFMP[index][8] = 5;
-                                    Pscore.push(5);
-                                }else if((UserRFMP[index][4] < PQ[3]) && (UserRFMP[index][4] >= PQ[2])){  // 如果小於PQ4，且大於等於PQ3，得4分
+                                if(UserRFMP[index][4] >= PQ[2]){  // 大於等於PQ3，得4分
                                     UserRFMP[index][8] = 4;
                                     Pscore.push(4);
                                 }else if((UserRFMP[index][4] < PQ[2]) && (UserRFMP[index][4] >= PQ[1])){  // 如果小於PQ3，且大於等於PQ2，得3分
