@@ -5,7 +5,7 @@
 }
 
 a, a:link, a:visited {
-  color:black;
+  color:#1aa9f5;
   text-decoration: none;
   cursor:pointer;
 }
@@ -240,14 +240,15 @@ li {
 }
 
 table, td, th {
-  border: 1px solid black;
+  border: 1px solid white;
+  color:white;
 }
 
 #roomStatus0{
-  color:rgb(27, 73, 49);
+  color:rgb(0, 255, 122);;
 }
 #roomStatus1{
-  color:rgb(84, 14, 35);
+  color:rgb(251, 84, 84);
 }
 
 
