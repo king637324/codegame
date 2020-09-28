@@ -56,11 +56,11 @@ function initHome(){
 			      });
                   //動作同步
                   socket.on("action", function(s, u) {
-                      decodeOutput = s;
-                      player = u;
-                      console.log("player :", player);
-                      console.log("decode :", decodeOutput);
-                      codeOutputTranstionAction();
+                      //decodeOutput = s;
+                      //player = u;
+                      //console.log("player :", player);
+                      //console.log("decode :", decodeOutput);
+                      codeOutputTranstionAction(u,s);
                   });
 
 			    });

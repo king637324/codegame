@@ -1,5 +1,6 @@
 #include <vector>
 #include <iostream>
+#include <stdlib.h>
 #include <math.h>
 #define SIZE 256
 using namespace std;
@@ -361,7 +362,7 @@ void actionJudgeNowAdr()
 	int var = system_map[y][x][0] % 100;
 	hint = 'X';
 
-	if (x < 0 || y < 0 || x >= system_mapsize || x >= system_mapsize)
+	if (x < 0 || y < 0 || x >= system_mapsize || y >= system_mapsize)
 	{
 		cout << "$E,,3"; //駛出地圖
 	}

@@ -32,6 +32,7 @@
   letter-spacing: 0.5vw;
   position: relative;
   top: calc(10px + 10vh);
+  text-align:center;
 }
 .mUser{
   width: 20%;

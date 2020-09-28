@@ -66,16 +66,16 @@ router.get('/lobby/:id', ensureAuthenticated, function(req, res, next) {
 
 router.get('/lobby/:id/dungeon', ensureAuthenticated, function(req, res, next) {
   var roomId = req.params.id;
-  Room.findRoomId(roomId, function(err, room){
+  Room.findRoomId(roomId, function(err, room) {
     if (err) throw err;
     GameRoom.findRoom({
       title: room.title
     }, function(err, gameroom) {
-      if(gameroom){
+      if (gameroom) {
         res.render('dungeon/dungeon', {
           room: room
         });
-      }else{
+      } else {
         res.send("遊戲房間還沒創造");
       }
     })
@@ -102,10 +102,10 @@ router.post('/lobby/:id/dungeon/loadThisGameRoomPlayer', function(req, res, next
   var roomId = req.params.id;
   Room.findRoomId(roomId, function(err, room) {
     if (err) throw err;
-      GameRoom.findRoom({
+    GameRoom.findRoom({
       title: room.title
     }, function(err, gameroom) {
-        res.json(gameroom.connections);
+      res.json(gameroom.connections);
     })
   });
 });
@@ -122,7 +122,7 @@ router.post('/loadThisGameRoomLevelGameMapMap', function(req, res, next) {
   console.log('-------------------------------');
   console.log(req.body, level);
   var start = 0,
-      end = 5;
+    end = 5;
   MutiplayerMap.getMap(function(err, mapData) {
     // res.json(mapData);
     if (err)
@@ -145,7 +145,19 @@ router.post('/loadThisGameRoomLevelGameMapMap', function(req, res, next) {
 
 });
 
+router.post('/lobby/:id/dungeon/delete', function(req, res, next) {
+  gameRoomId = req.params.id;
+  GameRoom.removeRoom({
+    readyRoomId: gameRoomId
+  }, function(err) { //如果房間人數是零，就刪掉房間
+    console.log("遊戲房間刪除");
+    console.log(req.params.id);
+  });
 
+  Room.removeAllUser(gameRoomId,function(err){
+    console.log("準備房間人數刪除");
+  })
+});
 
 
 
