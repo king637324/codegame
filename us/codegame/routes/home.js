@@ -1438,7 +1438,7 @@ router.post('/managementUser', function (req, res, next) {
 // 以下宜靜 2020.05.18
 router.get('/managementRFMP', ensureAuthenticated, function (req, res, next) {
     // console.log(req.user)
-    if (!(req.user.username == "NKUSTCCEA"||req.user.username == "teacher")) { //如有其他管理者 在這加
+    if (req.user.isadmin == false) { //如有其他管理者 在這加
         res.redirect('/login')
     }
     res.render('backstage/managementRFMP', {

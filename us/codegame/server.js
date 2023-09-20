@@ -18,31 +18,17 @@ var port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
 /*** Create HTTP server.*/
 
-
 var Room = require('./models/room');
 var GameRoom = require('./models/GameRoom');
 var User = require('./models/user');
-
-
-
 var server = http.createServer(app);
-
-
 
 /*** Listen on provided port, on all network interfaces.*/
 server.listen(port, function() {
   console.log("listen to 3000");
 });
 
-
-
 var io = socket(server);
-
-
-
-
-
-
 
 io.on('connection', function(socket) {
   socket.on("script", function(script) {
@@ -126,8 +112,6 @@ function onListening() {
     'port ' + addr.port;
   debug('Listening on ' + bind);
 }
-
-
 
 
 //---------廖映翔----------

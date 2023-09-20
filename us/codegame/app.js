@@ -1,7 +1,6 @@
 // ngrok http 3000
 var createError = require('http-errors');
 var crypto = require('crypto');
-
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
@@ -16,26 +15,14 @@ var mongoose = require('mongoose')
 var beforeHomePageRoutes=require('./routes/beforeHomePage')
 var homeRoutes=require('./routes/home')
 var oblivionRoutes=require('./routes/oblivion')
-
 var developerRoutes=require('./routes/developer.js')
-
 var APIRoutes=require('./routes/API')
 // var homRoutes=require('./routes/home')
-
 var dungeon = require('./routes/dungeon')
-
 var session 	= require('./session/index');
-
-
 mongoose.set('useCreateIndex', true);
 mongoose.connect('mongodb://localhost/nodetest',{ useNewUrlParser: true,useUnifiedTopology: true });
-
-
-
 var app = express();
-
-
-
 
 // Express Session
 
@@ -79,16 +66,8 @@ app.use(function (req, res, next) {
 app.use('/',beforeHomePageRoutes);
 app.use('/',homeRoutes);
 app.use('/',oblivionRoutes);
-
 app.use('/',developerRoutes);
-
-
 app.use('/',dungeon);
-
-
-
-
-
 app.use('/API',APIRoutes);
 
 // catch 404 and forward to error handler
